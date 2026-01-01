@@ -170,13 +170,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 // Order erstellen
                 $order_id = $db->insert("
                     INSERT INTO orders (
-                        order_number, customer_email, customer_firstname, customer_lastname, customer_company, customer_phone,
+                        order_number, customer_name, customer_email, customer_firstname, customer_lastname, customer_company, customer_phone,
                         customer_street, customer_housenumber, customer_zip, customer_city,
                         shipping_firstname, shipping_lastname, shipping_street, shipping_housenumber, shipping_zip, shipping_city,
                         delivery_method, payment_method, order_notes,
                         subtotal, tax, total, hellocash_customer_id, order_status
                     ) VALUES (
-                        :order_number, :email, :firstname, :lastname, :company, :phone,
+                        :order_number, :customer_name, :email, :firstname, :lastname, :company, :phone,
                         :street, :housenumber, :zip, :city,
                         :shipping_firstname, :shipping_lastname, :shipping_street, :shipping_housenumber, :shipping_zip, :shipping_city,
                         :delivery_method, :payment_method, :notes,
@@ -184,6 +184,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     )
                 ", [
                     ':order_number' => $orderNumber,
+                    ':customer_name' => trim($customer_data['firstname'] . ' ' . $customer_data['lastname']),
                     ':email' => $customer_data['email'],
                     ':firstname' => $customer_data['firstname'],
                     ':lastname' => $customer_data['lastname'],
