@@ -157,22 +157,33 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $db->beginTransaction();
 
             try {
+                // Bestellnummer generieren (Format: ORD-YYYY-NNNN)
+                $orderNumber = 'ORD-' . date('Y') . '-' . str_pad(rand(1, 9999), 4, '0', STR_PAD_LEFT);
+
+                // Sicherstellen dass Bestellnummer eindeutig ist
+                $exists = $db->querySingle("SELECT id FROM orders WHERE order_number = :num", [':num' => $orderNumber]);
+                while ($exists) {
+                    $orderNumber = 'ORD-' . date('Y') . '-' . str_pad(rand(1, 9999), 4, '0', STR_PAD_LEFT);
+                    $exists = $db->querySingle("SELECT id FROM orders WHERE order_number = :num", [':num' => $orderNumber]);
+                }
+
                 // Order erstellen
                 $order_id = $db->insert("
                     INSERT INTO orders (
-                        customer_email, customer_firstname, customer_lastname, customer_company, customer_phone,
+                        order_number, customer_email, customer_firstname, customer_lastname, customer_company, customer_phone,
                         customer_street, customer_housenumber, customer_zip, customer_city,
                         shipping_firstname, shipping_lastname, shipping_street, shipping_housenumber, shipping_zip, shipping_city,
                         delivery_method, payment_method, order_notes,
                         subtotal, tax, total, hellocash_customer_id, order_status
                     ) VALUES (
-                        :email, :firstname, :lastname, :company, :phone,
+                        :order_number, :email, :firstname, :lastname, :company, :phone,
                         :street, :housenumber, :zip, :city,
                         :shipping_firstname, :shipping_lastname, :shipping_street, :shipping_housenumber, :shipping_zip, :shipping_city,
                         :delivery_method, :payment_method, :notes,
                         :subtotal, :tax, :total, :hellocash_customer_id, 'pending'
                     )
                 ", [
+                    ':order_number' => $orderNumber,
                     ':email' => $customer_data['email'],
                     ':firstname' => $customer_data['firstname'],
                     ':lastname' => $customer_data['lastname'],
