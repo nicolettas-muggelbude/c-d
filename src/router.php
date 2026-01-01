@@ -183,6 +183,12 @@ switch ($page) {
             } else {
                 require __DIR__ . '/pages/404.php';
             }
+        } elseif ($param === 'products') {
+            require_admin();
+            require __DIR__ . '/admin/products.php';
+        } elseif ($param === 'product-edit') {
+            require_admin();
+            require __DIR__ . '/admin/product-edit.php';
         } else {
             require_admin();
             require __DIR__ . '/admin/index.php';
