@@ -85,8 +85,12 @@ include __DIR__ . '/../templates/header.php';
                     💻 Produkte verwalten
                 </a>
 
+                <a href="<?= BASE_URL ?>/admin/suppliers" class="btn btn-outline btn-block">
+                    📦 Lieferanten & CSV-Import
+                </a>
+
                 <a href="<?= BASE_URL ?>/admin/orders" class="btn btn-outline btn-block">
-                    📦 Bestellungen ansehen
+                    🛒 Bestellungen ansehen
                 </a>
 
                 <a href="<?= BASE_URL ?>/admin/booking-calendar" class="btn btn-outline btn-block">

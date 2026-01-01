@@ -189,6 +189,15 @@ switch ($page) {
         } elseif ($param === 'product-edit') {
             require_admin();
             require __DIR__ . '/admin/product-edit.php';
+        } elseif ($param === 'suppliers') {
+            require_admin();
+            require __DIR__ . '/admin/suppliers.php';
+        } elseif ($param === 'supplier-edit') {
+            require_admin();
+            require __DIR__ . '/admin/supplier-edit.php';
+        } elseif ($param === 'csv-import') {
+            require_admin();
+            require __DIR__ . '/admin/csv-import.php';
         } else {
             require_admin();
             require __DIR__ . '/admin/index.php';
