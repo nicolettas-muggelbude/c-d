@@ -54,7 +54,13 @@ if ($step === 'verify' && $twofa && !$twofa['enabled']) {
     if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['code'])) {
         $code = $_POST['code'];
 
+        // Debug-Logging
+        error_log("2FA Verify: Code eingegeben: " . $code);
+        error_log("2FA Verify: Secret: " . $twofa['secret']);
+
         if (TOTP::verify($twofa['secret'], $code)) {
+            error_log("2FA Verify: Code ist GÜLTIG - aktiviere 2FA");
+
             // 2FA aktivieren
             $db->update("
                 UPDATE user_2fa SET enabled = TRUE WHERE user_id = :user_id
@@ -67,7 +73,10 @@ if ($step === 'verify' && $twofa && !$twofa['enabled']) {
             $twofa = $db->querySingle("SELECT * FROM user_2fa WHERE user_id = :user_id", [
                 ':user_id' => $userId
             ]);
+
+            error_log("2FA Verify: Enabled nach Update: " . ($twofa['enabled'] ? 'TRUE' : 'FALSE'));
         } else {
+            error_log("2FA Verify: Code ist UNGÜLTIG");
             $error = 'Ungültiger Code. Bitte versuchen Sie es erneut.';
         }
     }
