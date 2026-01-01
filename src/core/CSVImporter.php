@@ -175,7 +175,10 @@ class CSVImporter {
         }
 
         $markup = (float)($this->supplier['price_markup'] ?? 0);
-        $selling_price = $supplier_price * (1 + ($markup / 100));
+        $calculated_price = $supplier_price * (1 + ($markup / 100));
+
+        // Auf nächsten 10er minus 1 runden (40,20 → 49)
+        $selling_price = ceil($calculated_price / 10) * 10 - 1;
 
         // Lagerbestand
         $supplier_stock = (int)($data['stock'] ?? 0);

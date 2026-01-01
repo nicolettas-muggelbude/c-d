@@ -218,7 +218,10 @@ include __DIR__ . '/../templates/header.php';
                 <div class="form-group">
                     <label for="price_markup">Aufschlag in % *</label>
                     <input type="text" id="price_markup" name="price_markup" value="<?= $is_edit ? number_format($supplier['price_markup'], 1, ',', '.') : '20,0' ?>" required placeholder="z.B. 20,5">
-                    <small class="text-muted">Verkaufspreis = Lieferanten-Preis × (1 + Aufschlag/100)<br>Beispiel: 20,1% = Faktor 1,201</small>
+                    <small class="text-muted">
+                        Preisberechnung: (Lieferanten-Preis × (1 + Aufschlag/100)) → gerundet auf nächste 10er minus 1<br>
+                        Beispiel: 40,20 € mit 20% → 48,24 € → 49 €
+                    </small>
                 </div>
 
                 <div class="form-group">
