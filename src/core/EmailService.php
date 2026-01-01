@@ -266,6 +266,91 @@ class EmailService {
     }
 
     /**
+     * Platzhalter im Order-Template ersetzen
+     */
+    private function replaceOrderPlaceholders($text, $order, $items) {
+        // Bestellpositionen formatieren
+        $itemsList = '';
+        foreach ($items as $item) {
+            $itemsList .= sprintf("%dx %s - %.2f EUR\n",
+                $item['quantity'],
+                $item['product_name'],
+                $item['total_price']
+            );
+        }
+
+        // Datum formatieren
+        $orderDate = date('d.m.Y H:i', strtotime($order['created_at']));
+
+        // Lieferart
+        $deliveryMethod = $order['delivery_method'] === 'pickup' ? 'Abholung im Laden' : 'Versand';
+
+        // Zahlungsart
+        $paymentMethods = [
+            'prepayment' => 'Vorkasse / Überweisung',
+            'cash' => 'Barzahlung bei Abholung',
+            'paypal' => 'PayPal'
+        ];
+        $paymentMethod = $paymentMethods[$order['payment_method']] ?? $order['payment_method'];
+
+        // Invoice-Link Sektion
+        $invoiceLinkSection = '';
+        if (!empty($order['hellocash_invoice_link'])) {
+            $invoiceLinkSection = "--- Ihre Rechnung ---\n\n";
+            $invoiceLinkSection .= "Ihre Rechnung können Sie hier einsehen und herunterladen:\n";
+            $invoiceLinkSection .= $order['hellocash_invoice_link'] . "\n";
+        }
+
+        // Order Notes Sektion
+        $orderNotesSection = '';
+        if (!empty($order['order_notes'])) {
+            $orderNotesSection = "--- Anmerkungen ---\n" . $order['order_notes'] . "\n";
+        }
+
+        // Kunden-Firma Zeile
+        $customerCompanyLine = '';
+        if (!empty($order['customer_company'])) {
+            $customerCompanyLine = "Firma: " . $order['customer_company'] . "\n";
+        }
+
+        // Kunden-Telefon Zeile
+        $customerPhoneLine = '';
+        if (!empty($order['customer_phone'])) {
+            $customerPhoneLine = "Telefon: " . $order['customer_phone'] . "\n";
+        }
+
+        // Kunden-Adresse
+        $customerAddress = $order['customer_street'] . " " . $order['customer_housenumber'] . ", " .
+                          $order['customer_zip'] . " " . $order['customer_city'];
+
+        // Admin Order Link
+        $adminOrderLink = BASE_URL . "/admin/orders/" . $order['id'];
+
+        // Platzhalter-Map
+        $placeholders = [
+            '{customer_firstname}' => $order['customer_firstname'],
+            '{customer_lastname}' => $order['customer_lastname'],
+            '{customer_email}' => $order['customer_email'],
+            '{customer_company_line}' => $customerCompanyLine,
+            '{customer_phone_line}' => $customerPhoneLine,
+            '{customer_address}' => $customerAddress,
+            '{order_number}' => $order['order_number'],
+            '{order_date}' => $orderDate,
+            '{order_items}' => $itemsList,
+            '{order_subtotal}' => sprintf("%.2f EUR", $order['subtotal']),
+            '{order_tax}' => sprintf("%.2f EUR", $order['tax']),
+            '{order_total}' => sprintf("%.2f EUR", $order['total']),
+            '{delivery_method}' => $deliveryMethod,
+            '{payment_method}' => $paymentMethod,
+            '{invoice_link_section}' => $invoiceLinkSection,
+            '{order_notes_section}' => $orderNotesSection,
+            '{admin_order_link}' => $adminOrderLink
+        ];
+
+        return str_replace(array_keys($placeholders), array_values($placeholders), $text);
+    }
+
+    /**
      * Bestellbestätigung an Kunden senden
      *
      * @param int $orderId Bestellungs-ID
@@ -280,62 +365,42 @@ class EmailService {
             return false;
         }
 
+        // Prüfen ob Email bereits versendet wurde
+        if ($this->isEmailAlreadySent($orderId, 'order_confirmation')) {
+            error_log("EmailService: order_confirmation already sent for order $orderId");
+            return false;
+        }
+
+        // Template laden
+        $template = $this->getTemplate('order_confirmation');
+
+        if (!$template || !$template['is_active']) {
+            error_log("EmailService: Template order_confirmation not found or inactive");
+            return false;
+        }
+
         // Bestellpositionen laden
         $items = $this->db->query("
             SELECT * FROM order_items WHERE order_id = :id
         ", [':id' => $orderId]);
 
-        // E-Mail-Text erstellen
-        $subject = "Bestellbestätigung #" . $order['order_number'] . " - PC-Wittfoot UG";
+        // Signatur laden
+        $signature = $this->getSignature();
 
-        $body = "Hallo " . $order['customer_firstname'] . " " . $order['customer_lastname'] . ",\n\n";
-        $body .= "vielen Dank für Ihre Bestellung bei PC-Wittfoot UG!\n\n";
-        $body .= "Bestellnummer: " . $order['order_number'] . "\n";
-        $body .= "Bestelldatum: " . date('d.m.Y H:i', strtotime($order['created_at'])) . "\n\n";
+        // Platzhalter ersetzen
+        $subject = $this->replaceOrderPlaceholders($template['subject'], $order, $items);
+        $body = $this->replaceOrderPlaceholders($template['body'], $order, $items);
 
-        $body .= "--- Ihre Bestellung ---\n\n";
-        foreach ($items as $item) {
-            $body .= sprintf("%dx %s - %.2f EUR\n",
-                $item['quantity'],
-                $item['product_name'],
-                $item['total_price']
-            );
-        }
+        // Signatur anhängen
+        $fullBody = $body . "\n\n" . $signature;
 
-        $body .= "\n";
-        $body .= sprintf("Zwischensumme: %.2f EUR\n", $order['subtotal']);
-        $body .= sprintf("MwSt (19%%): %.2f EUR\n", $order['tax']);
-        $body .= sprintf("Gesamt: %.2f EUR\n\n", $order['total']);
+        // Email versenden
+        $success = $this->sendMail($order['customer_email'], $subject, $fullBody);
 
-        // Lieferart
-        $deliveryMethod = $order['delivery_method'] === 'pickup' ? 'Abholung im Laden' : 'Versand';
-        $body .= "Lieferart: $deliveryMethod\n";
+        // Log-Eintrag erstellen
+        $this->logEmail($orderId, 'order_confirmation', $order['customer_email'], $subject, $fullBody, $success);
 
-        // Zahlungsart
-        $paymentMethods = [
-            'prepayment' => 'Vorkasse / Überweisung',
-            'cash' => 'Barzahlung bei Abholung',
-            'paypal' => 'PayPal'
-        ];
-        $paymentMethod = $paymentMethods[$order['payment_method']] ?? $order['payment_method'];
-        $body .= "Zahlungsart: $paymentMethod\n\n";
-
-        // HelloCash Rechnungslink (falls vorhanden)
-        if (!empty($order['hellocash_invoice_link'])) {
-            $body .= "--- Ihre Rechnung ---\n\n";
-            $body .= "Ihre Rechnung können Sie hier einsehen und herunterladen:\n";
-            $body .= $order['hellocash_invoice_link'] . "\n\n";
-        }
-
-        $body .= "Wir melden uns in Kürze bei Ihnen mit weiteren Details.\n\n";
-        $body .= "Mit freundlichen Grüßen\n";
-        $body .= "Ihr Team von PC-Wittfoot UG\n\n";
-        $body .= "---\n";
-        $body .= "PC-Wittfoot UG\n";
-        $body .= "E-Mail: " . MAIL_FROM . "\n";
-
-        // E-Mail versenden
-        return $this->sendMail($order['customer_email'], $subject, $body);
+        return $success;
     }
 
     /**
@@ -353,75 +418,41 @@ class EmailService {
             return false;
         }
 
+        // Prüfen ob Email bereits versendet wurde
+        if ($this->isEmailAlreadySent($orderId, 'order_notification')) {
+            error_log("EmailService: order_notification already sent for order $orderId");
+            return false;
+        }
+
+        // Template laden
+        $template = $this->getTemplate('order_notification');
+
+        if (!$template || !$template['is_active']) {
+            error_log("EmailService: Template order_notification not found or inactive");
+            return false;
+        }
+
         // Bestellpositionen laden
         $items = $this->db->query("
             SELECT * FROM order_items WHERE order_id = :id
         ", [':id' => $orderId]);
 
-        // E-Mail-Text erstellen
-        $subject = "Neue Bestellung #" . $order['order_number'] . " im Shop";
+        // Signatur laden
+        $signature = $this->getSignature();
 
-        $body = "Eine neue Bestellung ist eingegangen:\n\n";
-        $body .= "Bestellnummer: " . $order['order_number'] . "\n";
-        $body .= "Bestelldatum: " . date('d.m.Y H:i', strtotime($order['created_at'])) . "\n\n";
+        // Platzhalter ersetzen
+        $subject = $this->replaceOrderPlaceholders($template['subject'], $order, $items);
+        $body = $this->replaceOrderPlaceholders($template['body'], $order, $items);
 
-        $body .= "--- Kunde ---\n";
-        $body .= "Name: " . $order['customer_firstname'] . " " . $order['customer_lastname'] . "\n";
-        if ($order['customer_company']) {
-            $body .= "Firma: " . $order['customer_company'] . "\n";
-        }
-        $body .= "E-Mail: " . $order['customer_email'] . "\n";
-        if ($order['customer_phone']) {
-            $body .= "Telefon: " . $order['customer_phone'] . "\n";
-        }
-        $body .= "Adresse: " . $order['customer_street'] . " " . $order['customer_housenumber'] . ", " . $order['customer_zip'] . " " . $order['customer_city'] . "\n\n";
+        // Signatur anhängen
+        $fullBody = $body . "\n\n" . $signature;
 
-        $body .= "--- Bestellpositionen ---\n\n";
-        foreach ($items as $item) {
-            $body .= sprintf("%dx %s (ID: %d) - %.2f EUR\n",
-                $item['quantity'],
-                $item['product_name'],
-                $item['product_id'],
-                $item['total_price']
-            );
-        }
+        // Email versenden
+        $success = $this->sendMail(MAIL_ADMIN, $subject, $fullBody);
 
-        $body .= "\n";
-        $body .= sprintf("Gesamt: %.2f EUR\n\n", $order['total']);
+        // Log-Eintrag erstellen
+        $this->logEmail($orderId, 'order_notification', MAIL_ADMIN, $subject, $fullBody, $success);
 
-        // Lieferart
-        $deliveryMethod = $order['delivery_method'] === 'pickup' ? 'Abholung im Laden' : 'Versand';
-        $body .= "Lieferart: $deliveryMethod\n";
-
-        // Zahlungsart
-        $paymentMethods = [
-            'prepayment' => 'Vorkasse / Überweisung',
-            'cash' => 'Barzahlung bei Abholung',
-            'paypal' => 'PayPal'
-        ];
-        $paymentMethod = $paymentMethods[$order['payment_method']] ?? $order['payment_method'];
-        $body .= "Zahlungsart: $paymentMethod\n\n";
-
-        if ($order['order_notes']) {
-            $body .= "--- Anmerkungen ---\n";
-            $body .= $order['order_notes'] . "\n\n";
-        }
-
-        // HelloCash Rechnungslink (für Buchhaltung)
-        if (!empty($order['hellocash_invoice_link'])) {
-            $body .= "--- HelloCash Rechnung ---\n";
-            $body .= "Link zur Originalrechnung (für Buchhaltung):\n";
-            $body .= $order['hellocash_invoice_link'] . "\n";
-            if (!empty($order['hellocash_invoice_id'])) {
-                $body .= "Invoice-ID: " . $order['hellocash_invoice_id'] . "\n";
-            }
-            $body .= "\n";
-        }
-
-        $body .= "Bestellung im Admin-Bereich ansehen:\n";
-        $body .= BASE_URL . "/admin/orders/" . $order['id'] . "\n";
-
-        // E-Mail an Admin versenden
-        return $this->sendMail(MAIL_ADMIN, $subject, $body);
+        return $success;
     }
 }

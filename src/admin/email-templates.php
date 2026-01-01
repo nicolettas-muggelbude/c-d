@@ -102,9 +102,18 @@ include __DIR__ . '/../templates/header.php';
                             <textarea name="body" class="form-control" rows="15" required><?= e($template['body']) ?></textarea>
                             <small class="text-muted">
                                 <strong>Verfügbare Platzhalter:</strong><br>
-                                {customer_firstname}, {customer_lastname}, {booking_id},
-                                {booking_date_formatted}, {booking_time_formatted},
-                                {service_type_label}, {booking_type_label}, {customer_notes_section}
+                                <?php if (strpos($template['template_type'], 'order_') === 0): ?>
+                                    <!-- Shop-Platzhalter -->
+                                    {customer_firstname}, {customer_lastname}, {customer_email}, {customer_company_line},
+                                    {customer_phone_line}, {customer_address}, {order_number}, {order_date}, {order_items},
+                                    {order_subtotal}, {order_tax}, {order_total}, {delivery_method}, {payment_method},
+                                    {invoice_link_section}, {order_notes_section}, {admin_order_link}
+                                <?php else: ?>
+                                    <!-- Booking-Platzhalter -->
+                                    {customer_firstname}, {customer_lastname}, {booking_id},
+                                    {booking_date_formatted}, {booking_time_formatted},
+                                    {service_type_label}, {booking_type_label}, {customer_notes_section}
+                                <?php endif; ?>
                             </small>
                         </div>
 
