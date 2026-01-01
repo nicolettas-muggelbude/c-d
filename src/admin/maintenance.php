@@ -325,6 +325,12 @@ include __DIR__ . '/../templates/header.php';
 
 <section class="section">
     <div class="container">
+        <div style="margin-bottom: 1rem;">
+            <a href="<?= BASE_URL ?>/admin" class="btn btn-outline" style="display: inline-flex; align-items: center; gap: 0.5rem;">
+                ← Zurück zum Dashboard
+            </a>
+        </div>
+
         <h1>Wartungsmodus verwalten</h1>
 
 <?php if ($success): ?>
