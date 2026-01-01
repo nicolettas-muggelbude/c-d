@@ -93,7 +93,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     }
 }
 
-require __DIR__ . '/../templates/admin-header.php';
+include __DIR__ . '/../templates/header.php';
 ?>
 
 <style>
@@ -423,4 +423,4 @@ Bitte versuchen Sie es in wenigen Minuten erneut.</textarea>
     </ol>
 </div>
 
-<?php require __DIR__ . '/../templates/admin-footer.php'; ?>
+<?php include __DIR__ . '/../templates/footer.php'; ?>
