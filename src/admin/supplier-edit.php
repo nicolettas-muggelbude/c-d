@@ -34,7 +34,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $csv_url = sanitize($_POST['csv_url'] ?? '');
         $csv_delimiter = $_POST['csv_delimiter'] ?? ',';
         $csv_encoding = $_POST['csv_encoding'] ?? 'UTF-8';
-        $price_markup = (float)($_POST['price_markup'] ?? 0);
+        $price_markup = (float)str_replace(',', '.', $_POST['price_markup'] ?? 0);
         $is_active = isset($_POST['is_active']) ? 1 : 0;
 
         // Spalten-Mapping
@@ -217,8 +217,8 @@ include __DIR__ . '/../templates/header.php';
 
                 <div class="form-group">
                     <label for="price_markup">Aufschlag in % *</label>
-                    <input type="number" id="price_markup" name="price_markup" step="0.01" min="0" value="<?= $is_edit ? $supplier['price_markup'] : '20' ?>" required>
-                    <small class="text-muted">Verkaufspreis = Lieferanten-Preis × (1 + Aufschlag/100)</small>
+                    <input type="text" id="price_markup" name="price_markup" value="<?= $is_edit ? number_format($supplier['price_markup'], 1, ',', '.') : '20,0' ?>" required placeholder="z.B. 20,5">
+                    <small class="text-muted">Verkaufspreis = Lieferanten-Preis × (1 + Aufschlag/100)<br>Beispiel: 20,1% = Faktor 1,201</small>
                 </div>
 
                 <div class="form-group">

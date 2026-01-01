@@ -76,7 +76,7 @@ include __DIR__ . '/../templates/header.php';
                             </div>
                             <div style="display: flex; justify-content: space-between; margin-bottom: 0.5rem;">
                                 <span>Aufschlag:</span>
-                                <strong><?= number_format($supplier['price_markup'], 2) ?>%</strong>
+                                <strong><?= number_format($supplier['price_markup'], 1, ',', '.') ?>%</strong>
                             </div>
                             <?php if ($supplier['last_import_at']): ?>
                                 <div style="display: flex; justify-content: space-between;">

@@ -146,7 +146,7 @@ include __DIR__ . '/../templates/header.php';
                 </div>
                 <div>
                     <strong>Aufschlag:</strong><br>
-                    <span class="text-muted"><?= number_format($supplier['price_markup'], 2) ?>%</span>
+                    <span class="text-muted"><?= number_format($supplier['price_markup'], 1, ',', '.') ?>%</span>
                 </div>
                 <div>
                     <strong>Trennzeichen:</strong><br>
