@@ -15,7 +15,7 @@ $db = Database::getInstance();
 if (isset($_GET['delete']) && isset($_GET['csrf_token'])) {
     if (csrf_verify($_GET['csrf_token'])) {
         $id = intval($_GET['delete']);
-        $db->execute("DELETE FROM blog_posts WHERE id = :id", [':id' => $id]);
+        $db->delete("DELETE FROM blog_posts WHERE id = :id", [':id' => $id]);
         set_flash('success', 'Blog-Post wurde gelöscht.');
         redirect(BASE_URL . '/admin/blog-posts');
     }
@@ -64,8 +64,68 @@ include __DIR__ . '/../templates/header.php';
                 </a>
             </div>
         <?php else: ?>
-            <!-- Blog-Posts Tabelle -->
-            <div class="card" style="overflow-x: auto;">
+            <!-- Mobile: Card-Layout -->
+            <div class="d-mobile-block d-tablet-none">
+                <?php foreach ($posts as $post): ?>
+                    <div class="card mb-md">
+                        <div class="d-flex justify-between align-center mb-sm">
+                            <strong><?= e($post['title']) ?></strong>
+                            <?php if ($post['published']): ?>
+                                <span class="badge success">Veröffentlicht</span>
+                            <?php else: ?>
+                                <span class="badge secondary">Entwurf</span>
+                            <?php endif; ?>
+                        </div>
+
+                        <div class="mb-sm">
+                            <small class="text-muted">/blog/<?= e($post['slug']) ?></small>
+                        </div>
+
+                        <?php if (!empty($post['full_name'])): ?>
+                            <div class="mb-sm">
+                                <small><strong>Autor:</strong> <?= e($post['full_name']) ?></small>
+                            </div>
+                        <?php endif; ?>
+
+                        <div class="mb-sm">
+                            <small>
+                                <strong>Erstellt:</strong> <?= format_date($post['created_at']) ?>
+                            </small>
+                        </div>
+
+                        <?php if ($post['published_at']): ?>
+                            <div class="mb-md">
+                                <small>
+                                    <strong>Veröffentlicht:</strong> <?= format_date($post['published_at']) ?>
+                                </small>
+                            </div>
+                        <?php endif; ?>
+
+                        <div class="d-flex gap-sm" style="flex-wrap: wrap;">
+                            <?php if ($post['published']): ?>
+                                <a href="<?= BASE_URL ?>/blog/<?= e($post['slug']) ?>"
+                                   class="btn btn-outline btn-sm"
+                                   target="_blank">
+                                    👁️ Ansehen
+                                </a>
+                            <?php endif; ?>
+                            <a href="<?= BASE_URL ?>/admin/blog-post-edit?id=<?= $post['id'] ?>"
+                               class="btn btn-outline btn-sm">
+                                ✏️ Bearbeiten
+                            </a>
+                            <a href="?delete=<?= $post['id'] ?>&csrf_token=<?= csrf_token() ?>"
+                               class="btn btn-outline btn-sm"
+                               style="color: var(--color-error);"
+                               onclick="return confirm('Blog-Post wirklich löschen?')">
+                                🗑️ Löschen
+                            </a>
+                        </div>
+                    </div>
+                <?php endforeach; ?>
+            </div>
+
+            <!-- Desktop: Tabelle -->
+            <div class="card d-mobile-none" style="overflow-x: auto;">
                 <table class="admin-table">
                     <thead>
                         <tr>
