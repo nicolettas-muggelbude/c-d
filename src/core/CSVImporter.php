@@ -172,6 +172,15 @@ class CSVImporter {
             $data['description'] = $this->applyDescriptionFilter($data['description'], $this->supplier['description_filter']);
         }
 
+        // Kategorie-Zuordnung
+        $category_id = null;
+        if (!empty($data['category']) && !empty($this->supplier['category_mapping'])) {
+            $category_mapping = json_decode($this->supplier['category_mapping'], true);
+            if ($category_mapping && isset($category_mapping[$data['category']])) {
+                $category_id = (int)$category_mapping[$data['category']];
+            }
+        }
+
         // Preis mit Aufschlag berechnen
         $supplier_price = (float)($data['price'] ?? 0);
         if ($supplier_price <= 0) {
@@ -208,6 +217,7 @@ class CSVImporter {
                     ean = :ean,
                     description = :description,
                     price = :price,
+                    category_id = :category_id,
                     supplier_stock = :supplier_stock,
                     supplier_name = :supplier_name,
                     free_shipping = :free_shipping,
@@ -219,6 +229,7 @@ class CSVImporter {
                 ':ean' => $data['ean'] ?? null,
                 ':description' => $data['description'] ?? '',
                 ':price' => $selling_price,
+                ':category_id' => $category_id,
                 ':supplier_stock' => $supplier_stock,
                 ':supplier_name' => $this->supplier['name'],
                 ':free_shipping' => $free_shipping,
@@ -230,10 +241,10 @@ class CSVImporter {
             // Neues Produkt erstellen
             $this->db->insert("
                 INSERT INTO products (
-                    name, sku, ean, slug, description, price, stock, supplier_id, supplier_name,
+                    name, sku, ean, slug, description, price, stock, category_id, supplier_id, supplier_name,
                     supplier_stock, free_shipping, source, is_active, last_csv_sync, created_at
                 ) VALUES (
-                    :name, :sku, :ean, :slug, :description, :price, 0, :supplier_id, :supplier_name,
+                    :name, :sku, :ean, :slug, :description, :price, 0, :category_id, :supplier_id, :supplier_name,
                     :supplier_stock, :free_shipping, 'csv_import', 0, NOW(), NOW()
                 )
             ", [
@@ -243,6 +254,7 @@ class CSVImporter {
                 ':slug' => create_slug($data['name']),
                 ':description' => $data['description'] ?? '',
                 ':price' => $selling_price,
+                ':category_id' => $category_id,
                 ':supplier_id' => $this->supplier['id'],
                 ':supplier_name' => $this->supplier['name'],
                 ':supplier_stock' => $supplier_stock,

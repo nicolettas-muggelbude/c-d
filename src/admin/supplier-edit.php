@@ -46,9 +46,22 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         if (!empty($_POST['mapping_price'])) $column_mapping['price'] = $_POST['mapping_price'];
         if (!empty($_POST['mapping_stock'])) $column_mapping['stock'] = $_POST['mapping_stock'];
         if (!empty($_POST['mapping_description'])) $column_mapping['description'] = $_POST['mapping_description'];
+        if (!empty($_POST['mapping_category'])) $column_mapping['category'] = $_POST['mapping_category'];
 
         // Beschreibungs-Filter (ein String pro Zeile)
         $description_filter = trim($_POST['description_filter'] ?? '');
+
+        // Kategorie-Mapping (CSV-Name → Shop-Kategorie-ID)
+        $category_mapping = [];
+        if (!empty($_POST['category_csv_name']) && is_array($_POST['category_csv_name'])) {
+            foreach ($_POST['category_csv_name'] as $index => $csv_name) {
+                $shop_category_id = $_POST['category_shop_id'][$index] ?? '';
+                if (!empty($csv_name) && !empty($shop_category_id)) {
+                    $category_mapping[$csv_name] = (int)$shop_category_id;
+                }
+            }
+        }
+        $category_mapping_json = json_encode($category_mapping);
 
         // Validierung
         if (empty($name)) {
@@ -73,6 +86,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                         csv_encoding = :csv_encoding,
                         column_mapping = :column_mapping,
                         description_filter = :description_filter,
+                        category_mapping = :category_mapping,
                         price_markup = :price_markup,
                         free_shipping = :free_shipping,
                         is_active = :is_active,
@@ -86,6 +100,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     ':csv_encoding' => $csv_encoding,
                     ':column_mapping' => $column_mapping_json,
                     ':description_filter' => $description_filter ?: null,
+                    ':category_mapping' => $category_mapping_json ?: null,
                     ':price_markup' => $price_markup,
                     ':free_shipping' => $free_shipping,
                     ':is_active' => $is_active,
@@ -98,10 +113,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 $db->insert("
                     INSERT INTO suppliers (
                         name, description, csv_url, csv_delimiter, csv_encoding,
-                        column_mapping, description_filter, price_markup, free_shipping, is_active, created_at
+                        column_mapping, description_filter, category_mapping, price_markup, free_shipping, is_active, created_at
                     ) VALUES (
                         :name, :description, :csv_url, :csv_delimiter, :csv_encoding,
-                        :column_mapping, :description_filter, :price_markup, :free_shipping, :is_active, NOW()
+                        :column_mapping, :description_filter, :category_mapping, :price_markup, :free_shipping, :is_active, NOW()
                     )
                 ", [
                     ':name' => $name,
@@ -111,6 +126,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     ':csv_encoding' => $csv_encoding,
                     ':column_mapping' => $column_mapping_json,
                     ':description_filter' => $description_filter ?: null,
+                    ':category_mapping' => $category_mapping_json ?: null,
                     ':price_markup' => $price_markup,
                     ':free_shipping' => $free_shipping,
                     ':is_active' => $is_active
@@ -129,6 +145,15 @@ $column_mapping = [];
 if ($is_edit && $supplier && $supplier['column_mapping']) {
     $column_mapping = json_decode($supplier['column_mapping'], true);
 }
+
+// Kategorie-Mapping dekodieren
+$category_mapping = [];
+if ($is_edit && $supplier && $supplier['category_mapping']) {
+    $category_mapping = json_decode($supplier['category_mapping'], true);
+}
+
+// Kategorien laden
+$categories = $db->query("SELECT id, name FROM categories ORDER BY name ASC");
 
 $page_title = ($is_edit ? 'Lieferant bearbeiten' : 'Neuer Lieferant') . ' | Admin | PC-Wittfoot UG';
 $page_description = 'Lieferant verwalten';
@@ -236,10 +261,78 @@ include __DIR__ . '/../templates/header.php';
                 </div>
 
                 <div class="form-group">
+                    <label for="mapping_category">Kategorie (CSV-Spalte)</label>
+                    <input type="text" id="mapping_category" name="mapping_category" value="<?= e($column_mapping['category'] ?? '') ?>" placeholder="z.B. 'category' oder 'Kategorie'">
+                    <small class="text-muted">Optional: CSV-Spalte mit Kategorie-Namen</small>
+                </div>
+
+                <div class="form-group">
                     <label for="description_filter">Beschreibungs-Filter</label>
                     <textarea id="description_filter" name="description_filter" rows="4" placeholder="Texte/Wörter die aus Beschreibungen entfernt werden sollen (ein String pro Zeile)"><?= $is_edit && $supplier ? e($supplier['description_filter']) : '' ?></textarea>
                     <small class="text-muted">Unerwünschte Texte oder Werbebotschaften entfernen. Ein Text pro Zeile. Groß-/Kleinschreibung wird ignoriert.</small>
                 </div>
+
+                <h3 style="margin-top: 1.5rem; margin-bottom: 1rem;">Kategorie-Zuordnung</h3>
+                <p class="text-muted" style="margin-bottom: 1rem;">Ordnen Sie CSV-Kategorie-Namen zu Shop-Kategorien zu.</p>
+
+                <div id="category-mappings">
+                    <?php if (!empty($category_mapping)): ?>
+                        <?php foreach ($category_mapping as $csv_name => $shop_id): ?>
+                            <div class="form-row" style="margin-bottom: 0.5rem;">
+                                <div class="form-group" style="margin-bottom: 0;">
+                                    <input type="text" name="category_csv_name[]" value="<?= e($csv_name) ?>" placeholder="CSV-Kategorie-Name">
+                                </div>
+                                <div class="form-group" style="margin-bottom: 0;">
+                                    <select name="category_shop_id[]">
+                                        <option value="">Shop-Kategorie wählen</option>
+                                        <?php foreach ($categories as $cat): ?>
+                                            <option value="<?= $cat['id'] ?>" <?= $shop_id == $cat['id'] ? 'selected' : '' ?>><?= e($cat['name']) ?></option>
+                                        <?php endforeach; ?>
+                                    </select>
+                                </div>
+                            </div>
+                        <?php endforeach; ?>
+                    <?php else: ?>
+                        <div class="form-row" style="margin-bottom: 0.5rem;">
+                            <div class="form-group" style="margin-bottom: 0;">
+                                <input type="text" name="category_csv_name[]" placeholder="CSV-Kategorie-Name">
+                            </div>
+                            <div class="form-group" style="margin-bottom: 0;">
+                                <select name="category_shop_id[]">
+                                    <option value="">Shop-Kategorie wählen</option>
+                                    <?php foreach ($categories as $cat): ?>
+                                        <option value="<?= $cat['id'] ?>"><?= e($cat['name']) ?></option>
+                                    <?php endforeach; ?>
+                                </select>
+                            </div>
+                        </div>
+                    <?php endif; ?>
+                </div>
+
+                <button type="button" class="btn btn-outline" onclick="addCategoryMapping()" style="margin-top: 0.5rem;">+ Weitere Zuordnung</button>
+
+                <script>
+                function addCategoryMapping() {
+                    const container = document.getElementById('category-mappings');
+                    const row = document.createElement('div');
+                    row.className = 'form-row';
+                    row.style.marginBottom = '0.5rem';
+                    row.innerHTML = `
+                        <div class="form-group" style="margin-bottom: 0;">
+                            <input type="text" name="category_csv_name[]" placeholder="CSV-Kategorie-Name">
+                        </div>
+                        <div class="form-group" style="margin-bottom: 0;">
+                            <select name="category_shop_id[]">
+                                <option value="">Shop-Kategorie wählen</option>
+                                <?php foreach ($categories as $cat): ?>
+                                    <option value="<?= $cat['id'] ?>"><?= e($cat['name']) ?></option>
+                                <?php endforeach; ?>
+                            </select>
+                        </div>
+                    `;
+                    container.appendChild(row);
+                }
+                </script>
 
                 <h2 class="mb-lg" style="margin-top: 2rem;">Preis-Kalkulation</h2>
 
