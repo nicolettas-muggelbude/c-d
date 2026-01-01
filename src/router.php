@@ -170,6 +170,19 @@ switch ($page) {
         } elseif ($param === 'maintenance') {
             require_admin();
             require __DIR__ . '/admin/maintenance.php';
+        } elseif ($param === 'orders') {
+            require_admin();
+            require __DIR__ . '/admin/orders.php';
+        } elseif ($param === 'order') {
+            require_admin();
+            // Order ID aus dem dritten Teil: /admin/order/123
+            $order_id = $parts[2] ?? null;
+            if ($order_id) {
+                $_GET['id'] = $order_id;
+                require __DIR__ . '/admin/order.php';
+            } else {
+                require __DIR__ . '/pages/404.php';
+            }
         } else {
             require_admin();
             require __DIR__ . '/admin/index.php';
