@@ -46,16 +46,33 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 // Session regenerieren (gegen Session Fixation)
                 $security->regenerateSession();
 
-                // Login erfolgreich
-                $_SESSION['user_id'] = $user['id'];
-                $_SESSION['user_role'] = $user['role'];
-                $_SESSION['user_name'] = $user['full_name'] ?? $user['username'];
-                $_SESSION['is_admin'] = ($user['role'] === 'admin');
+                // Prüfe, ob 2FA aktiviert ist
+                $twofa = $db->querySingle("
+                    SELECT * FROM user_2fa
+                    WHERE user_id = :user_id AND enabled = TRUE
+                ", [':user_id' => $user['id']]);
 
-                // Audit-Log
-                $security->logAudit('admin_login', 'user', $user['id']);
+                if ($twofa) {
+                    // 2FA ist aktiviert - weiter zur 2FA-Verifizierung
+                    $_SESSION['2fa_pending'] = true;
+                    $_SESSION['2fa_user_id'] = $user['id'];
 
-                redirect(BASE_URL . '/admin');
+                    // Audit-Log (Passwort erfolgreich, 2FA ausstehend)
+                    $security->logAudit('admin_login_password', 'user', $user['id']);
+
+                    redirect(BASE_URL . '/admin/2fa-verify');
+                } else {
+                    // Kein 2FA - Login direkt abschließen
+                    $_SESSION['user_id'] = $user['id'];
+                    $_SESSION['user_role'] = $user['role'];
+                    $_SESSION['user_name'] = $user['full_name'] ?? $user['username'];
+                    $_SESSION['is_admin'] = ($user['role'] === 'admin');
+
+                    // Audit-Log
+                    $security->logAudit('admin_login', 'user', $user['id']);
+
+                    redirect(BASE_URL . '/admin');
+                }
             } else {
                 // Login-Versuch protokollieren (FEHLER)
                 $security->logLoginAttempt($email, false);
@@ -125,6 +142,14 @@ include __DIR__ . '/../templates/header.php';
                             Anmelden
                         </button>
                     </form>
+
+                    <hr style="margin: var(--space-lg) 0;">
+
+                    <div class="text-center">
+                        <a href="<?= BASE_URL ?>/admin/forgot-password" class="text-muted" style="font-size: 0.9em;">
+                            Passwort vergessen?
+                        </a>
+                    </div>
                 </div>
             </div>
         </div>
