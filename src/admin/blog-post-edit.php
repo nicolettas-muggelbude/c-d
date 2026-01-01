@@ -264,6 +264,12 @@ include __DIR__ . '/../templates/header.php';
                             <code style="font-size: 0.8em;">&lt;em&gt;Kursiv&lt;/em&gt;</code><br>
                             <code style="font-size: 0.8em;">&lt;code&gt;Code&lt;/code&gt;</code>
 
+                            <h5 style="margin: var(--space-sm) 0 var(--space-xs) 0; font-size: 0.95em;">Textausrichtung</h5>
+                            <code style="font-size: 0.8em; display: block; margin-bottom: 4px;">&lt;p class="text-center"&gt;Zentriert&lt;/p&gt;</code>
+                            <code style="font-size: 0.8em; display: block; margin-bottom: 4px;">&lt;p class="text-justify"&gt;Blocksatz&lt;/p&gt;</code>
+                            <code style="font-size: 0.8em; display: block; margin-bottom: 4px;">&lt;p class="text-left"&gt;Linksbündig&lt;/p&gt;</code>
+                            <code style="font-size: 0.8em; display: block;">&lt;p class="text-right"&gt;Rechtsbündig&lt;/p&gt;</code>
+
                             <h5 style="margin: var(--space-sm) 0 var(--space-xs) 0; font-size: 0.95em;">Listen</h5>
                             <pre style="background: var(--bg-secondary); padding: var(--space-xs); border-radius: 4px; overflow-x: auto; font-size: 0.8em; margin: 0; border: 1px solid var(--border-color);"><code>&lt;ul&gt;
   &lt;li&gt;Punkt 1&lt;/li&gt;
@@ -273,8 +279,16 @@ include __DIR__ . '/../templates/header.php';
                             <h5 style="margin: var(--space-sm) 0 var(--space-xs) 0; font-size: 0.95em;">Links</h5>
                             <code style="font-size: 0.8em;">&lt;a href="url"&gt;Text&lt;/a&gt;</code>
 
+                            <h5 style="margin: var(--space-sm) 0 var(--space-xs) 0; font-size: 0.95em;">Trennlinie</h5>
+                            <code style="font-size: 0.8em;">&lt;hr&gt;</code>
+
                             <h5 style="margin: var(--space-sm) 0 var(--space-xs) 0; font-size: 0.95em;">Bilder</h5>
-                            <code style="font-size: 0.8em; display: block; word-break: break-all;">&lt;img src="<?= UPLOADS_URL ?>/blog/bild.jpg" alt="..."&gt;</code>
+                            <code style="font-size: 0.8em; display: block; word-break: break-all; margin-bottom: 4px;">&lt;!-- Volle Breite (100%) --&gt;</code>
+                            <code style="font-size: 0.8em; display: block; word-break: break-all; margin-bottom: 4px;">&lt;img src="<?= UPLOADS_URL ?>/blog/bild.jpg" alt="..."&gt;</code>
+                            <code style="font-size: 0.8em; display: block; word-break: break-all; margin-bottom: 4px;">&lt;!-- Halbe Breite (50%) --&gt;</code>
+                            <code style="font-size: 0.8em; display: block; word-break: break-all; margin-bottom: 4px;">&lt;img src="<?= UPLOADS_URL ?>/blog/bild.jpg" alt="..." style="width: 50%;"&gt;</code>
+                            <code style="font-size: 0.8em; display: block; word-break: break-all; margin-bottom: 4px;">&lt;!-- 75% Breite --&gt;</code>
+                            <code style="font-size: 0.8em; display: block; word-break: break-all;">&lt;img src="<?= UPLOADS_URL ?>/blog/bild.jpg" alt="..." style="width: 75%;"&gt;</code>
 
                             <h5 style="margin: var(--space-sm) 0 var(--space-xs) 0; font-size: 0.95em;">Code-Blöcke</h5>
                             <pre style="background: var(--bg-secondary); padding: var(--space-xs); border-radius: 4px; overflow-x: auto; font-size: 0.8em; margin: 0; border: 1px solid var(--border-color);"><code>&lt;pre&gt;&lt;code&gt;

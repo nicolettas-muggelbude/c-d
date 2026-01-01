@@ -746,6 +746,66 @@ nav a.active {
     margin-bottom: var(--space-sm);
 }
 
+.blog-post-content hr {
+    border: none;
+    border-top: 1px solid var(--border-color);
+    margin: var(--space-xl) 0;
+}
+
+.blog-post-content img {
+    max-width: 100%;
+    height: auto;
+    display: block;
+    margin: var(--space-lg) auto;
+    border-radius: var(--border-radius-sm);
+}
+
+.blog-post-content h2,
+.blog-post-content h3,
+.blog-post-content h4 {
+    margin-top: var(--space-xl);
+    margin-bottom: var(--space-md);
+    color: var(--text-primary);
+}
+
+.blog-post-content code {
+    background: var(--bg-secondary);
+    padding: 2px 6px;
+    border-radius: 3px;
+    font-family: var(--font-family-mono);
+    font-size: 0.9em;
+}
+
+.blog-post-content pre {
+    background: var(--bg-secondary);
+    padding: var(--space-md);
+    border-radius: var(--border-radius-sm);
+    overflow-x: auto;
+    margin-bottom: var(--space-lg);
+    border: 1px solid var(--border-color);
+}
+
+.blog-post-content pre code {
+    background: none;
+    padding: 0;
+}
+
+.blog-post-content .text-center {
+    text-align: center;
+}
+
+.blog-post-content .text-justify {
+    text-align: justify;
+}
+
+.blog-post-content .text-left {
+    text-align: left;
+}
+
+.blog-post-content .text-right {
+    text-align: right;
+}
+
 .blog-post-footer {
     margin-top: var(--space-xl);
 }
