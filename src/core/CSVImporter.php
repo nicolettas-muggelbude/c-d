@@ -167,6 +167,11 @@ class CSVImporter {
             throw new Exception("Name oder SKU fehlt");
         }
 
+        // Beschreibungs-Filter anwenden
+        if (!empty($data['description']) && !empty($this->supplier['description_filter'])) {
+            $data['description'] = $this->applyDescriptionFilter($data['description'], $this->supplier['description_filter']);
+        }
+
         // Preis mit Aufschlag berechnen
         $supplier_price = (float)($data['price'] ?? 0);
         if ($supplier_price <= 0) {
@@ -246,6 +251,31 @@ class CSVImporter {
 
             $this->stats['imported']++;
         }
+    }
+
+    /**
+     * Beschreibungs-Filter anwenden
+     * Entfernt konfigurierte Texte/Wörter aus der Beschreibung (case-insensitive)
+     */
+    private function applyDescriptionFilter($description, $filter_text) {
+        if (empty($filter_text)) {
+            return $description;
+        }
+
+        // Filter-Strings aus Textarea (ein String pro Zeile)
+        $filters = array_filter(array_map('trim', explode("\n", $filter_text)));
+
+        foreach ($filters as $filter) {
+            if (!empty($filter)) {
+                // Case-insensitive Ersetzung
+                $description = str_ireplace($filter, '', $description);
+            }
+        }
+
+        // Mehrfache Leerzeichen durch einzelne ersetzen
+        $description = preg_replace('/\s+/', ' ', $description);
+
+        return trim($description);
     }
 
     /**

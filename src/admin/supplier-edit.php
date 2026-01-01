@@ -47,6 +47,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         if (!empty($_POST['mapping_stock'])) $column_mapping['stock'] = $_POST['mapping_stock'];
         if (!empty($_POST['mapping_description'])) $column_mapping['description'] = $_POST['mapping_description'];
 
+        // Beschreibungs-Filter (ein String pro Zeile)
+        $description_filter = trim($_POST['description_filter'] ?? '');
+
         // Validierung
         if (empty($name)) {
             $error = 'Name ist erforderlich.';
@@ -69,6 +72,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                         csv_delimiter = :csv_delimiter,
                         csv_encoding = :csv_encoding,
                         column_mapping = :column_mapping,
+                        description_filter = :description_filter,
                         price_markup = :price_markup,
                         free_shipping = :free_shipping,
                         is_active = :is_active,
@@ -81,6 +85,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     ':csv_delimiter' => $csv_delimiter,
                     ':csv_encoding' => $csv_encoding,
                     ':column_mapping' => $column_mapping_json,
+                    ':description_filter' => $description_filter ?: null,
                     ':price_markup' => $price_markup,
                     ':free_shipping' => $free_shipping,
                     ':is_active' => $is_active,
@@ -93,10 +98,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 $db->insert("
                     INSERT INTO suppliers (
                         name, description, csv_url, csv_delimiter, csv_encoding,
-                        column_mapping, price_markup, free_shipping, is_active, created_at
+                        column_mapping, description_filter, price_markup, free_shipping, is_active, created_at
                     ) VALUES (
                         :name, :description, :csv_url, :csv_delimiter, :csv_encoding,
-                        :column_mapping, :price_markup, :free_shipping, :is_active, NOW()
+                        :column_mapping, :description_filter, :price_markup, :free_shipping, :is_active, NOW()
                     )
                 ", [
                     ':name' => $name,
@@ -105,6 +110,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     ':csv_delimiter' => $csv_delimiter,
                     ':csv_encoding' => $csv_encoding,
                     ':column_mapping' => $column_mapping_json,
+                    ':description_filter' => $description_filter ?: null,
                     ':price_markup' => $price_markup,
                     ':free_shipping' => $free_shipping,
                     ':is_active' => $is_active
@@ -227,6 +233,12 @@ include __DIR__ . '/../templates/header.php';
                 <div class="form-group">
                     <label for="mapping_description">Beschreibung (CSV-Spalte)</label>
                     <input type="text" id="mapping_description" name="mapping_description" value="<?= e($column_mapping['description'] ?? '') ?>" placeholder="z.B. 'description' oder 'Beschreibung'">
+                </div>
+
+                <div class="form-group">
+                    <label for="description_filter">Beschreibungs-Filter</label>
+                    <textarea id="description_filter" name="description_filter" rows="4" placeholder="Texte/Wörter die aus Beschreibungen entfernt werden sollen (ein String pro Zeile)"><?= $is_edit && $supplier ? e($supplier['description_filter']) : '' ?></textarea>
+                    <small class="text-muted">Unerwünschte Texte oder Werbebotschaften entfernen. Ein Text pro Zeile. Groß-/Kleinschreibung wird ignoriert.</small>
                 </div>
 
                 <h2 class="mb-lg" style="margin-top: 2rem;">Preis-Kalkulation</h2>
