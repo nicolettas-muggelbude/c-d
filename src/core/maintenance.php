@@ -11,11 +11,12 @@
 $maintenanceFile = dirname(__DIR__) . '/MAINTENANCE';
 
 if (file_exists($maintenanceFile)) {
-    // Admin-Login-Seite immer erlauben (sonst kann sich niemand einloggen!)
+    // Admin-Bereiche immer erlauben (sonst kann man Wartungsmodus nicht verwalten!)
     $requestUri = $_SERVER['REQUEST_URI'] ?? '';
-    if (strpos($requestUri, '/admin/login') !== false) {
+    if (strpos($requestUri, '/admin/login') !== false ||
+        strpos($requestUri, '/admin/maintenance') !== false) {
         define('MAINTENANCE_MODE', true);
-        return; // Login-Seite nicht blockieren
+        return; // Admin-Login und Wartungsverwaltung nicht blockieren
     }
 
     // Admin-Bypass: Eingeloggte Admins können trotzdem zugreifen
