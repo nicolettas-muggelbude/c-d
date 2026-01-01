@@ -206,3 +206,286 @@ Stack trace:
 #1 /home/nicole/projekte/c-d/src/server.php(33): require('...')
 #2 {main}
   thrown in /home/nicole/projekte/c-d/src/admin/blog-post-edit.php on line 110
+[01-Jan-2026 17:39:21 Europe/Berlin] PHP Warning:  Undefined array key "SERVER_PORT" in /home/nicole/projekte/c-d/src/core/Security.php on line 221
+[01-Jan-2026 17:46:00 Europe/Berlin] PHP Fatal error:  Uncaught Error: Call to undefined function send_email() in /home/nicole/projekte/c-d/src/admin/forgot-password.php:73
+Stack trace:
+#0 /home/nicole/projekte/c-d/src/router.php(132): require()
+#1 /home/nicole/projekte/c-d/src/server.php(33): require('...')
+#2 {main}
+  thrown in /home/nicole/projekte/c-d/src/admin/forgot-password.php on line 73
+[01-Jan-2026 17:47:29 Europe/Berlin] PHP Warning:  Undefined array key "SERVER_PORT" in /home/nicole/projekte/c-d/src/core/Security.php on line 221
+[01-Jan-2026 17:48:14 Europe/Berlin] === E-MAIL (DEBUG) ===
+[01-Jan-2026 17:48:14 Europe/Berlin] An: admin@pc-wittfoot.de
+[01-Jan-2026 17:48:14 Europe/Berlin] Betreff: Passwort zurücksetzen - PC-Wittfoot UG
+[01-Jan-2026 17:48:14 Europe/Berlin] Nachricht:
+Hallo Administrator,
+
+Sie haben eine Passwort-Zurücksetzung angefordert.
+
+Klicken Sie auf den folgenden Link, um Ihr Passwort zurückzusetzen:
+http://localhost:8000/admin/reset-password?token=a3053e926418670674f64886635605c407ed7061058410df12169bb376dd0586
+
+Dieser Link ist 1 Stunde gültig.
+
+Falls Sie diese Anfrage nicht gestellt haben, ignorieren Sie diese E-Mail.
+
+Mit freundlichen Grüßen,
+PC-Wittfoot UG
+[01-Jan-2026 17:48:14 Europe/Berlin] ======================
+[01-Jan-2026 17:53:05 Europe/Berlin] DB Error: SQLSTATE[HY093]: Invalid parameter number | SQL: 
+            INSERT INTO user_2fa (user_id, secret, enabled, backup_codes)
+            VALUES (:user_id, :secret, FALSE, :backup_codes)
+            ON DUPLICATE KEY UPDATE secret = :secret, backup_codes = :backup_codes
+        
+[01-Jan-2026 18:00:15 Europe/Berlin] PHP Warning:  Undefined array key "SERVER_PORT" in /home/nicole/projekte/c-d/src/core/Security.php on line 221
+[01-Jan-2026 18:14:56 Europe/Berlin] 2FA Setup: Current step = setup
+[01-Jan-2026 18:14:56 Europe/Berlin] 2FA Setup: twofa exists = YES
+[01-Jan-2026 18:14:56 Europe/Berlin] 2FA Setup: twofa enabled = FALSE
+[01-Jan-2026 18:14:56 Europe/Berlin] 2FA Setup: POST method = POST
+[01-Jan-2026 18:17:07 Europe/Berlin] 2FA Setup: Current step = setup
+[01-Jan-2026 18:17:07 Europe/Berlin] 2FA Setup: twofa exists = YES
+[01-Jan-2026 18:17:07 Europe/Berlin] 2FA Setup: twofa enabled = FALSE
+[01-Jan-2026 18:17:07 Europe/Berlin] 2FA Setup: POST method = POST
+[01-Jan-2026 18:17:07 Europe/Berlin] 2FA Setup: In setup block
+[01-Jan-2026 18:17:07 Europe/Berlin] 2FA Setup: POST action = NOT SET
+[01-Jan-2026 18:17:08 Europe/Berlin] 2FA Setup: Current step = setup
+[01-Jan-2026 18:17:08 Europe/Berlin] 2FA Setup: twofa exists = YES
+[01-Jan-2026 18:17:08 Europe/Berlin] 2FA Setup: twofa enabled = FALSE
+[01-Jan-2026 18:17:08 Europe/Berlin] 2FA Setup: POST method = POST
+[01-Jan-2026 18:17:08 Europe/Berlin] 2FA Setup: In setup block
+[01-Jan-2026 18:17:08 Europe/Berlin] 2FA Setup: POST action = generate
+[01-Jan-2026 18:17:08 Europe/Berlin] 2FA Setup: Generating secret...
+[01-Jan-2026 18:20:25 Europe/Berlin] 2FA Setup: Current step = setup
+[01-Jan-2026 18:20:25 Europe/Berlin] 2FA Setup: twofa exists = YES
+[01-Jan-2026 18:20:25 Europe/Berlin] 2FA Setup: twofa enabled = FALSE
+[01-Jan-2026 18:20:25 Europe/Berlin] 2FA Setup: POST method = POST
+[01-Jan-2026 18:20:25 Europe/Berlin] 2FA Setup: In setup block
+[01-Jan-2026 18:20:25 Europe/Berlin] 2FA Setup: POST action = NOT SET
+[01-Jan-2026 18:22:06 Europe/Berlin] 2FA Setup: Current step = setup
+[01-Jan-2026 18:22:06 Europe/Berlin] 2FA Setup: twofa exists = YES
+[01-Jan-2026 18:22:06 Europe/Berlin] 2FA Setup: twofa enabled = FALSE
+[01-Jan-2026 18:22:06 Europe/Berlin] 2FA Setup: POST method = POST
+[01-Jan-2026 18:22:06 Europe/Berlin] 2FA Setup: In setup block
+[01-Jan-2026 18:22:06 Europe/Berlin] 2FA Setup: POST action = NOT SET
+[01-Jan-2026 18:22:07 Europe/Berlin] 2FA Setup: Current step = setup
+[01-Jan-2026 18:22:07 Europe/Berlin] 2FA Setup: twofa exists = YES
+[01-Jan-2026 18:22:07 Europe/Berlin] 2FA Setup: twofa enabled = FALSE
+[01-Jan-2026 18:22:07 Europe/Berlin] 2FA Setup: POST method = POST
+[01-Jan-2026 18:22:07 Europe/Berlin] 2FA Setup: In setup block
+[01-Jan-2026 18:22:07 Europe/Berlin] 2FA Setup: POST action = generate
+[01-Jan-2026 18:22:07 Europe/Berlin] 2FA Setup: Generating secret...
+[01-Jan-2026 18:22:07 Europe/Berlin] 2FA Setup: Current step = verify
+[01-Jan-2026 18:22:07 Europe/Berlin] 2FA Setup: twofa exists = YES
+[01-Jan-2026 18:22:07 Europe/Berlin] 2FA Setup: twofa enabled = FALSE
+[01-Jan-2026 18:22:07 Europe/Berlin] 2FA Setup: POST method = GET
+[01-Jan-2026 18:22:36 Europe/Berlin] 2FA Setup: Current step = verify
+[01-Jan-2026 18:22:36 Europe/Berlin] 2FA Setup: twofa exists = YES
+[01-Jan-2026 18:22:36 Europe/Berlin] 2FA Setup: twofa enabled = FALSE
+[01-Jan-2026 18:22:36 Europe/Berlin] 2FA Setup: POST method = POST
+[01-Jan-2026 18:22:36 Europe/Berlin] 2FA Verify: Code eingegeben: 224915
+[01-Jan-2026 18:22:36 Europe/Berlin] 2FA Verify: Secret: ZSK5N4CICGCKJZKJ
+[01-Jan-2026 18:22:36 Europe/Berlin] 2FA Verify: Code ist GÜLTIG - aktiviere 2FA
+[01-Jan-2026 18:22:36 Europe/Berlin] 2FA Verify: 2FA aktiviert - redirect zu manage
+[01-Jan-2026 18:22:36 Europe/Berlin] 2FA Setup: Current step = manage
+[01-Jan-2026 18:22:36 Europe/Berlin] 2FA Setup: twofa exists = YES
+[01-Jan-2026 18:22:36 Europe/Berlin] 2FA Setup: twofa enabled = TRUE
+[01-Jan-2026 18:22:36 Europe/Berlin] 2FA Setup: POST method = GET
+[01-Jan-2026 18:25:12 Europe/Berlin] 2FA Setup: Current step = manage
+[01-Jan-2026 18:25:12 Europe/Berlin] 2FA Setup: twofa exists = YES
+[01-Jan-2026 18:25:12 Europe/Berlin] 2FA Setup: twofa enabled = TRUE
+[01-Jan-2026 18:25:12 Europe/Berlin] 2FA Setup: POST method = GET
+[01-Jan-2026 18:27:55 Europe/Berlin] 2FA Setup: Current step = manage
+[01-Jan-2026 18:27:55 Europe/Berlin] 2FA Setup: twofa exists = YES
+[01-Jan-2026 18:27:55 Europe/Berlin] 2FA Setup: twofa enabled = TRUE
+[01-Jan-2026 18:27:55 Europe/Berlin] 2FA Setup: POST method = POST
+[01-Jan-2026 19:09:04 Europe/Berlin] PHP Warning:  Undefined array key "SERVER_PORT" in /home/nicole/projekte/c-d/src/core/Security.php on line 221
+[01-Jan-2026 19:09:20 Europe/Berlin] PHP Warning:  Undefined array key "SERVER_PORT" in /home/nicole/projekte/c-d/src/core/Security.php on line 221
+[01-Jan-2026 19:12:33 Europe/Berlin] PHP Warning:  Undefined array key "SERVER_PORT" in /home/nicole/projekte/c-d/src/core/Security.php on line 221
+[01-Jan-2026 19:13:22 Europe/Berlin] PHP Warning:  Undefined array key "SERVER_PORT" in /home/nicole/projekte/c-d/src/core/Security.php on line 221
+[01-Jan-2026 19:13:33 Europe/Berlin] PHP Warning:  Undefined array key "SERVER_PORT" in /home/nicole/projekte/c-d/src/core/Security.php on line 221
+[01-Jan-2026 19:13:56 Europe/Berlin] PHP Warning:  Undefined array key "SERVER_PORT" in /home/nicole/projekte/c-d/src/core/Security.php on line 221
+[01-Jan-2026 19:16:12 Europe/Berlin] PHP Warning:  Undefined array key "SERVER_PORT" in /home/nicole/projekte/c-d/src/core/Security.php on line 221
+[01-Jan-2026 19:21:37 Europe/Berlin] PHP Warning:  Undefined array key "SERVER_PORT" in /home/nicole/projekte/c-d/src/core/Security.php on line 221
+[01-Jan-2026 19:40:33 Europe/Berlin] 2FA Setup: Current step = manage
+[01-Jan-2026 19:40:33 Europe/Berlin] 2FA Setup: twofa exists = YES
+[01-Jan-2026 19:40:33 Europe/Berlin] 2FA Setup: twofa enabled = TRUE
+[01-Jan-2026 19:40:33 Europe/Berlin] 2FA Setup: POST method = GET
+[01-Jan-2026 19:42:11 Europe/Berlin] 2FA Setup: Current step = manage
+[01-Jan-2026 19:42:11 Europe/Berlin] 2FA Setup: twofa exists = YES
+[01-Jan-2026 19:42:11 Europe/Berlin] 2FA Setup: twofa enabled = TRUE
+[01-Jan-2026 19:42:11 Europe/Berlin] 2FA Setup: POST method = GET
+[01-Jan-2026 19:42:21 Europe/Berlin] 2FA Setup: Current step = manage
+[01-Jan-2026 19:42:21 Europe/Berlin] 2FA Setup: twofa exists = YES
+[01-Jan-2026 19:42:21 Europe/Berlin] 2FA Setup: twofa enabled = TRUE
+[01-Jan-2026 19:42:21 Europe/Berlin] 2FA Setup: POST method = GET
+[01-Jan-2026 19:45:17 Europe/Berlin] 2FA Setup: Current step = manage
+[01-Jan-2026 19:45:17 Europe/Berlin] 2FA Setup: twofa exists = YES
+[01-Jan-2026 19:45:17 Europe/Berlin] 2FA Setup: twofa enabled = TRUE
+[01-Jan-2026 19:45:17 Europe/Berlin] 2FA Setup: POST method = GET
+[01-Jan-2026 19:45:17 Europe/Berlin] 2FA Setup: Lade vertrauenswürdige Geräte
+[01-Jan-2026 19:45:17 Europe/Berlin] 2FA Setup: Anzahl Geräte: 0
+[01-Jan-2026 19:45:17 Europe/Berlin] 2FA Setup: Geräte-Array: Array
+(
+)
+
+[01-Jan-2026 19:45:31 Europe/Berlin] DB Error: SQLSTATE[42S22]: Column not found: 1054 Unknown column 'device_fingerprint' in 'where clause' | SQL: 
+            SELECT * FROM trusted_devices
+            WHERE user_id = :user_id
+                AND device_fingerprint = :fingerprint
+                AND expires_at > NOW()
+        
+[01-Jan-2026 19:47:24 Europe/Berlin] DB Error: SQLSTATE[42S22]: Column not found: 1054 Unknown column 'device_fingerprint' in 'where clause' | SQL: 
+            SELECT * FROM trusted_devices
+            WHERE user_id = :user_id
+                AND device_fingerprint = :fingerprint
+                AND expires_at > NOW()
+        
+[01-Jan-2026 19:50:10 Europe/Berlin] PHP Warning:  Undefined array key "SERVER_PORT" in /home/nicole/projekte/c-d/src/core/Security.php on line 221
+[01-Jan-2026 19:56:26 Europe/Berlin] 2FA Verify: Verifiziere TOTP-Code
+[01-Jan-2026 19:56:26 Europe/Berlin] 2FA Verify: Eingegebener Code: 165571
+[01-Jan-2026 19:56:26 Europe/Berlin] 2FA Verify: Secret: ZSK5N4CICGCKJZKJ
+[01-Jan-2026 19:56:26 Europe/Berlin] 2FA Verify: Erwarteter Code (jetzt): 889042
+[01-Jan-2026 19:56:26 Europe/Berlin] 2FA Verify: Server-Zeit: 2026-01-01 19:56:26
+[01-Jan-2026 19:56:26 Europe/Berlin] 2FA Verify: Code ist UNGÜLTIG
+[01-Jan-2026 19:56:39 Europe/Berlin] 2FA Verify: Verifiziere TOTP-Code
+[01-Jan-2026 19:56:39 Europe/Berlin] 2FA Verify: Eingegebener Code: 903557
+[01-Jan-2026 19:56:39 Europe/Berlin] 2FA Verify: Secret: ZSK5N4CICGCKJZKJ
+[01-Jan-2026 19:56:39 Europe/Berlin] 2FA Verify: Erwarteter Code (jetzt): 903557
+[01-Jan-2026 19:56:39 Europe/Berlin] 2FA Verify: Server-Zeit: 2026-01-01 19:56:39
+[01-Jan-2026 19:56:39 Europe/Berlin] 2FA Verify: Code ist GÜLTIG
+[01-Jan-2026 20:12:29 Europe/Berlin] HelloCash User (Shop): Neu erstellt - ID: 18
+[01-Jan-2026 20:12:29 Europe/Berlin] DB Error: SQLSTATE[HY000]: General error: 1364 Field 'order_number' doesn't have a default value | SQL: 
+                    INSERT INTO orders (
+                        customer_email, customer_firstname, customer_lastname, customer_company, customer_phone,
+                        customer_street, customer_housenumber, customer_zip, customer_city,
+                        shipping_firstname, shipping_lastname, shipping_street, shipping_housenumber, shipping_zip, shipping_city,
+                        delivery_method, payment_method, order_notes,
+                        subtotal, tax, total, hellocash_customer_id, order_status
+                    ) VALUES (
+                        :email, :firstname, :lastname, :company, :phone,
+                        :street, :housenumber, :zip, :city,
+                        :shipping_firstname, :shipping_lastname, :shipping_street, :shipping_housenumber, :shipping_zip, :shipping_city,
+                        :delivery_method, :payment_method, :notes,
+                        :subtotal, :tax, :total, :hellocash_customer_id, 'pending'
+                    )
+                
+[01-Jan-2026 20:13:48 Europe/Berlin] HelloCash User (Shop): Gefunden - ID: 18
+[01-Jan-2026 20:13:48 Europe/Berlin] DB Error: SQLSTATE[HY000]: General error: 1364 Field 'customer_name' doesn't have a default value | SQL: 
+                    INSERT INTO orders (
+                        order_number, customer_email, customer_firstname, customer_lastname, customer_company, customer_phone,
+                        customer_street, customer_housenumber, customer_zip, customer_city,
+                        shipping_firstname, shipping_lastname, shipping_street, shipping_housenumber, shipping_zip, shipping_city,
+                        delivery_method, payment_method, order_notes,
+                        subtotal, tax, total, hellocash_customer_id, order_status
+                    ) VALUES (
+                        :order_number, :email, :firstname, :lastname, :company, :phone,
+                        :street, :housenumber, :zip, :city,
+                        :shipping_firstname, :shipping_lastname, :shipping_street, :shipping_housenumber, :shipping_zip, :shipping_city,
+                        :delivery_method, :payment_method, :notes,
+                        :subtotal, :tax, :total, :hellocash_customer_id, 'pending'
+                    )
+                
+[01-Jan-2026 20:15:03 Europe/Berlin] HelloCash User (Shop): Gefunden - ID: 18
+[01-Jan-2026 20:15:03 Europe/Berlin] DB Error: SQLSTATE[HY000]: General error: 1364 Field 'customer_name' doesn't have a default value | SQL: 
+                    INSERT INTO orders (
+                        order_number, customer_email, customer_firstname, customer_lastname, customer_company, customer_phone,
+                        customer_street, customer_housenumber, customer_zip, customer_city,
+                        shipping_firstname, shipping_lastname, shipping_street, shipping_housenumber, shipping_zip, shipping_city,
+                        delivery_method, payment_method, order_notes,
+                        subtotal, tax, total, hellocash_customer_id, order_status
+                    ) VALUES (
+                        :order_number, :email, :firstname, :lastname, :company, :phone,
+                        :street, :housenumber, :zip, :city,
+                        :shipping_firstname, :shipping_lastname, :shipping_street, :shipping_housenumber, :shipping_zip, :shipping_city,
+                        :delivery_method, :payment_method, :notes,
+                        :subtotal, :tax, :total, :hellocash_customer_id, 'pending'
+                    )
+                
+[01-Jan-2026 20:18:16 Europe/Berlin] HelloCash User (Shop): Gefunden - ID: 16
+[01-Jan-2026 20:18:16 Europe/Berlin] DB Error: SQLSTATE[HY000]: General error: 1364 Field 'shipping_address' doesn't have a default value | SQL: 
+                    INSERT INTO orders (
+                        order_number, customer_name, customer_email, customer_firstname, customer_lastname, customer_company, customer_phone,
+                        customer_street, customer_housenumber, customer_zip, customer_city,
+                        shipping_firstname, shipping_lastname, shipping_street, shipping_housenumber, shipping_zip, shipping_city,
+                        delivery_method, payment_method, order_notes,
+                        subtotal, tax, total, hellocash_customer_id, order_status
+                    ) VALUES (
+                        :order_number, :customer_name, :email, :firstname, :lastname, :company, :phone,
+                        :street, :housenumber, :zip, :city,
+                        :shipping_firstname, :shipping_lastname, :shipping_street, :shipping_housenumber, :shipping_zip, :shipping_city,
+                        :delivery_method, :payment_method, :notes,
+                        :subtotal, :tax, :total, :hellocash_customer_id, 'pending'
+                    )
+                
+[01-Jan-2026 20:20:28 Europe/Berlin] HelloCash User (Shop): Gefunden - ID: 16
+[01-Jan-2026 20:20:28 Europe/Berlin] DB Error: SQLSTATE[HY000]: General error: 1364 Field 'total_amount' doesn't have a default value | SQL: 
+                    INSERT INTO orders (
+                        order_number, customer_name, customer_email, customer_firstname, customer_lastname, customer_company, customer_phone,
+                        customer_street, customer_housenumber, customer_zip, customer_city,
+                        shipping_firstname, shipping_lastname, shipping_street, shipping_housenumber, shipping_zip, shipping_city,
+                        shipping_address, delivery_method, payment_method, order_notes,
+                        subtotal, tax, total, hellocash_customer_id, order_status
+                    ) VALUES (
+                        :order_number, :customer_name, :email, :firstname, :lastname, :company, :phone,
+                        :street, :housenumber, :zip, :city,
+                        :shipping_firstname, :shipping_lastname, :shipping_street, :shipping_housenumber, :shipping_zip, :shipping_city,
+                        :shipping_address, :delivery_method, :payment_method, :notes,
+                        :subtotal, :tax, :total, :hellocash_customer_id, 'pending'
+                    )
+                
+[01-Jan-2026 20:22:40 Europe/Berlin] HelloCash User (Shop): Gefunden - ID: 18
+[01-Jan-2026 20:22:40 Europe/Berlin] DB Error: SQLSTATE[42S22]: Column not found: 1054 Unknown column 'price' in 'field list' | SQL: 
+                        INSERT INTO order_items (order_id, product_id, product_name, quantity, price)
+                        VALUES (:order_id, :product_id, :product_name, :quantity, :price)
+                    
+[01-Jan-2026 20:22:40 Europe/Berlin] DB Error: SQLSTATE[HY093]: Invalid parameter number | SQL: 
+                        UPDATE products
+                        SET stock = stock - :quantity
+                        WHERE id = :product_id AND stock >= :quantity
+                    
+[01-Jan-2026 20:42:58 Europe/Berlin] HelloCash User (Shop): Neu erstellt - ID: 19
+[01-Jan-2026 20:42:58 Europe/Berlin] DB Error: SQLSTATE[42S22]: Column not found: 1054 Unknown column 'price' in 'field list' | SQL: 
+                        INSERT INTO order_items (order_id, product_id, product_name, quantity, price)
+                        VALUES (:order_id, :product_id, :product_name, :quantity, :price)
+                    
+[01-Jan-2026 20:42:58 Europe/Berlin] DB Error: SQLSTATE[HY093]: Invalid parameter number | SQL: 
+                        UPDATE products
+                        SET stock = stock - :quantity
+                        WHERE id = :product_id AND stock >= :quantity
+                    
+[01-Jan-2026 20:42:58 Europe/Berlin] HelloCash Invoice-Erstellung fehlgeschlagen: Invoice konnte nicht erstellt werden
+[01-Jan-2026 20:42:58 Europe/Berlin] EmailService: Failed to send email to madama@mader.de - Error: Could not instantiate mail function.
+[01-Jan-2026 20:42:58 Europe/Berlin] EmailService: Failed to send email to admin@pc-wittfoot.de - Error: Could not instantiate mail function.
+[01-Jan-2026 20:49:10 Europe/Berlin] HelloCash User (Shop): Neu erstellt - ID: 20
+[01-Jan-2026 20:49:10 Europe/Berlin] DB Error: SQLSTATE[42S22]: Column not found: 1054 Unknown column 'price' in 'field list' | SQL: 
+                        INSERT INTO order_items (order_id, product_id, product_name, quantity, price)
+                        VALUES (:order_id, :product_id, :product_name, :quantity, :price)
+                    
+[01-Jan-2026 20:49:10 Europe/Berlin] DB Error: SQLSTATE[HY093]: Invalid parameter number | SQL: 
+                        UPDATE products
+                        SET stock = stock - :quantity
+                        WHERE id = :product_id AND stock >= :quantity
+                    
+[01-Jan-2026 20:49:10 Europe/Berlin] DB Error: SQLSTATE[42S22]: Column not found: 1054 Unknown column 'price' in 'field list' | SQL: 
+                        INSERT INTO order_items (order_id, product_id, product_name, quantity, price)
+                        VALUES (:order_id, :product_id, :product_name, :quantity, :price)
+                    
+[01-Jan-2026 20:49:10 Europe/Berlin] DB Error: SQLSTATE[HY093]: Invalid parameter number | SQL: 
+                        UPDATE products
+                        SET stock = stock - :quantity
+                        WHERE id = :product_id AND stock >= :quantity
+                    
+[01-Jan-2026 20:49:10 Europe/Berlin] DB Error: SQLSTATE[42S22]: Column not found: 1054 Unknown column 'price' in 'field list' | SQL: 
+                        INSERT INTO order_items (order_id, product_id, product_name, quantity, price)
+                        VALUES (:order_id, :product_id, :product_name, :quantity, :price)
+                    
+[01-Jan-2026 20:49:10 Europe/Berlin] DB Error: SQLSTATE[HY093]: Invalid parameter number | SQL: 
+                        UPDATE products
+                        SET stock = stock - :quantity
+                        WHERE id = :product_id AND stock >= :quantity
+                    
+[01-Jan-2026 20:49:10 Europe/Berlin] HelloCash Invoice Request: {"invoice_user_id":20,"items":[{"item_name":"Lenovo ThinkPad T470","item_quantity":"1","item_price":"379","item_taxRate":"19","item_type":"article"},{"item_name":"Dell OptiPlex 3060 MT","item_quantity":"1","item_price":"279","item_taxRate":"19","item_type":"article"},{"item_name":"BenQ GW2480 24\"","item_quantity":"1","item_price":"159","item_taxRate":"19","item_type":"article"}],"invoice_paymentMethod":"Vorkasse","invoice_type":"json"}
+[01-Jan-2026 20:49:10 Europe/Berlin] HelloCash Invoice Response: {"error":"Invalid Json data received: Syntax error"}
+[01-Jan-2026 20:49:10 Europe/Berlin] HelloCash Invoice-Erstellung fehlgeschlagen: Invoice konnte nicht erstellt werden: Invalid Json data received: Syntax error
+[01-Jan-2026 20:49:10 Europe/Berlin] EmailService: Failed to send email to thoma@thomsen.de - Error: Could not instantiate mail function.
+[01-Jan-2026 20:49:10 Europe/Berlin] EmailService: Failed to send email to admin@pc-wittfoot.de - Error: Could not instantiate mail function.

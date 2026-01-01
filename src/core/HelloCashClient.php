@@ -488,7 +488,7 @@ class HelloCashClient {
 
             // API-Request
             error_log("HelloCash Invoice Request: " . json_encode($payload));
-            $response = $this->request('POST', '/invoices', $payload);
+            $response = $this->request('POST', '/invoices', [], $payload);
             error_log("HelloCash Invoice Response: " . json_encode($response));
 
             if (isset($response['invoice_id'])) {

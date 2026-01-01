@@ -233,14 +233,15 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 foreach ($cart->getItems() as $item) {
                     // Order Item
                     $db->insert("
-                        INSERT INTO order_items (order_id, product_id, product_name, quantity, price)
-                        VALUES (:order_id, :product_id, :product_name, :quantity, :price)
+                        INSERT INTO order_items (order_id, product_id, product_name, quantity, unit_price, total_price)
+                        VALUES (:order_id, :product_id, :product_name, :quantity, :unit_price, :total_price)
                     ", [
                         ':order_id' => $order_id,
                         ':product_id' => $item['id'],
                         ':product_name' => $item['name'],
                         ':quantity' => $item['quantity'],
-                        ':price' => $item['price'],
+                        ':unit_price' => $item['price'],
+                        ':total_price' => $item['price'] * $item['quantity'],
                     ]);
 
                     // Lagerbestand reduzieren
