@@ -11,6 +11,13 @@
 $maintenanceFile = dirname(__DIR__) . '/MAINTENANCE';
 
 if (file_exists($maintenanceFile)) {
+    // Admin-Login-Seite immer erlauben (sonst kann sich niemand einloggen!)
+    $requestUri = $_SERVER['REQUEST_URI'] ?? '';
+    if (strpos($requestUri, '/admin/login') !== false) {
+        define('MAINTENANCE_MODE', true);
+        return; // Login-Seite nicht blockieren
+    }
+
     // Admin-Bypass: Eingeloggte Admins können trotzdem zugreifen
     if (isset($_SESSION['is_admin']) && $_SESSION['is_admin'] === true) {
         // Admin ist eingeloggt - Warnung anzeigen aber Zugriff erlauben
