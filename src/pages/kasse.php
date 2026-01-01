@@ -118,6 +118,41 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         }
 
         if (empty($errors)) {
+            // HelloCash API Integration
+            $hellocashUserId = null;
+            $hellocashClient = new HelloCashClient();
+
+            if ($hellocashClient->isConfigured()) {
+                // Telefonnummer bereinigen (führende 0 entfernen)
+                $phoneNumber = ltrim(trim($customer_data['phone']), '0');
+
+                $customerData = [
+                    'firstname' => $customer_data['firstname'],
+                    'lastname' => $customer_data['lastname'],
+                    'email' => $customer_data['email'],
+                    'phone_country' => '+49', // Deutschland als Standard
+                    'phone_mobile' => $phoneNumber,
+                    'phone_landline' => null, // Shop hat nur ein Telefon-Feld
+                    'company' => $customer_data['company'] ?: null,
+                    // Adresse
+                    'street' => $customer_data['street'],
+                    'house_number' => $customer_data['housenumber'],
+                    'postal_code' => $customer_data['zip'],
+                    'city' => $customer_data['city']
+                ];
+
+                $result = $hellocashClient->findOrCreateUser($customerData);
+
+                if ($result['user_id']) {
+                    $hellocashUserId = $result['user_id'];
+                    error_log('HelloCash User (Shop): ' . ($result['is_new'] ? 'Neu erstellt' : 'Gefunden') . ' - ID: ' . $hellocashUserId);
+                } else if ($result['error']) {
+                    error_log('HelloCash Error (Shop): ' . $result['error']);
+                }
+            } else {
+                error_log('HelloCash API not configured');
+            }
+
             // Bestellung in Datenbank speichern
             $db->beginTransaction();
 
@@ -129,13 +164,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                         customer_street, customer_housenumber, customer_zip, customer_city,
                         shipping_firstname, shipping_lastname, shipping_street, shipping_housenumber, shipping_zip, shipping_city,
                         delivery_method, payment_method, order_notes,
-                        subtotal, tax, total, status
+                        subtotal, tax, total, hellocash_customer_id, order_status
                     ) VALUES (
                         :email, :firstname, :lastname, :company, :phone,
                         :street, :housenumber, :zip, :city,
                         :shipping_firstname, :shipping_lastname, :shipping_street, :shipping_housenumber, :shipping_zip, :shipping_city,
                         :delivery_method, :payment_method, :notes,
-                        :subtotal, :tax, :total, 'pending'
+                        :subtotal, :tax, :total, :hellocash_customer_id, 'pending'
                     )
                 ", [
                     ':email' => $customer_data['email'],
@@ -159,6 +194,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     ':subtotal' => $cart->getNet(),
                     ':tax' => $cart->getTax(),
                     ':total' => $cart->getTotal(),
+                    ':hellocash_customer_id' => $hellocashUserId
                 ]);
 
                 if (!$order_id) {
