@@ -128,6 +128,15 @@ switch ($page) {
             require __DIR__ . '/admin/login.php';
         } elseif ($param === 'logout') {
             require __DIR__ . '/admin/logout.php';
+        } elseif ($param === 'forgot-password') {
+            require __DIR__ . '/admin/forgot-password.php';
+        } elseif ($param === 'reset-password') {
+            require __DIR__ . '/admin/reset-password.php';
+        } elseif ($param === '2fa-verify') {
+            require __DIR__ . '/admin/2fa-verify.php';
+        } elseif ($param === '2fa-setup') {
+            require_admin();
+            require __DIR__ . '/admin/2fa-setup.php';
         } elseif ($param === 'blog-posts') {
             require_admin();
             require __DIR__ . '/admin/blog-posts.php';
