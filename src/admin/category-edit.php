@@ -144,6 +144,31 @@ $parent_categories = $db->query(
     [':id' => $category_id]
 );
 
+// Lösch-Bedingungen prüfen (für Gefahrenzone)
+$can_delete = false;
+$delete_blockers = [];
+if ($is_edit) {
+    // Prüfen ob Kategorie Produkte hat
+    $product_count = $db->querySingle(
+        "SELECT COUNT(*) as count FROM products WHERE category_id = :id",
+        [':id' => $category_id]
+    );
+    if ($product_count && $product_count['count'] > 0) {
+        $delete_blockers[] = $product_count['count'] . ' Produkt(e) in dieser Kategorie';
+    }
+
+    // Prüfen ob Unterkategorien existieren
+    $sub_count = $db->querySingle(
+        "SELECT COUNT(*) as count FROM categories WHERE parent_id = :id",
+        [':id' => $category_id]
+    );
+    if ($sub_count && $sub_count['count'] > 0) {
+        $delete_blockers[] = $sub_count['count'] . ' Unterkategorie(n)';
+    }
+
+    $can_delete = empty($delete_blockers);
+}
+
 $page_title = ($is_edit ? 'Kategorie bearbeiten' : 'Neue Kategorie') . ' | Admin | PC-Wittfoot UG';
 $page_description = 'Kategorie verwalten';
 $current_page = '';
@@ -222,14 +247,30 @@ include __DIR__ . '/../templates/header.php';
         <?php if ($is_edit): ?>
             <div class="card" style="margin-top: 2rem; border-color: var(--color-error);">
                 <h3 style="color: var(--color-error); margin-bottom: 1rem;">Gefahrenzone</h3>
-                <p class="text-muted">Das Löschen einer Kategorie kann nicht rückgängig gemacht werden.</p>
-                <form method="POST" onsubmit="return confirm('Kategorie wirklich löschen? Diese Aktion kann nicht rückgängig gemacht werden!')">
-                    <input type="hidden" name="csrf_token" value="<?= csrf_token() ?>">
-                    <input type="hidden" name="action" value="delete">
-                    <button type="submit" class="btn btn-outline" style="color: var(--color-error); border-color: var(--color-error);">
-                        🗑️ Kategorie löschen
-                    </button>
-                </form>
+
+                <?php if (!$can_delete): ?>
+                    <div class="alert alert-error mb-lg">
+                        <strong>Kategorie kann nicht gelöscht werden</strong>
+                        <p style="margin-top: 0.5rem; margin-bottom: 0;">Folgende Bedingungen verhindern das Löschen:</p>
+                        <ul style="margin: 0.5rem 0 0 1.5rem;">
+                            <?php foreach ($delete_blockers as $blocker): ?>
+                                <li><?= e($blocker) ?></li>
+                            <?php endforeach; ?>
+                        </ul>
+                    </div>
+                    <p class="text-muted">
+                        Bitte entfernen oder verschieben Sie alle Produkte und Unterkategorien, bevor Sie diese Kategorie löschen.
+                    </p>
+                <?php else: ?>
+                    <p class="text-muted">Das Löschen einer Kategorie kann nicht rückgängig gemacht werden.</p>
+                    <form method="POST" onsubmit="return confirm('Kategorie wirklich löschen? Diese Aktion kann nicht rückgängig gemacht werden!')">
+                        <input type="hidden" name="csrf_token" value="<?= csrf_token() ?>">
+                        <input type="hidden" name="action" value="delete">
+                        <button type="submit" class="btn btn-outline" style="color: var(--color-error); border-color: var(--color-error);">
+                            🗑️ Kategorie löschen
+                        </button>
+                    </form>
+                <?php endif; ?>
             </div>
         <?php endif; ?>
     </div>
