@@ -97,6 +97,10 @@ include __DIR__ . '/../templates/header.php';
                     ⚙️ Termineinstellungen
                 </a>
 
+                <a href="<?= BASE_URL ?>/admin/email-templates" class="btn btn-outline btn-block">
+                    ✉️ Email-Templates verwalten
+                </a>
+
                 <a href="<?= BASE_URL ?>/admin/logout" class="btn btn-outline btn-block" style="color: var(--color-error);">
                     🚪 Abmelden
                 </a>

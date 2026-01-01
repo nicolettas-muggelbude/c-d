@@ -71,7 +71,7 @@ E-Mail: info@pc-wittfoot.de
 Telefon: +49 (0) 123 456789
 
 Wir freuen uns auf Ihren Besuch!',
-''["customer_firstname", "customer_lastname", "booking_id", "booking_type_label", "service_type_label", "booking_date_formatted", "booking_time_formatted", "customer_notes_section"]''),
+'["customer_firstname", "customer_lastname", "booking_id", "booking_type_label", "service_type_label", "booking_date_formatted", "booking_time_formatted", "customer_notes_section"]'),
 
 ('reminder_24h', 'Erinnerung 24 Stunden', 'Erinnerung: Ihr Termin morgen - PC-Wittfoot UG',
 'Hallo {customer_firstname} {customer_lastname},
@@ -100,7 +100,7 @@ bitten wir Sie, uns rechtzeitig zu informieren.
 Bei Fragen erreichen Sie uns unter:
 E-Mail: info@pc-wittfoot.de
 Telefon: +49 (0) 123 456789',
-''["customer_firstname", "customer_lastname", "booking_date_formatted", "booking_time_formatted", "service_type_label"]''),
+'["customer_firstname", "customer_lastname", "booking_date_formatted", "booking_time_formatted", "service_type_label"]'),
 
 ('reminder_1h', 'Erinnerung 1 Stunde', 'Erinnerung: Ihr Termin heute - PC-Wittfoot UG',
 'Hallo {customer_firstname} {customer_lastname},
@@ -119,7 +119,7 @@ Wir freuen uns auf Sie!
 Bei Fragen erreichen Sie uns unter:
 E-Mail: info@pc-wittfoot.de
 Telefon: +49 (0) 123 456789',
-''["customer_firstname", "customer_lastname", "booking_time_formatted", "service_type_label"]'');
+'["customer_firstname", "customer_lastname", "booking_time_formatted", "service_type_label"]');
 
 -- Standard-Signatur einfügen
 INSERT INTO email_signature (signature_text) VALUES
