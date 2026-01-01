@@ -167,19 +167,33 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     $exists = $db->querySingle("SELECT id FROM orders WHERE order_number = :num", [':num' => $orderNumber]);
                 }
 
+                // Lieferadresse zusammenstellen (für legacy shipping_address Feld)
+                $shippingAddressText = '';
+                if (!empty($shipping_data['firstname']) && !empty($shipping_data['lastname'])) {
+                    // Separate Lieferadresse
+                    $shippingAddressText = trim($shipping_data['firstname'] . ' ' . $shipping_data['lastname']) . "\n";
+                    $shippingAddressText .= trim($shipping_data['street'] . ' ' . $shipping_data['housenumber']) . "\n";
+                    $shippingAddressText .= trim($shipping_data['zip'] . ' ' . $shipping_data['city']);
+                } else {
+                    // Kundenadresse verwenden
+                    $shippingAddressText = trim($customer_data['firstname'] . ' ' . $customer_data['lastname']) . "\n";
+                    $shippingAddressText .= trim($customer_data['street'] . ' ' . $customer_data['housenumber']) . "\n";
+                    $shippingAddressText .= trim($customer_data['zip'] . ' ' . $customer_data['city']);
+                }
+
                 // Order erstellen
                 $order_id = $db->insert("
                     INSERT INTO orders (
                         order_number, customer_name, customer_email, customer_firstname, customer_lastname, customer_company, customer_phone,
                         customer_street, customer_housenumber, customer_zip, customer_city,
                         shipping_firstname, shipping_lastname, shipping_street, shipping_housenumber, shipping_zip, shipping_city,
-                        delivery_method, payment_method, order_notes,
+                        shipping_address, delivery_method, payment_method, order_notes,
                         subtotal, tax, total, hellocash_customer_id, order_status
                     ) VALUES (
                         :order_number, :customer_name, :email, :firstname, :lastname, :company, :phone,
                         :street, :housenumber, :zip, :city,
                         :shipping_firstname, :shipping_lastname, :shipping_street, :shipping_housenumber, :shipping_zip, :shipping_city,
-                        :delivery_method, :payment_method, :notes,
+                        :shipping_address, :delivery_method, :payment_method, :notes,
                         :subtotal, :tax, :total, :hellocash_customer_id, 'pending'
                     )
                 ", [
@@ -200,6 +214,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     ':shipping_housenumber' => $shipping_data['housenumber'] ?: null,
                     ':shipping_zip' => $shipping_data['zip'] ?: null,
                     ':shipping_city' => $shipping_data['city'] ?: null,
+                    ':shipping_address' => $shippingAddressText,
                     ':delivery_method' => $customer_data['delivery_method'],
                     ':payment_method' => $customer_data['payment_method'],
                     ':notes' => $customer_data['notes'],
