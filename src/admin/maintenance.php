@@ -48,10 +48,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         }
 
         if (file_put_contents($maintenanceFile, $content) !== false) {
-            $success = 'Wartungsmodus wurde aktiviert. Die Website ist jetzt für normale Besucher nicht erreichbar.';
-            $isMaintenanceActive = true;
-            $currentMessage = $message;
-            $currentEstimatedEnd = $estimatedEnd;
+            $_SESSION['maintenance_success'] = 'Wartungsmodus wurde aktiviert. Die Website ist jetzt für normale Besucher nicht erreichbar.';
+            header('Location: ' . BASE_URL . '/admin/maintenance');
+            exit;
         } else {
             $error = 'Fehler beim Aktivieren des Wartungsmodus. Bitte Dateiberechtigungen prüfen.';
         }
@@ -60,10 +59,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         // Wartungsmodus deaktivieren
         if (file_exists($maintenanceFile)) {
             if (unlink($maintenanceFile)) {
-                $success = 'Wartungsmodus wurde deaktiviert. Die Website ist wieder für alle erreichbar.';
-                $isMaintenanceActive = false;
-                $currentMessage = '';
-                $currentEstimatedEnd = '';
+                $_SESSION['maintenance_success'] = 'Wartungsmodus wurde deaktiviert. Die Website ist wieder für alle erreichbar.';
+                header('Location: ' . BASE_URL . '/admin/maintenance');
+                exit;
             } else {
                 $error = 'Fehler beim Deaktivieren des Wartungsmodus. Bitte Dateiberechtigungen prüfen.';
             }
@@ -84,13 +82,20 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         }
 
         if (file_put_contents($maintenanceFile, $content) !== false) {
-            $success = 'Wartungsmeldung wurde aktualisiert.';
-            $currentMessage = $message;
-            $currentEstimatedEnd = $estimatedEnd;
+            $_SESSION['maintenance_success'] = 'Wartungsmeldung wurde aktualisiert.';
+            header('Location: ' . BASE_URL . '/admin/maintenance');
+            exit;
         } else {
             $error = 'Fehler beim Aktualisieren der Wartungsmeldung.';
         }
     }
+}
+
+// Success-Message aus Session holen
+$success = false;
+if (isset($_SESSION['maintenance_success'])) {
+    $success = $_SESSION['maintenance_success'];
+    unset($_SESSION['maintenance_success']);
 }
 
 include __DIR__ . '/../templates/header.php';
