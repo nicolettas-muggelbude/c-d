@@ -197,7 +197,70 @@ include __DIR__ . '/../templates/header.php';
                         </div>
 
                         <div class="form-group">
-                            <label for="content">Inhalt *</label>
+                            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: var(--space-sm);">
+                                <label for="content">Inhalt *</label>
+                                <button type="button" class="btn btn-sm btn-outline" onclick="toggleFormatHelp()">
+                                    📖 Formatierungs-Hilfe
+                                </button>
+                            </div>
+
+                            <!-- Formatierungs-Hilfe (ausklappbar) -->
+                            <div id="format-help" style="display: none; background: var(--color-bg-secondary, #f5f5f5); border: 1px solid var(--color-border, #ddd); border-radius: 4px; padding: var(--space-md); margin-bottom: var(--space-md);">
+                                <h4 style="margin-top: 0;">HTML-Formatierung</h4>
+
+                                <h5>Überschriften</h5>
+                                <code>&lt;h2&gt;Große Überschrift&lt;/h2&gt;</code><br>
+                                <code>&lt;h3&gt;Mittlere Überschrift&lt;/h3&gt;</code><br>
+                                <code>&lt;h4&gt;Kleine Überschrift&lt;/h4&gt;</code>
+
+                                <h5 style="margin-top: var(--space-md);">Text-Formatierung</h5>
+                                <code>&lt;strong&gt;Fett&lt;/strong&gt;</code> → <strong>Fett</strong><br>
+                                <code>&lt;em&gt;Kursiv&lt;/em&gt;</code> → <em>Kursiv</em><br>
+                                <code>&lt;mark&gt;Markiert&lt;/mark&gt;</code> → <mark>Markiert</mark><br>
+                                <code>&lt;code&gt;Code&lt;/code&gt;</code> → <code>Code</code>
+
+                                <h5 style="margin-top: var(--space-md);">Absätze & Zeilenumbrüche</h5>
+                                <code>&lt;p&gt;Absatz&lt;/p&gt;</code><br>
+                                <code>&lt;br&gt;</code> → Zeilenumbruch
+
+                                <h5 style="margin-top: var(--space-md);">Listen</h5>
+                                <pre style="background: var(--color-bg, #fff); padding: var(--space-sm); border-radius: 4px; overflow-x: auto;"><code>&lt;ul&gt;
+  &lt;li&gt;Erster Punkt&lt;/li&gt;
+  &lt;li&gt;Zweiter Punkt&lt;/li&gt;
+&lt;/ul&gt;</code></pre>
+
+                                <pre style="background: var(--color-bg, #fff); padding: var(--space-sm); border-radius: 4px; overflow-x: auto;"><code>&lt;ol&gt;
+  &lt;li&gt;Punkt 1&lt;/li&gt;
+  &lt;li&gt;Punkt 2&lt;/li&gt;
+&lt;/ol&gt;</code></pre>
+
+                                <h5 style="margin-top: var(--space-md);">Links</h5>
+                                <code>&lt;a href="https://example.com"&gt;Link-Text&lt;/a&gt;</code>
+
+                                <h5 style="margin-top: var(--space-md);">Bilder</h5>
+                                <code>&lt;img src="<?= UPLOADS_URL ?>/blog/bild.jpg" alt="Beschreibung"&gt;</code>
+
+                                <h5 style="margin-top: var(--space-md);">Bilder mit Bildunterschrift</h5>
+                                <pre style="background: var(--color-bg, #fff); padding: var(--space-sm); border-radius: 4px; overflow-x: auto;"><code>&lt;figure&gt;
+  &lt;img src="<?= UPLOADS_URL ?>/blog/bild.jpg" alt="Beschreibung"&gt;
+  &lt;figcaption&gt;Bildunterschrift&lt;/figcaption&gt;
+&lt;/figure&gt;</code></pre>
+
+                                <h5 style="margin-top: var(--space-md);">Zitate</h5>
+                                <code>&lt;blockquote&gt;Zitattext&lt;/blockquote&gt;</code>
+
+                                <h5 style="margin-top: var(--space-md);">Code-Blöcke</h5>
+                                <pre style="background: var(--color-bg, #fff); padding: var(--space-sm); border-radius: 4px; overflow-x: auto;"><code>&lt;pre&gt;&lt;code&gt;
+function hello() {
+  console.log("Hello World");
+}
+&lt;/code&gt;&lt;/pre&gt;</code></pre>
+
+                                <p style="margin-top: var(--space-md); padding: var(--space-sm); background: #e3f2fd; border-radius: 4px;">
+                                    <strong>💡 Tipp:</strong> Bilder müssen zuerst in <code>/uploads/blog/</code> hochgeladen werden.
+                                </p>
+                            </div>
+
                             <textarea id="content"
                                       name="content"
                                       rows="20"
@@ -275,6 +338,16 @@ function createSlug(text) {
         .replace(/ß/g, 'ss')
         .replace(/[^a-z0-9]+/g, '-')
         .replace(/^-+|-+$/g, '');
+}
+
+// Formatierungs-Hilfe ein-/ausblenden
+function toggleFormatHelp() {
+    const helpDiv = document.getElementById('format-help');
+    if (helpDiv.style.display === 'none') {
+        helpDiv.style.display = 'block';
+    } else {
+        helpDiv.style.display = 'none';
+    }
 }
 </script>
 
