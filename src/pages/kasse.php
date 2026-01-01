@@ -188,13 +188,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                         customer_street, customer_housenumber, customer_zip, customer_city,
                         shipping_firstname, shipping_lastname, shipping_street, shipping_housenumber, shipping_zip, shipping_city,
                         shipping_address, delivery_method, payment_method, order_notes,
-                        subtotal, tax, total, hellocash_customer_id, order_status
+                        subtotal, tax, total, total_amount, hellocash_customer_id, order_status
                     ) VALUES (
                         :order_number, :customer_name, :email, :firstname, :lastname, :company, :phone,
                         :street, :housenumber, :zip, :city,
                         :shipping_firstname, :shipping_lastname, :shipping_street, :shipping_housenumber, :shipping_zip, :shipping_city,
                         :shipping_address, :delivery_method, :payment_method, :notes,
-                        :subtotal, :tax, :total, :hellocash_customer_id, 'pending'
+                        :subtotal, :tax, :total, :total_amount, :hellocash_customer_id, 'pending'
                     )
                 ", [
                     ':order_number' => $orderNumber,
@@ -221,6 +221,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     ':subtotal' => $cart->getNet(),
                     ':tax' => $cart->getTax(),
                     ':total' => $cart->getTotal(),
+                    ':total_amount' => $cart->getTotal(),
                     ':hellocash_customer_id' => $hellocashUserId
                 ]);
 
