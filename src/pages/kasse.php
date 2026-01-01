@@ -456,12 +456,12 @@ include __DIR__ . '/../templates/header.php';
                         <div class="form-group">
                             <label for="delivery_method">Lieferart *</label>
                             <select id="delivery_method" name="delivery_method" required>
-                                <option value="">Keine andere Lieferadresse</option>
+                                <option value="">Bitte wählen...</option>
                                 <option value="pickup" <?= ($form_data['delivery_method'] ?? '') === 'pickup' ? 'selected' : '' ?>>
                                     Abholung im Laden (kostenlos)
                                 </option>
                                 <option value="shipping" <?= ($form_data['delivery_method'] ?? '') === 'shipping' ? 'selected' : '' ?>>
-                                    Andere Lieferadresse
+                                    Versand an andere Adresse
                                 </option>
                             </select>
                         </div>
