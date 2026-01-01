@@ -256,6 +256,76 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
                 $db->commit();
 
+                // HelloCash Invoice erstellen (falls User vorhanden)
+                $hellocashInvoiceId = null;
+                $hellocashInvoiceNumber = null;
+
+                if ($hellocashUserId && $hellocashClient->isConfigured()) {
+                    // Items für HelloCash vorbereiten
+                    $invoiceItems = [];
+                    foreach ($cart->getItems() as $item) {
+                        $invoiceItems[] = [
+                            'name' => $item['name'],
+                            'quantity' => $item['quantity'],
+                            'price' => $item['price'],
+                            'tax_rate' => 19 // 19% MwSt
+                        ];
+                    }
+
+                    // Zahlungsmethode mappen
+                    $paymentMethodMap = [
+                        'prepayment' => 'Vorkasse',
+                        'cash' => 'Bar',
+                        'paypal' => 'PayPal'
+                    ];
+                    $hcPaymentMethod = $paymentMethodMap[$customer_data['payment_method']] ?? 'Vorkasse';
+
+                    $invoiceResult = $hellocashClient->createInvoice([
+                        'user_id' => $hellocashUserId,
+                        'items' => $invoiceItems,
+                        'payment_method' => $hcPaymentMethod,
+                        'notes' => $customer_data['notes']
+                    ]);
+
+                    if ($invoiceResult['invoice_id']) {
+                        $hellocashInvoiceId = $invoiceResult['invoice_id'];
+                        $hellocashInvoiceNumber = $invoiceResult['invoice_number'];
+
+                        // Invoice-IDs in Datenbank speichern
+                        $db->update("
+                            UPDATE orders
+                            SET hellocash_invoice_id = :invoice_id,
+                                hellocash_invoice_number = :invoice_number
+                            WHERE id = :order_id
+                        ", [
+                            ':invoice_id' => $hellocashInvoiceId,
+                            ':invoice_number' => $hellocashInvoiceNumber,
+                            ':order_id' => $order_id
+                        ]);
+
+                        error_log("HelloCash Invoice erstellt: ID=$hellocashInvoiceId, Nummer=$hellocashInvoiceNumber");
+                    } else {
+                        error_log("HelloCash Invoice-Erstellung fehlgeschlagen: " . ($invoiceResult['error'] ?? 'Unbekannter Fehler'));
+                    }
+                }
+
+                // E-Mail-Benachrichtigungen versenden (asynchron)
+                $emailService = new EmailService();
+
+                // Bestätigungs-E-Mail an Kunden
+                try {
+                    $emailService->sendOrderConfirmation($order_id);
+                } catch (Exception $e) {
+                    error_log("Fehler beim Versenden der Bestellbestätigung: " . $e->getMessage());
+                }
+
+                // Benachrichtigungs-E-Mail an Admin
+                try {
+                    $emailService->sendOrderNotification($order_id);
+                } catch (Exception $e) {
+                    error_log("Fehler beim Versenden der Admin-Benachrichtigung: " . $e->getMessage());
+                }
+
                 // Warenkorb leeren
                 $cart->clear();
 

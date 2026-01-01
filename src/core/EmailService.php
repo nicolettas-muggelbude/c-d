@@ -264,4 +264,150 @@ class EmailService {
 
         return $this->db->query($sql);
     }
+
+    /**
+     * Bestellbestätigung an Kunden senden
+     *
+     * @param int $orderId Bestellungs-ID
+     * @return bool Erfolg
+     */
+    public function sendOrderConfirmation($orderId) {
+        // Bestelldaten laden
+        $order = $this->db->querySingle("SELECT * FROM orders WHERE id = :id", [':id' => $orderId]);
+
+        if (!$order) {
+            error_log("EmailService: Order $orderId not found");
+            return false;
+        }
+
+        // Bestellpositionen laden
+        $items = $this->db->query("
+            SELECT * FROM order_items WHERE order_id = :id
+        ", [':id' => $orderId]);
+
+        // E-Mail-Text erstellen
+        $subject = "Bestellbestätigung #" . $order['order_number'] . " - PC-Wittfoot UG";
+
+        $body = "Hallo " . $order['customer_firstname'] . " " . $order['customer_lastname'] . ",\n\n";
+        $body .= "vielen Dank für Ihre Bestellung bei PC-Wittfoot UG!\n\n";
+        $body .= "Bestellnummer: " . $order['order_number'] . "\n";
+        $body .= "Bestelldatum: " . date('d.m.Y H:i', strtotime($order['created_at'])) . "\n\n";
+
+        $body .= "--- Ihre Bestellung ---\n\n";
+        foreach ($items as $item) {
+            $body .= sprintf("%dx %s - %.2f EUR\n",
+                $item['quantity'],
+                $item['product_name'],
+                $item['price'] * $item['quantity']
+            );
+        }
+
+        $body .= "\n";
+        $body .= sprintf("Zwischensumme: %.2f EUR\n", $order['subtotal']);
+        $body .= sprintf("MwSt (19%%): %.2f EUR\n", $order['tax']);
+        $body .= sprintf("Gesamt: %.2f EUR\n\n", $order['total']);
+
+        // Lieferart
+        $deliveryMethod = $order['delivery_method'] === 'pickup' ? 'Abholung im Laden' : 'Versand';
+        $body .= "Lieferart: $deliveryMethod\n";
+
+        // Zahlungsart
+        $paymentMethods = [
+            'prepayment' => 'Vorkasse / Überweisung',
+            'cash' => 'Barzahlung bei Abholung',
+            'paypal' => 'PayPal'
+        ];
+        $paymentMethod = $paymentMethods[$order['payment_method']] ?? $order['payment_method'];
+        $body .= "Zahlungsart: $paymentMethod\n\n";
+
+        $body .= "Wir melden uns in Kürze bei Ihnen mit weiteren Details.\n\n";
+        $body .= "Mit freundlichen Grüßen\n";
+        $body .= "Ihr Team von PC-Wittfoot UG\n\n";
+        $body .= "---\n";
+        $body .= "PC-Wittfoot UG\n";
+        $body .= "E-Mail: " . MAIL_FROM . "\n";
+
+        // E-Mail versenden
+        return $this->sendMail($order['customer_email'], $subject, $body);
+    }
+
+    /**
+     * Benachrichtigung an Admin über neue Bestellung
+     *
+     * @param int $orderId Bestellungs-ID
+     * @return bool Erfolg
+     */
+    public function sendOrderNotification($orderId) {
+        // Bestelldaten laden
+        $order = $this->db->querySingle("SELECT * FROM orders WHERE id = :id", [':id' => $orderId]);
+
+        if (!$order) {
+            error_log("EmailService: Order $orderId not found");
+            return false;
+        }
+
+        // Bestellpositionen laden
+        $items = $this->db->query("
+            SELECT * FROM order_items WHERE order_id = :id
+        ", [':id' => $orderId]);
+
+        // E-Mail-Text erstellen
+        $subject = "Neue Bestellung #" . $order['order_number'] . " im Shop";
+
+        $body = "Eine neue Bestellung ist eingegangen:\n\n";
+        $body .= "Bestellnummer: " . $order['order_number'] . "\n";
+        $body .= "Bestelldatum: " . date('d.m.Y H:i', strtotime($order['created_at'])) . "\n\n";
+
+        $body .= "--- Kunde ---\n";
+        $body .= "Name: " . $order['customer_firstname'] . " " . $order['customer_lastname'] . "\n";
+        if ($order['customer_company']) {
+            $body .= "Firma: " . $order['customer_company'] . "\n";
+        }
+        $body .= "E-Mail: " . $order['customer_email'] . "\n";
+        if ($order['customer_phone']) {
+            $body .= "Telefon: " . $order['customer_phone'] . "\n";
+        }
+        $body .= "Adresse: " . $order['customer_street'] . " " . $order['customer_housenumber'] . ", " . $order['customer_zip'] . " " . $order['customer_city'] . "\n\n";
+
+        $body .= "--- Bestellpositionen ---\n\n";
+        foreach ($items as $item) {
+            $body .= sprintf("%dx %s (ID: %d) - %.2f EUR\n",
+                $item['quantity'],
+                $item['product_name'],
+                $item['product_id'],
+                $item['price'] * $item['quantity']
+            );
+        }
+
+        $body .= "\n";
+        $body .= sprintf("Gesamt: %.2f EUR\n\n", $order['total']);
+
+        // Lieferart
+        $deliveryMethod = $order['delivery_method'] === 'pickup' ? 'Abholung im Laden' : 'Versand';
+        $body .= "Lieferart: $deliveryMethod\n";
+
+        // Zahlungsart
+        $paymentMethods = [
+            'prepayment' => 'Vorkasse / Überweisung',
+            'cash' => 'Barzahlung bei Abholung',
+            'paypal' => 'PayPal'
+        ];
+        $paymentMethod = $paymentMethods[$order['payment_method']] ?? $order['payment_method'];
+        $body .= "Zahlungsart: $paymentMethod\n\n";
+
+        if ($order['order_notes']) {
+            $body .= "--- Anmerkungen ---\n";
+            $body .= $order['order_notes'] . "\n\n";
+        }
+
+        if ($order['hellocash_invoice_number']) {
+            $body .= "HelloCash Rechnung: " . $order['hellocash_invoice_number'] . "\n";
+        }
+
+        $body .= "\nBestellung im Admin-Bereich ansehen:\n";
+        $body .= BASE_URL . "/admin/orders/" . $order['id'] . "\n";
+
+        // E-Mail an Admin versenden
+        return $this->sendMail(MAIL_ADMIN, $subject, $body);
+    }
 }

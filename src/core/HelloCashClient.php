@@ -436,4 +436,80 @@ class HelloCashClient {
             'error' => 'User konnte nicht erstellt werden'
         ];
     }
+
+    /**
+     * Erstellt eine Invoice (Rechnung) in HelloCash
+     *
+     * @param array $invoiceData Invoice-Daten
+     *   - user_id: HelloCash User-ID (required)
+     *   - items: Array mit Artikeln (required)
+     *       - name: Artikelname
+     *       - quantity: Menge
+     *       - price: Bruttopreis
+     *       - tax_rate: Steuersatz (z.B. 19)
+     *   - payment_method: Zahlungsmethode (optional, default: 'Vorkasse')
+     *   - notes: Notizen (optional)
+     * @return array ['invoice_id' => int, 'invoice_number' => string, 'error' => string|null]
+     */
+    public function createInvoice($invoiceData) {
+        if (!$this->isConfigured()) {
+            return [
+                'invoice_id' => null,
+                'invoice_number' => null,
+                'error' => 'HelloCash API nicht konfiguriert'
+            ];
+        }
+
+        try {
+            // Items vorbereiten
+            $items = [];
+            foreach ($invoiceData['items'] as $item) {
+                $items[] = [
+                    'item_name' => $item['name'],
+                    'item_quantity' => (string)$item['quantity'],
+                    'item_price' => (string)$item['price'],
+                    'item_taxRate' => (string)($item['tax_rate'] ?? 19),
+                    'item_type' => 'article'
+                ];
+            }
+
+            // Request-Payload
+            $payload = [
+                'invoice_user_id' => (int)$invoiceData['user_id'],
+                'items' => $items,
+                'invoice_paymentMethod' => $invoiceData['payment_method'] ?? 'Vorkasse',
+                'invoice_type' => 'json'
+            ];
+
+            // Notizen hinzufügen falls vorhanden
+            if (!empty($invoiceData['notes'])) {
+                $payload['invoice_text'] = $invoiceData['notes'];
+            }
+
+            // API-Request
+            $response = $this->request('POST', '/invoices', $payload);
+
+            if (isset($response['invoice_id'])) {
+                return [
+                    'invoice_id' => $response['invoice_id'],
+                    'invoice_number' => $response['invoice_number'] ?? null,
+                    'error' => null
+                ];
+            }
+
+            return [
+                'invoice_id' => null,
+                'invoice_number' => null,
+                'error' => 'Invoice konnte nicht erstellt werden'
+            ];
+
+        } catch (Exception $e) {
+            error_log('HelloCash createInvoice Error: ' . $e->getMessage());
+            return [
+                'invoice_id' => null,
+                'invoice_number' => null,
+                'error' => $e->getMessage()
+            ];
+        }
+    }
 }
