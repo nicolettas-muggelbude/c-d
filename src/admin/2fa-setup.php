@@ -21,7 +21,7 @@ $error = '';
 $success = '';
 
 // Step 1: Secret generieren und QR-Code anzeigen
-if ($step === 'setup' && !$twofa) {
+if ($step === 'setup') {
     if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && $_POST['action'] === 'generate') {
         // Neues Secret generieren
         $secret = TOTP::generateSecret();
