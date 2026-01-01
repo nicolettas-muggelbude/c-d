@@ -283,7 +283,12 @@ class EmailService {
         $orderDate = date('d.m.Y H:i', strtotime($order['created_at']));
 
         // Lieferart
-        $deliveryMethod = $order['delivery_method'] === 'pickup' ? 'Abholung im Laden' : 'Versand';
+        $deliveryMethods = [
+            'billing' => 'Versand an Rechnungsadresse',
+            'pickup' => 'Abholung im Laden',
+            'shipping' => 'Versand an andere Adresse'
+        ];
+        $deliveryMethod = $deliveryMethods[$order['delivery_method']] ?? $order['delivery_method'];
 
         // Zahlungsart
         $paymentMethods = [

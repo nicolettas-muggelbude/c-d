@@ -456,7 +456,9 @@ include __DIR__ . '/../templates/header.php';
                         <div class="form-group">
                             <label for="delivery_method">Lieferart *</label>
                             <select id="delivery_method" name="delivery_method" required>
-                                <option value="">Bitte wählen...</option>
+                                <option value="billing" <?= ($form_data['delivery_method'] ?? '') === 'billing' ? 'selected' : '' ?>>
+                                    Lieferadresse wie Rechnungsadresse
+                                </option>
                                 <option value="pickup" <?= ($form_data['delivery_method'] ?? '') === 'pickup' ? 'selected' : '' ?>>
                                     Abholung im Laden (kostenlos)
                                 </option>
