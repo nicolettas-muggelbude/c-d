@@ -96,6 +96,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['ajax_action'])) {
                     ':status' => $status
                 ]);
 
+                // Email-Bestätigung senden (nur bei Kundenterminen mit Email)
+                if ($bookingId && !empty($customerEmail) && in_array($bookingType, ['fixed', 'walkin'])) {
+                    $emailService = new EmailService();
+                    $emailService->sendBookingEmail($bookingId, 'confirmation');
+                }
+
                 echo json_encode(['success' => true, 'message' => 'Termin erstellt', 'id' => $bookingId]);
             }
         } catch (Exception $e) {

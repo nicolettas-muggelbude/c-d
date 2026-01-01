@@ -1174,3 +1174,305 @@ $heightPixels = (3 * 60) - 1; // = 179px
 - PayPal-Integration
 - Bewertungen einbinden
 
+## Session 2026-01-01 (Fortsetzung): Template-basiertes Email-System mit Erinnerungen
+
+### Erreichte Ziele ✅
+
+#### 1. Datenbank-basierte Email-Templates
+**Problem:** Email-Texte waren hardcodiert im PHP-Code, keine Möglichkeit zur Anpassung durch Admin.
+
+**Lösung:**
+- **Email-Templates Tabelle:**
+  - 3 Template-Typen: `confirmation`, `reminder_24h`, `reminder_1h`
+  - Felder: subject, body, placeholders, is_active
+  - Vollständig editierbar über Admin-UI
+- **Email-Signatur Tabelle:**
+  - Globale Signatur für alle Emails
+  - Wird automatisch an alle Nachrichten angehängt
+- **Email-Log Tabelle:**
+  - Audit-Trail aller versendeten Emails
+  - Status-Tracking (sent/failed/pending)
+  - Duplikat-Vermeidung durch Prüfung
+
+**Dateien:**
+- `database/create-email-templates.sql` - Schema mit Defaults
+
+#### 2. EmailService-Klasse
+**Zentrale Service-Klasse** für alle Email-Vorgänge:
+
+**Features:**
+- `sendBookingEmail($bookingId, $templateType)` - Haupt-Methode
+- `getTemplate($type)` - Lädt Template aus DB
+- `getSignature()` - Lädt Signatur aus DB
+- `replacePlaceholders($text, $booking)` - Ersetzt Platzhalter
+- `sendMail($to, $subject, $body)` - Versendet Email
+- `logEmail(...)` - Loggt Versand-Vorgänge
+- `isEmailAlreadySent(...)` - Prüft Duplikate
+- `getBookingsForReminder24h()` - Findet Termine für 24h-Reminder
+- `getBookingsForReminder1h()` - Findet Termine für 1h-Reminder
+
+**Platzhalter-System:**
+```php
+{customer_firstname}       → "Max"
+{customer_lastname}        → "Mustermann"
+{booking_id}              → "123"
+{booking_date_formatted}  → "Dienstag, 07. Januar 2026"
+{booking_time_formatted}  → "11:00 Uhr" oder "Walk-in ab 14:00 Uhr"
+{service_type_label}      → "PC-Reparatur"
+{booking_type_label}      → "Fester Termin"
+{customer_notes_section}  → "Ihre Anmerkungen:\n..."
+```
+
+**Datei:** `src/core/EmailService.php`
+
+#### 3. Admin-UI für Email-Template-Verwaltung
+**Vollständige Verwaltung** aller Email-Templates:
+
+**Features:**
+- **Template-Liste:** Alle Templates mit Status (aktiv/inaktiv)
+- **Template bearbeiten:**
+  - Subject und Body editierbar (Textarea)
+  - Verfügbare Platzhalter werden angezeigt
+  - Speichern-Button mit Bestätigung
+- **Signatur bearbeiten:**
+  - Globale Signatur für alle Emails
+  - Wird automatisch angehängt
+- **Toggle aktiv/inaktiv:**
+  - Templates können deaktiviert werden
+  - Inaktive Templates werden nicht versendet
+
+**Standard-Templates:**
+1. **Buchungsbestätigung (confirmation):**
+   - Betreff: "Ihre Terminbuchung #{booking_id} - PC-Wittfoot UG"
+   - Inhalt mit Box-Design (UTF-8 Linien)
+   - Termindetails formatiert
+   - Was mitbringen-Checkliste
+
+2. **24-Stunden-Erinnerung (reminder_24h):**
+   - Betreff: "Erinnerung: Ihr Termin morgen um {booking_time_formatted}"
+   - Freundliche Erinnerung
+   - Alle Termindetails nochmal
+
+3. **1-Stunden-Erinnerung (reminder_1h):**
+   - Betreff: "Ihr Termin in 1 Stunde - PC-Wittfoot UG"
+   - Kurze Erinnerung
+   - Wichtigste Infos (Adresse, Zeit)
+
+**Datei:** `src/admin/email-templates.php`
+
+#### 4. Automatische Erinnerungs-Emails via Cron-Jobs
+**Problem:** Kunden vergessen ihre Termine.
+
+**Lösung - 24-Stunden-Erinnerung:**
+- **Cron-Job:** Läuft täglich um 10:00 Uhr
+- **Zielgruppe:** Termine am nächsten Tag
+- **Filter:**
+  - `booking_date = DATE_ADD(CURDATE(), INTERVAL 1 DAY)`
+  - Status: pending oder confirmed
+  - Nur fixed und walkin Termine
+  - Nicht bereits versendet (Email-Log-Check)
+
+**Lösung - 1-Stunden-Erinnerung:**
+- **Cron-Job:** Läuft stündlich
+- **Zielgruppe:** Termine in 50-70 Minuten
+- **Filter:**
+  - `booking_date = CURDATE()`
+  - `booking_time` zwischen NOW()+50min und NOW()+70min
+  - Nur fixed Termine (haben feste Zeit)
+  - Status: pending oder confirmed
+  - Nicht bereits versendet
+
+**Features beider Jobs:**
+- CLI-only Check (Sicherheit)
+- Zählt gesendete/fehlgeschlagene Emails
+- Logging: Datum, Zeit, Statistik
+- Exit-Code für Monitoring (0 = OK, 1 = Fehler)
+
+**Dateien:**
+- `src/cron/send-reminder-24h.php` - 24h-Job
+- `src/cron/send-reminder-1h.php` - 1h-Job
+
+**Crontab-Beispiel:**
+```bash
+# 24h-Erinnerungen täglich um 10:00 Uhr
+0 10 * * * /usr/bin/php /pfad/zu/src/cron/send-reminder-24h.php
+
+# 1h-Erinnerungen jede Stunde
+0 * * * * /usr/bin/php /pfad/zu/src/cron/send-reminder-1h.php
+```
+
+#### 5. Email-Versand bei Admin-Buchung
+**Problem:** Wenn Admin einen Termin für Kunden erstellt, erhält dieser keine Bestätigung.
+
+**Lösung:**
+- Integration in `src/admin/booking-calendar-v2.php`
+- Prüfung nach INSERT:
+  - Buchung erfolgreich erstellt?
+  - Email-Adresse vorhanden?
+  - Kundenrelevanter Termin? (fixed/walkin, nicht internal/blocked)
+- Automatischer Versand der confirmation-Email
+- Fail-Safe: Fehler beim Email-Versand stoppt Buchung nicht
+
+**Code:**
+```php
+// Email-Bestätigung senden (nur bei Kundenterminen mit Email)
+if ($bookingId && !empty($customerEmail) && in_array($bookingType, ['fixed', 'walkin'])) {
+    $emailService = new EmailService();
+    $emailService->sendBookingEmail($bookingId, 'confirmation');
+}
+```
+
+**Gilt für:**
+- Kalenderansicht (`/admin/booking-calendar`)
+- Wochenansicht (`/admin/booking-week`)
+
+**Datei:** `src/admin/booking-calendar-v2.php`
+
+#### 6. Migration: Alte Email-Funktion entfernt
+**Vorher:**
+- 158 Zeilen hardcodierte Email-Funktion `sendBookingEmails()`
+- Separate Email für Kunde und Admin
+- Nicht wiederverwendbar, nicht konfigurierbar
+
+**Nachher:**
+- Ersetzt durch `EmailService::sendBookingEmail()`
+- Wiederverwendbar in gesamter Anwendung
+- Admin-editierbar, Template-basiert
+- Umfangreiches Logging
+
+**Datei:** `src/api/booking.php` (158 Zeilen entfernt, 3 Zeilen hinzugefügt)
+
+### Technische Details
+
+#### Duplikat-Vermeidung
+```php
+// Prüft ob Email bereits versendet wurde
+private function isEmailAlreadySent($bookingId, $emailType) {
+    $result = $this->db->querySingle(
+        "SELECT COUNT(*) as count FROM email_log
+         WHERE booking_id = :booking_id
+         AND email_type = :email_type
+         AND status = 'sent'",
+        [':booking_id' => $bookingId, ':email_type' => $emailType]
+    );
+    return ($result['count'] ?? 0) > 0;
+}
+```
+
+**Vorteil:** Auch bei mehrfachem Aufruf wird Email nur 1x versendet.
+
+#### Datum-Formatierung (deutsch)
+```php
+// Wochentage
+$weekdays = ['Sonntag', 'Montag', 'Dienstag', 'Mittwoch',
+             'Donnerstag', 'Freitag', 'Samstag'];
+
+// Monate
+$months = ['', 'Januar', 'Februar', 'März', 'April', 'Mai', 'Juni',
+           'Juli', 'August', 'September', 'Oktober', 'November', 'Dezember'];
+
+// Formatierung
+$dateFormatted = $weekdays[(int)$date->format('w')] . ', ' .
+                $date->format('d') . '. ' .
+                $months[(int)$date->format('n')] . ' ' .
+                $date->format('Y');
+// Ergebnis: "Dienstag, 07. Januar 2026"
+```
+
+#### Email-Versand mit UTF-8
+```php
+private function sendMail($to, $subject, $body) {
+    $headers = "From: " . MAIL_FROM_NAME . " <" . MAIL_FROM . ">\r\n";
+    $headers .= "Reply-To: " . MAIL_FROM . "\r\n";
+    $headers .= "Content-Type: text/plain; charset=UTF-8\r\n";
+
+    $sent = @mail($to, $subject, $body, $headers);
+
+    // Logging
+    if ($sent) {
+        error_log("EmailService: Email sent to $to");
+    } else {
+        error_log("EmailService: Failed to send email to $to");
+    }
+
+    return $sent;
+}
+```
+
+**Hinweis:** PHP mail() Funktion - für Produktion ggf. SMTP/PHPMailer verwenden.
+
+#### SQL-Query für 1h-Erinnerungen
+```sql
+SELECT id FROM bookings
+WHERE booking_date = CURDATE()
+AND booking_time IS NOT NULL
+AND booking_time BETWEEN
+    DATE_FORMAT(DATE_ADD(NOW(), INTERVAL 50 MINUTE), '%H:%i:00')
+    AND DATE_FORMAT(DATE_ADD(NOW(), INTERVAL 70 MINUTE), '%H:%i:00')
+AND booking_type = 'fixed'
+AND status IN ('pending', 'confirmed')
+AND id NOT IN (
+    SELECT booking_id FROM email_log
+    WHERE email_type = 'reminder_1h' AND status = 'sent'
+)
+```
+
+**Zeitfenster:** 50-70 Minuten → Cron-Job läuft stündlich, trifft damit alle Termine.
+
+### Dateistruktur (Neu)
+
+```
+src/
+├── core/
+│   └── EmailService.php          # Email-Service-Klasse (NEU)
+├── admin/
+│   └── email-templates.php       # Template-Verwaltung (NEU)
+├── cron/
+│   ├── send-reminder-24h.php     # 24h-Reminder Job (NEU)
+│   └── send-reminder-1h.php      # 1h-Reminder Job (NEU)
+└── api/
+    └── booking.php               # Email-Integration (AKTUALISIERT)
+
+database/
+└── create-email-templates.sql    # Schema + Defaults (NEU)
+```
+
+### Projektstand nach Session
+
+#### Komplett implementiert ✅
+- ✅ Datenbank-Schema für Email-System
+- ✅ EmailService-Klasse mit allen Features
+- ✅ Admin-UI für Template-Verwaltung
+- ✅ Platzhalter-System mit deutscher Formatierung
+- ✅ 24h-Erinnerungs-Cron-Job
+- ✅ 1h-Erinnerungs-Cron-Job
+- ✅ Email-Versand bei Admin-Buchung
+- ✅ Email-Versand bei Kunden-Buchung
+- ✅ Duplikat-Vermeidung
+- ✅ Umfangreiches Logging
+
+#### Bereit für Produktion
+- **Funktionsumfang:** Vollständig
+- **Testing:** Durchgeführt
+- **Integration:** Abgeschlossen
+- **Dokumentation:** Vollständig
+
+#### Mögliche Erweiterungen (Optional)
+- SMTP-Integration für bessere Zustellbarkeit
+- HTML-Email-Templates (derzeit: Plain Text)
+- CC/BCC-Funktion
+- Attachment-Support
+- Email-Versand-Statistiken im Dashboard
+
+#### Router-Integration
+Neue Route hinzugefügt:
+```php
+// src/router.php
+elseif ($param === 'email-templates') {
+    require_admin();
+    require __DIR__ . '/admin/email-templates.php';
+}
+```
+
+**Zugriff:** `/admin/email-templates`
+

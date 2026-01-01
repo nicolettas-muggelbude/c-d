@@ -146,6 +146,9 @@ switch ($page) {
         } elseif ($param === 'booking-week') {
             require_admin();
             require __DIR__ . '/admin/booking-week.php';
+        } elseif ($param === 'email-templates') {
+            require_admin();
+            require __DIR__ . '/admin/email-templates.php';
         } else {
             require_admin();
             require __DIR__ . '/admin/index.php';
