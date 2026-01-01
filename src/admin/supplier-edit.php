@@ -35,6 +35,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $csv_delimiter = $_POST['csv_delimiter'] ?? ',';
         $csv_encoding = $_POST['csv_encoding'] ?? 'UTF-8';
         $price_markup = (float)str_replace(',', '.', $_POST['price_markup'] ?? 0);
+        $free_shipping = isset($_POST['free_shipping']) ? 1 : 0;
         $is_active = isset($_POST['is_active']) ? 1 : 0;
 
         // Spalten-Mapping
@@ -68,6 +69,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                         csv_encoding = :csv_encoding,
                         column_mapping = :column_mapping,
                         price_markup = :price_markup,
+                        free_shipping = :free_shipping,
                         is_active = :is_active,
                         updated_at = NOW()
                     WHERE id = :id
@@ -79,6 +81,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     ':csv_encoding' => $csv_encoding,
                     ':column_mapping' => $column_mapping_json,
                     ':price_markup' => $price_markup,
+                    ':free_shipping' => $free_shipping,
                     ':is_active' => $is_active,
                     ':id' => $supplier_id
                 ]);
@@ -89,10 +92,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 $db->insert("
                     INSERT INTO suppliers (
                         name, description, csv_url, csv_delimiter, csv_encoding,
-                        column_mapping, price_markup, is_active, created_at
+                        column_mapping, price_markup, free_shipping, is_active, created_at
                     ) VALUES (
                         :name, :description, :csv_url, :csv_delimiter, :csv_encoding,
-                        :column_mapping, :price_markup, :is_active, NOW()
+                        :column_mapping, :price_markup, :free_shipping, :is_active, NOW()
                     )
                 ", [
                     ':name' => $name,
@@ -102,6 +105,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     ':csv_encoding' => $csv_encoding,
                     ':column_mapping' => $column_mapping_json,
                     ':price_markup' => $price_markup,
+                    ':free_shipping' => $free_shipping,
                     ':is_active' => $is_active
                 ]);
 
@@ -222,6 +226,14 @@ include __DIR__ . '/../templates/header.php';
                         Preisberechnung: (Lieferanten-Preis × (1 + Aufschlag/100)) → gerundet auf nächste 10er minus 1<br>
                         Beispiel: 40,20 € mit 20% → 48,24 € → 49 €
                     </small>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-check">
+                        <input type="checkbox" name="free_shipping" <?= $is_edit && $supplier && $supplier['free_shipping'] ? 'checked' : '' ?>>
+                        <span>Versandkostenfrei Deutschland</span>
+                    </label>
+                    <small class="text-muted">Diese Einstellung wird bei CSV-Import auf die Produkte übertragen</small>
                 </div>
 
                 <div class="form-group">

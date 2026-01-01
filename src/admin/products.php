@@ -231,6 +231,11 @@ include __DIR__ . '/../templates/header.php';
                                 <span class="text-muted">Lagerbestand:</span>
                                 <span><strong><?= $product['stock'] ?></strong> Stück</span>
                             </div>
+                            <?php if ($product['free_shipping']): ?>
+                                <div style="margin-top: 0.5rem; font-size: 0.85rem; color: var(--color-success);">
+                                    📦 Versandkostenfrei Deutschland
+                                </div>
+                            <?php endif; ?>
                         </div>
 
                         <div style="margin-bottom: 1rem; font-size: 0.9rem;">

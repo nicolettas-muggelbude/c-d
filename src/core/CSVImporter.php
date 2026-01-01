@@ -183,6 +183,9 @@ class CSVImporter {
         // Lagerbestand
         $supplier_stock = (int)($data['stock'] ?? 0);
 
+        // Versandkosten vom Lieferanten übernehmen
+        $free_shipping = (int)($this->supplier['free_shipping'] ?? 0);
+
         // Prüfen ob Produkt bereits existiert
         $existing = $this->db->querySingle(
             "SELECT id FROM products WHERE sku = :sku AND supplier_id = :supplier_id",
@@ -201,6 +204,7 @@ class CSVImporter {
                     price = :price,
                     supplier_stock = :supplier_stock,
                     supplier_name = :supplier_name,
+                    free_shipping = :free_shipping,
                     last_csv_sync = NOW(),
                     updated_at = NOW()
                 WHERE id = :id
@@ -210,6 +214,7 @@ class CSVImporter {
                 ':price' => $selling_price,
                 ':supplier_stock' => $supplier_stock,
                 ':supplier_name' => $this->supplier['name'],
+                ':free_shipping' => $free_shipping,
                 ':id' => $existing['id']
             ]);
 
@@ -219,10 +224,10 @@ class CSVImporter {
             $this->db->insert("
                 INSERT INTO products (
                     name, sku, slug, description, price, stock, supplier_id, supplier_name,
-                    supplier_stock, source, is_active, last_csv_sync, created_at
+                    supplier_stock, free_shipping, source, is_active, last_csv_sync, created_at
                 ) VALUES (
                     :name, :sku, :slug, :description, :price, 0, :supplier_id, :supplier_name,
-                    :supplier_stock, 'csv_import', 0, NOW(), NOW()
+                    :supplier_stock, :free_shipping, 'csv_import', 0, NOW(), NOW()
                 )
             ", [
                 ':name' => $data['name'],
@@ -232,7 +237,8 @@ class CSVImporter {
                 ':price' => $selling_price,
                 ':supplier_id' => $this->supplier['id'],
                 ':supplier_name' => $this->supplier['name'],
-                ':supplier_stock' => $supplier_stock
+                ':supplier_stock' => $supplier_stock,
+                ':free_shipping' => $free_shipping
             ]);
 
             $this->stats['imported']++;

@@ -70,6 +70,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && (!isset($_POST['action']) || $_POST
         $is_active = isset($_POST['is_active']) ? 1 : 0;
         $in_showroom = isset($_POST['in_showroom']) ? 1 : 0;
         $sync_with_hellocash = isset($_POST['sync_with_hellocash']) ? 1 : 0;
+        $free_shipping = isset($_POST['free_shipping']) ? 1 : 0;
         $source = $is_edit && $product ? $product['source'] : 'manual';
 
         // Validierung
@@ -138,6 +139,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && (!isset($_POST['action']) || $_POST
                         is_active = :is_active,
                         in_showroom = :in_showroom,
                         sync_with_hellocash = :sync_with_hellocash,
+                        free_shipping = :free_shipping,
                         updated_at = NOW()
                     WHERE id = :id
                 ", [
@@ -151,6 +153,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && (!isset($_POST['action']) || $_POST
                     ':is_active' => $is_active,
                     ':in_showroom' => $in_showroom,
                     ':sync_with_hellocash' => $sync_with_hellocash,
+                    ':free_shipping' => $free_shipping,
                     ':id' => $product_id
                 ]);
 
@@ -160,10 +163,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && (!isset($_POST['action']) || $_POST
                 $db->insert("
                     INSERT INTO products (
                         name, sku, slug, description, price, stock, image, category_id,
-                        is_active, source, in_showroom, sync_with_hellocash, created_at
+                        is_active, source, in_showroom, sync_with_hellocash, free_shipping, created_at
                     ) VALUES (
                         :name, :sku, :slug, :description, :price, :stock, :image, :category_id,
-                        :is_active, :source, :in_showroom, :sync_with_hellocash, NOW()
+                        :is_active, :source, :in_showroom, :sync_with_hellocash, :free_shipping, NOW()
                     )
                 ", [
                     ':name' => $name,
@@ -177,7 +180,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && (!isset($_POST['action']) || $_POST
                     ':is_active' => $is_active,
                     ':source' => $source,
                     ':in_showroom' => $in_showroom,
-                    ':sync_with_hellocash' => $sync_with_hellocash
+                    ':sync_with_hellocash' => $sync_with_hellocash,
+                    ':free_shipping' => $free_shipping
                 ]);
 
                 set_flash('success', 'Produkt erstellt.');
@@ -308,6 +312,14 @@ include __DIR__ . '/../templates/header.php';
                         <span>Mit HelloCash synchronisieren</span>
                     </label>
                     <small class="text-muted">Produkt wird bei Änderungen zu HelloCash übertragen</small>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-check">
+                        <input type="checkbox" name="free_shipping" <?= $is_edit && $product && $product['free_shipping'] ? 'checked' : '' ?>>
+                        <span>Versandkostenfrei Deutschland</span>
+                    </label>
+                    <small class="text-muted">Kostenloser Versand innerhalb Deutschland</small>
                 </div>
 
                 <div class="form-group" style="margin-top: 2rem;">

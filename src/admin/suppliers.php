@@ -78,6 +78,10 @@ include __DIR__ . '/../templates/header.php';
                                 <span>Aufschlag:</span>
                                 <strong><?= number_format($supplier['price_markup'], 1, ',', '.') ?>%</strong>
                             </div>
+                            <div style="display: flex; justify-content: space-between; margin-bottom: 0.5rem;">
+                                <span>Versand:</span>
+                                <strong><?= $supplier['free_shipping'] ? '📦 Kostenfrei' : 'Kostenpflichtig' ?></strong>
+                            </div>
                             <?php if ($supplier['last_import_at']): ?>
                                 <div style="display: flex; justify-content: space-between;">
                                     <span>Letzter Import:</span>
