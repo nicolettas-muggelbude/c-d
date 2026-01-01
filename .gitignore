@@ -26,3 +26,7 @@ Thumbs.db
 
 # Config (sollte nicht committed werden, aber hier ist es für Entwicklung)
 # src/core/config.php
+
+# Deployment-System
+/backups/
+/src/MAINTENANCE

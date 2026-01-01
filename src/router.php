@@ -10,6 +10,9 @@ require_once __DIR__ . '/core/config.php';
 
 start_session_safe();
 
+// Wartungsmodus-Check (vor allen Routen)
+require_once __DIR__ . '/core/maintenance.php';
+
 // Route aus URL holen
 $route = isset($_GET['route']) ? trim($_GET['route'], '/') : '';
 
@@ -155,6 +158,9 @@ switch ($page) {
         } elseif ($param === 'smtp-test') {
             require_admin();
             require __DIR__ . '/admin/smtp-test.php';
+        } elseif ($param === 'maintenance') {
+            require_admin();
+            require __DIR__ . '/admin/maintenance.php';
         } else {
             require_admin();
             require __DIR__ . '/admin/index.php';
@@ -187,6 +193,10 @@ switch ($page) {
 
             case 'hellocash-search':
                 require __DIR__ . '/api/hellocash-search.php';
+                break;
+
+            case 'health-check':
+                require __DIR__ . '/api/health-check.php';
                 break;
 
             default:

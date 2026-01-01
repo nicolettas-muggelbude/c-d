@@ -105,6 +105,10 @@ include __DIR__ . '/../templates/header.php';
                     🔧 SMTP-Einstellungen
                 </a>
 
+                <a href="<?= BASE_URL ?>/admin/maintenance" class="btn btn-outline btn-block">
+                    🛠️ Wartungsmodus
+                </a>
+
                 <a href="<?= BASE_URL ?>/admin/logout" class="btn btn-outline btn-block" style="color: var(--color-error);">
                     🚪 Abmelden
                 </a>

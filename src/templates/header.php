@@ -22,6 +22,13 @@
     <?php endif; ?>
 </head>
 <body>
+    <!-- Wartungsmodus-Warnung (nur für Admins sichtbar) -->
+    <?php if (defined('MAINTENANCE_ADMIN_BYPASS') && MAINTENANCE_ADMIN_BYPASS): ?>
+        <div style="background: #ff9800; color: white; padding: 1rem; text-align: center; font-weight: bold; position: sticky; top: 0; z-index: 10000;">
+            ⚠️ WARTUNGSMODUS AKTIV - Sie sind als Admin eingeloggt und können trotzdem zugreifen. Normale Besucher sehen die Wartungsseite.
+        </div>
+    <?php endif; ?>
+
     <!-- Skip-Link (Barrierefreiheit) -->
     <a href="#main" class="skip-link">Zum Hauptinhalt springen</a>
 
