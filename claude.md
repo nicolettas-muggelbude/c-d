@@ -2443,16 +2443,173 @@ ls -la backups/
 bash -x backup.sh
 ```
 
+## Session 2026-01-01: Shop-System, Produktverwaltung & CSV-Import
+
+### Implementierte Features
+
+#### 1. Shop-System: HelloCash Integration für Bestellungen
+**Status:** ✅ Abgeschlossen
+
+**Funktionsweise:**
+- Kundendaten werden automatisch in HelloCash angelegt (findOrCreateUser)
+- Bei Bestellung wird HelloCash-Rechnung erstellt (digital, mit Link)
+- Rechnung wird per E-Mail an Kunde versendet
+- Admin erhält Bestellbenachrichtigung
+
+**Dateien:**
+- `src/pages/kasse.php` - HelloCash-Integration beim Checkout
+- `src/core/HelloCashClient.php` - createInvoice() Methode
+- `src/core/EmailService.php` - Template-System für Shop-E-Mails
+
+**Database:**
+- Migration 006: `hellocash_invoice_id`, `hellocash_invoice_number`
+- Migration 007: `hellocash_invoice_link`
+- Migration 008: E-Mail-Templates (order_confirmation, order_notification)
+- Migration 009: `delivery_method` ENUM ('billing', 'pickup', 'shipping')
+- Migration 010: Entfernung 'cash' Zahlungsart
+
+**E-Mail-Templates:**
+- Bestellbestätigung (Kunde) mit Rechnung-Link
+- Bestellbenachrichtigung (Admin)
+- Konfigurierbar im Admin-Bereich
+- Platzhalter: {customer_firstname}, {order_number}, {order_items}, {invoice_link_section}, etc.
+
+#### 2. Bestellungen-Verwaltung
+**Status:** ✅ Abgeschlossen
+
+**Admin-Seiten:**
+- `/admin/orders` - Übersicht mit Grid-Layout, Filtern (Status, Suche)
+- `/admin/order/{id}` - Detailansicht mit Status-Änderung, Kundendaten, Positionen
+
+**Features:**
+- Responsive Grid-Layout (1/2/3 Spalten)
+- Filter: Status (Neu, In Bearbeitung, Versandt, etc.)
+- Suchfunktion (Bestellnummer, Name, E-Mail)
+- Status-Badges mit Emojis
+- Kompakte Sidebar-Cards mit `height: fit-content`
+- Grid mit `align-items: start` für korrekte Footer-Position
+- HelloCash-Rechnung-Link Integration
+
+**Layout-Optimierungen:**
+- Sidebar-Cards kompakt gestaltet
+- Bestellinformationen von Tabelle zu div-Layout
+- Status-Card minimal mit direktem Dropdown
+
+#### 3. Produktverwaltung - Phase 1
+**Status:** ✅ Abgeschlossen
+
+**Database:**
+- Migration 011: Erweiterte Felder für Produktverwaltung
+  - `source` ENUM('csv_import', 'hellocash', 'manual')
+  - `supplier_id`, `supplier_name`, `supplier_stock`
+  - `in_showroom` (Verfügbar in Oldenburg)
+  - `sync_with_hellocash`, `last_csv_sync`
+
+**Admin-Seiten:**
+- `/admin/products` - Übersicht mit Grid-Layout
+- `/admin/product-edit` - Erstellen/Bearbeiten
+
+**Features:**
+- Filter: Quelle (Manuell/CSV/HelloCash), Status, Lagerbestand
+- Bild-Upload mit Validierung (JPG, PNG, WEBP)
+- Checkbox: "Verfügbar in Oldenburg" (statt "Ausstellung")
+- Checkbox: "Mit HelloCash synchronisieren"
+- Status-Badges: Aktiv, Oldenburg, Ausverkauft, Niedriger Bestand
+- **Schutz:** Produkte mit Bestellungen können nicht gelöscht werden
+- **Bulk-Delete:** Alle inaktiven/ausverkauften Produkte ohne Bestellungen löschen
+
+**Reorganisierungs-Funktion:**
+- Warnung-Box zeigt Anzahl löschbarer Produkte
+- Bestätigungs-Dialog
+- Löscht automatisch Produktbilder
+
+#### 4. CSV-Import-System - Phase 2
+**Status:** ✅ Kern-Funktionalität abgeschlossen, Cronjob ausstehend
+
+**Database:**
+- Migration 012: `suppliers` und `product_import_logs` Tabellen
+- Foreign Key: `products.supplier_id` → `suppliers.id`
+
+**Core-Komponenten:**
+- `src/core/CSVImporter.php` - Flexibler Parser mit Spalten-Mapping
+  - Unterstützt verschiedene Delimiter (Komma, Semikolon, Tab)
+  - Encoding-Konvertierung (UTF-8, ISO-8859-1, Windows-1252)
+  - Automatische Preis-Kalkulation mit Aufschlag
+  - Import-Statistiken (neu/aktualisiert/übersprungen/Fehler)
+
+**Admin-Seiten:**
+- `/admin/suppliers` - Lieferanten-Übersicht mit Statistiken
+- `/admin/supplier-edit` - Lieferant erstellen/bearbeiten
+- `/admin/csv-import` - Import durchführen mit Historie
+
+**Lieferanten-Konfiguration:**
+- Name, Beschreibung
+- CSV-URL oder lokaler Pfad
+- CSV-Delimiter und Encoding
+- Spalten-Mapping (Name, SKU, Preis, Lagerbestand, Beschreibung)
+- Preis-Aufschlag in %
+- Aktiv/Inaktiv Status
+
+**Import-Workflow:**
+1. CSV-Datei herunterladen (falls URL) oder lokal laden
+2. Zeilen parsen mit konfiguriertem Mapping
+3. Neue Produkte: Anlegen mit `source='csv_import'`, inaktiv
+4. Bestehende Produkte: Aktualisieren (gleiche SKU + supplier_id)
+5. Verkaufspreis = Lieferanten-Preis × (1 + Aufschlag/100)
+6. Statistiken und Fehler-Log erstellen
+
+**Import-Logs:**
+- Status: running, completed, failed
+- Statistiken: imported_count, updated_count, skipped_count, error_count
+- Details: JSON mit Fehlermeldungen
+- Dauer in Sekunden
+
+**Dashboard-Integration:**
+- Link "📦 Lieferanten & CSV-Import"
+
+#### 5. Produkttypen-Konzept
+**Hybrid-Ansatz für verschiedene Produktquellen:**
+
+**1. CSV-Import (Dropshipping):**
+- Stündlicher Import aus Lieferanten-CSV
+- Bei Verkauf: Dynamisch zu HelloCash (Kategorie "Online-Shop")
+- Kein Lagerbestand in HelloCash
+
+**2. Ausstellungs-Artikel (Lieferanten vor Ort):**
+- In HelloCash (Kategorie "Showroom")
+- `in_showroom = 1`
+- Mit Lagerbestand
+
+**3. HelloCash-Artikel (eigene Ware):**
+- Manuell ausgewählte HelloCash-Artikel für Shop
+- Im Shop anzeigbar
+
+### Offene Punkte
+
+#### Cronjob-Script für CSV-Import
+**Status:** ⏳ Ausstehend
+
+**Anforderung:**
+- Stündlicher automatischer Import
+- Script: `/scripts/cron-csv-import.php`
+- Durchläuft alle aktiven Lieferanten
+- Ruft CSVImporter auf
+
+**Alternativen ohne Cronjob:**
+- Webhook-basierter Trigger
+- Manueller Import über Admin-Interface
+
 ### Nächste Session
 
 #### Priorität Hoch
-- Blog-System vervollständigen (Posts editieren/löschen)
+- Cronjob-Script für CSV-Import erstellen
 - PayPal-Integration (Zahlung abwickeln)
+- CSV-Import testen mit echten Lieferanten-Daten
 
 #### Priorität Mittel
+- HelloCash-Sync für eigene Artikel (Phase 3)
+- Dropshipping-API-Integration (falls Lieferant API bietet)
 - Bewertungen einbinden (Google Reviews API)
-- Produkt-Verwaltung im Admin
-- Bestellungen-Übersicht im Admin
 
 #### Priorität Niedrig
 - Newsletter-System
