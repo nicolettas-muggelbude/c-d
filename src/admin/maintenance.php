@@ -265,9 +265,67 @@ include __DIR__ . '/../templates/header.php';
         white-space: pre-line;
         color: #333;
     }
+
+    /* Dark Mode Styles */
+    [data-theme="dark"] .maintenance-status,
+    [data-theme="dark"] .maintenance-form {
+        background: #2d2d2d;
+        color: #e0e0e0;
+    }
+
+    [data-theme="dark"] .form-group input[type="text"],
+    [data-theme="dark"] .form-group textarea {
+        background: #1a1a1a;
+        border-color: #404040;
+        color: #e0e0e0;
+    }
+
+    [data-theme="dark"] .info-box {
+        background: #1a3a52;
+        border-left-color: #2196F3;
+    }
+
+    [data-theme="dark"] .info-box h3 {
+        color: #64b5f6;
+    }
+
+    [data-theme="dark"] .preview-box {
+        background: #1a1a1a;
+        border-color: #404040;
+    }
+
+    [data-theme="dark"] .preview-box h4 {
+        color: #b0b0b0;
+    }
+
+    [data-theme="dark"] .preview-content {
+        color: #e0e0e0;
+    }
+
+    [data-theme="dark"] .alert-success {
+        background: #1b4d3e;
+        color: #a5d6a7;
+        border-color: #2e7d32;
+    }
+
+    [data-theme="dark"] .alert-error {
+        background: #4d1b1b;
+        color: #ef9a9a;
+        border-color: #c62828;
+    }
+
+    [data-theme="dark"] .form-help {
+        color: #b0b0b0;
+    }
+
+    [data-theme="dark"] .form-group label {
+        color: #e0e0e0;
+    }
 </style>
 
-<h1>Wartungsmodus verwalten</h1>
+<section class="section">
+    <div class="container">
+        <h1>Wartungsmodus verwalten</h1>
 
 <?php if ($success): ?>
     <div class="alert alert-success">
@@ -422,5 +480,8 @@ Bitte versuchen Sie es in wenigen Minuten erneut.</textarea>
         <li>Wartungsmodus deaktivieren</li>
     </ol>
 </div>
+
+    </div><!-- .container -->
+</section>
 
 <?php include __DIR__ . '/../templates/footer.php'; ?>
