@@ -42,6 +42,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $column_mapping = [];
         if (!empty($_POST['mapping_name'])) $column_mapping['name'] = $_POST['mapping_name'];
         if (!empty($_POST['mapping_sku'])) $column_mapping['sku'] = $_POST['mapping_sku'];
+        if (!empty($_POST['mapping_ean'])) $column_mapping['ean'] = $_POST['mapping_ean'];
         if (!empty($_POST['mapping_price'])) $column_mapping['price'] = $_POST['mapping_price'];
         if (!empty($_POST['mapping_stock'])) $column_mapping['stock'] = $_POST['mapping_stock'];
         if (!empty($_POST['mapping_description'])) $column_mapping['description'] = $_POST['mapping_description'];
@@ -202,13 +203,24 @@ include __DIR__ . '/../templates/header.php';
 
                 <div class="form-row">
                     <div class="form-group">
-                        <label for="mapping_price">Preis * (CSV-Spalte)</label>
-                        <input type="text" id="mapping_price" name="mapping_price" value="<?= e($column_mapping['price'] ?? '') ?>" required placeholder="z.B. 'price' oder 'Preis'">
+                        <label for="mapping_ean">EAN/Barcode (CSV-Spalte)</label>
+                        <input type="text" id="mapping_ean" name="mapping_ean" value="<?= e($column_mapping['ean'] ?? '') ?>" placeholder="z.B. 'ean' oder 'Barcode'">
                     </div>
 
                     <div class="form-group">
+                        <label for="mapping_price">Preis * (CSV-Spalte)</label>
+                        <input type="text" id="mapping_price" name="mapping_price" value="<?= e($column_mapping['price'] ?? '') ?>" required placeholder="z.B. 'price' oder 'Preis'">
+                    </div>
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group">
                         <label for="mapping_stock">Lagerbestand (CSV-Spalte)</label>
                         <input type="text" id="mapping_stock" name="mapping_stock" value="<?= e($column_mapping['stock'] ?? '') ?>" placeholder="z.B. 'stock' oder 'Lagerbestand'">
+                    </div>
+
+                    <div class="form-group">
+                        <!-- Platzhalter für Symmetrie -->
                     </div>
                 </div>
 

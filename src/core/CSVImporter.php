@@ -200,6 +200,7 @@ class CSVImporter {
             $this->db->update("
                 UPDATE products SET
                     name = :name,
+                    ean = :ean,
                     description = :description,
                     price = :price,
                     supplier_stock = :supplier_stock,
@@ -210,6 +211,7 @@ class CSVImporter {
                 WHERE id = :id
             ", [
                 ':name' => $data['name'],
+                ':ean' => $data['ean'] ?? null,
                 ':description' => $data['description'] ?? '',
                 ':price' => $selling_price,
                 ':supplier_stock' => $supplier_stock,
@@ -223,15 +225,16 @@ class CSVImporter {
             // Neues Produkt erstellen
             $this->db->insert("
                 INSERT INTO products (
-                    name, sku, slug, description, price, stock, supplier_id, supplier_name,
+                    name, sku, ean, slug, description, price, stock, supplier_id, supplier_name,
                     supplier_stock, free_shipping, source, is_active, last_csv_sync, created_at
                 ) VALUES (
-                    :name, :sku, :slug, :description, :price, 0, :supplier_id, :supplier_name,
+                    :name, :sku, :ean, :slug, :description, :price, 0, :supplier_id, :supplier_name,
                     :supplier_stock, :free_shipping, 'csv_import', 0, NOW(), NOW()
                 )
             ", [
                 ':name' => $data['name'],
                 ':sku' => $data['sku'],
+                ':ean' => $data['ean'] ?? null,
                 ':slug' => create_slug($data['name']),
                 ':description' => $data['description'] ?? '',
                 ':price' => $selling_price,
