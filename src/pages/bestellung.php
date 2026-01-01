@@ -192,8 +192,8 @@ include __DIR__ . '/../templates/header.php';
                         <tr>
                             <td><?= e($item['product_name']) ?></td>
                             <td><?= e($item['quantity']) ?></td>
-                            <td><?= format_price($item['price']) ?></td>
-                            <td><strong><?= format_price($item['price'] * $item['quantity']) ?></strong></td>
+                            <td><?= format_price($item['unit_price']) ?></td>
+                            <td><strong><?= format_price($item['total_price']) ?></strong></td>
                         </tr>
                     <?php endforeach; ?>
                 </tbody>

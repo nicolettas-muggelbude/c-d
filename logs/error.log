@@ -489,3 +489,45 @@ PC-Wittfoot UG
 [01-Jan-2026 20:49:10 Europe/Berlin] HelloCash Invoice-Erstellung fehlgeschlagen: Invoice konnte nicht erstellt werden: Invalid Json data received: Syntax error
 [01-Jan-2026 20:49:10 Europe/Berlin] EmailService: Failed to send email to thoma@thomsen.de - Error: Could not instantiate mail function.
 [01-Jan-2026 20:49:10 Europe/Berlin] EmailService: Failed to send email to admin@pc-wittfoot.de - Error: Could not instantiate mail function.
+[01-Jan-2026 21:18:17 Europe/Berlin] HelloCash User (Shop): Neu erstellt - ID: 21
+[01-Jan-2026 21:18:17 Europe/Berlin] DB Error: SQLSTATE[HY093]: Invalid parameter number | SQL: 
+                        UPDATE products
+                        SET stock = stock - :quantity
+                        WHERE id = :product_id AND stock >= :quantity
+                    
+[01-Jan-2026 21:18:17 Europe/Berlin] DB Error: SQLSTATE[HY093]: Invalid parameter number | SQL: 
+                        UPDATE products
+                        SET stock = stock - :quantity
+                        WHERE id = :product_id AND stock >= :quantity
+                    
+[01-Jan-2026 21:18:17 Europe/Berlin] HelloCash Invoice Request: {"invoice_user_id":21,"items":[{"item_name":"Cherry KC 6000 Slim","item_quantity":"1","item_price":"39","item_taxRate":"19","item_type":"article"},{"item_name":"Dell Precision 5520","item_quantity":"1","item_price":"749","item_taxRate":"19","item_type":"article"}],"invoice_paymentMethod":"PayPal","invoice_type":"json"}
+[01-Jan-2026 21:18:17 Europe/Berlin] HelloCash Invoice Response: {"invoice_id":"190217940","invoice_timestamp":"2026-01-01 21:18:19","invoice_number":"1","invoice_cashier":"","invoice_cashier_id":"0","invoice_mode":"demo","invoice_payment":"PayPal","invoice_total":"788.00","invoice_totalNet":"662.18","invoice_totalTax":"125.82","invoice_tax_benefit":1,"invoice_currency":"EUR","invoice_cancellation":"0","company":{"name":"Dein Firmenname","street":"Stra\u00dfe","houseNumber":"1","postalCode":"10115","city":"Berlin","email":"nicolettas75@googlemail.com"},"items":[{"item_id":"385943058","item_quantity":"1.000","item_name":"Cherry KC 6000 Slim","item_price":"39","item_total":"39","item_taxRate":"19","item_discount":"-0","item_discount_unit":"absolute","item_discount_value":"0.00","item_service_id":"0","item_article_id":"0"},{"item_id":"385943059","item_quantity":"1.000","item_name":"Dell Precision 5520","item_price":"749","item_total":"749","item_taxRate":"19","item_discount":"-0","item_discount_unit":"absolute","item_discount_value":"0.00","item_service_id":"0","item_article_id":"0"}],"customer":{"customer_id":"21","customer_salutation":"","customer_firstName":"Mathe","customer_surName":"Willhelmsen","customer_postalCode":"26123","customer_city":"Oldenburg","customer_country":"DE","customer_street":"Eichenweg","customer_houseNumber":"7","customer_email":"st@wl.de","customer_phoneNumber":"+49","customer_uid":""},"taxes":[{"tax_taxRate":"19","tax_gross":"788","tax_net":"662.18","tax_tax":"125.82"}]}
+[01-Jan-2026 21:18:17 Europe/Berlin] HelloCash Invoice erstellt: ID=190217940, Nummer=1
+[01-Jan-2026 21:18:17 Europe/Berlin] PHP Warning:  Undefined array key "price" in /home/nicole/projekte/c-d/src/core/EmailService.php on line 301
+[01-Jan-2026 21:18:17 Europe/Berlin] PHP Warning:  Undefined array key "price" in /home/nicole/projekte/c-d/src/core/EmailService.php on line 301
+[01-Jan-2026 21:18:17 Europe/Berlin] EmailService: Failed to send email to st@wl.de - Error: Could not instantiate mail function.
+[01-Jan-2026 21:18:17 Europe/Berlin] PHP Warning:  Undefined array key "price" in /home/nicole/projekte/c-d/src/core/EmailService.php on line 378
+[01-Jan-2026 21:18:17 Europe/Berlin] PHP Warning:  Undefined array key "price" in /home/nicole/projekte/c-d/src/core/EmailService.php on line 378
+[01-Jan-2026 21:18:17 Europe/Berlin] EmailService: Failed to send email to admin@pc-wittfoot.de - Error: Could not instantiate mail function.
+[01-Jan-2026 21:18:17 Europe/Berlin] PHP Warning:  Undefined array key "price" in /home/nicole/projekte/c-d/src/pages/bestellung.php on line 195
+[01-Jan-2026 21:18:17 Europe/Berlin] PHP Deprecated:  number_format(): Passing null to parameter #1 ($num) of type float is deprecated in /home/nicole/projekte/c-d/src/core/helpers.php on line 55
+[01-Jan-2026 21:18:17 Europe/Berlin] PHP Warning:  Undefined array key "price" in /home/nicole/projekte/c-d/src/pages/bestellung.php on line 196
+[01-Jan-2026 21:18:17 Europe/Berlin] PHP Warning:  Undefined array key "price" in /home/nicole/projekte/c-d/src/pages/bestellung.php on line 195
+[01-Jan-2026 21:18:17 Europe/Berlin] PHP Deprecated:  number_format(): Passing null to parameter #1 ($num) of type float is deprecated in /home/nicole/projekte/c-d/src/core/helpers.php on line 55
+[01-Jan-2026 21:18:17 Europe/Berlin] PHP Warning:  Undefined array key "price" in /home/nicole/projekte/c-d/src/pages/bestellung.php on line 196
+[01-Jan-2026 21:32:17 Europe/Berlin] HelloCash User (Shop): Gefunden - ID: 21
+[01-Jan-2026 21:32:17 Europe/Berlin] DB Error: SQLSTATE[HY093]: Invalid parameter number | SQL: 
+                        UPDATE products
+                        SET stock = stock - :quantity
+                        WHERE id = :product_id AND stock >= :quantity
+                    
+[01-Jan-2026 21:32:17 Europe/Berlin] HelloCash Invoice Request: {"invoice_user_id":21,"items":[{"item_name":"HP E273q 27\"","item_quantity":"1","item_price":"249","item_taxRate":"19","item_type":"article"}],"invoice_paymentMethod":"Vorkasse","invoice_type":"json"}
+[01-Jan-2026 21:32:18 Europe/Berlin] HelloCash Invoice Response: {"invoice_id":"190218128","invoice_timestamp":"2026-01-01 21:32:18","invoice_number":"2","invoice_cashier":"","invoice_cashier_id":"0","invoice_mode":"demo","invoice_payment":"Vorkasse","invoice_total":"249.00","invoice_totalNet":"209.24","invoice_totalTax":"39.76","invoice_tax_benefit":1,"invoice_currency":"EUR","invoice_cancellation":"0","company":{"name":"Dein Firmenname","street":"Stra\u00dfe","houseNumber":"1","postalCode":"10115","city":"Berlin","email":"nicolettas75@googlemail.com"},"items":[{"item_id":"385943475","item_quantity":"1.000","item_name":"HP E273q 27\"","item_price":"249","item_total":"249","item_taxRate":"19","item_discount":"-0","item_discount_unit":"absolute","item_discount_value":"0.00","item_service_id":"0","item_article_id":"0"}],"customer":{"customer_id":"21","customer_salutation":"","customer_firstName":"Mathe","customer_surName":"Willhelmsen","customer_postalCode":"26123","customer_city":"Oldenburg","customer_country":"DE","customer_street":"Eichenweg","customer_houseNumber":"7","customer_email":"st@wl.de","customer_phoneNumber":"+49","customer_uid":""},"taxes":[{"tax_taxRate":"19","tax_gross":"249","tax_net":"209.24","tax_tax":"39.76"}]}
+[01-Jan-2026 21:32:18 Europe/Berlin] HelloCash Invoice erstellt: ID=190218128, Nummer=2
+[01-Jan-2026 21:32:18 Europe/Berlin] PHP Warning:  Undefined array key "price" in /home/nicole/projekte/c-d/src/core/EmailService.php on line 301
+[01-Jan-2026 21:32:18 Europe/Berlin] EmailService: Failed to send email to st@wl.de - Error: Could not instantiate mail function.
+[01-Jan-2026 21:32:18 Europe/Berlin] PHP Warning:  Undefined array key "price" in /home/nicole/projekte/c-d/src/core/EmailService.php on line 378
+[01-Jan-2026 21:32:18 Europe/Berlin] EmailService: Failed to send email to admin@pc-wittfoot.de - Error: Could not instantiate mail function.
+[01-Jan-2026 21:32:18 Europe/Berlin] PHP Warning:  Undefined array key "price" in /home/nicole/projekte/c-d/src/pages/bestellung.php on line 195
+[01-Jan-2026 21:32:18 Europe/Berlin] PHP Deprecated:  number_format(): Passing null to parameter #1 ($num) of type float is deprecated in /home/nicole/projekte/c-d/src/core/helpers.php on line 55
+[01-Jan-2026 21:32:18 Europe/Berlin] PHP Warning:  Undefined array key "price" in /home/nicole/projekte/c-d/src/pages/bestellung.php on line 196

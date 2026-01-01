@@ -248,10 +248,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     $db->update("
                         UPDATE products
                         SET stock = stock - :quantity
-                        WHERE id = :product_id AND stock >= :quantity
+                        WHERE id = :product_id AND stock >= :quantity_check
                     ", [
                         ':product_id' => $item['id'],
                         ':quantity' => $item['quantity'],
+                        ':quantity_check' => $item['quantity'],
                     ]);
                 }
 

@@ -298,7 +298,7 @@ class EmailService {
             $body .= sprintf("%dx %s - %.2f EUR\n",
                 $item['quantity'],
                 $item['product_name'],
-                $item['price'] * $item['quantity']
+                $item['total_price']
             );
         }
 
@@ -375,7 +375,7 @@ class EmailService {
                 $item['quantity'],
                 $item['product_name'],
                 $item['product_id'],
-                $item['price'] * $item['quantity']
+                $item['total_price']
             );
         }
 
