@@ -153,12 +153,20 @@ include __DIR__ . '/../templates/header.php';
                         <?php
                         $user = $db->querySingle("SELECT email FROM users WHERE id = :id", [':id' => $userId]);
                         $otpauthUrl = TOTP::getQRCodeUrl($twofa['secret'], $user['email']);
-                        $qrCodeUrl = TOTP::getQRCodeDataUrl($otpauthUrl);
                         ?>
 
-                        <div style="text-align: center; margin: var(--space-lg) 0;">
-                            <img src="<?= e($qrCodeUrl) ?>" alt="QR Code" style="max-width: 100%; height: auto;">
-                        </div>
+                        <div id="qrcode" style="text-align: center; margin: var(--space-lg) 0; display: flex; justify-content: center;"></div>
+                        <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+                        <script>
+                        new QRCode(document.getElementById("qrcode"), {
+                            text: "<?= e($otpauthUrl) ?>",
+                            width: 200,
+                            height: 200,
+                            colorDark: "#000000",
+                            colorLight: "#ffffff",
+                            correctLevel: QRCode.CorrectLevel.M
+                        });
+                        </script>
 
                         <div style="background: #f5f5f5; padding: var(--space-md); border-radius: var(--border-radius-sm); text-align: center;">
                             <small>Manueller Schlüssel:</small><br>
@@ -189,14 +197,14 @@ include __DIR__ . '/../templates/header.php';
                         </form>
                     </div>
 
-                    <div class="card">
-                        <h3>Backup-Codes</h3>
-                        <p><small>Speichern Sie diese Codes sicher! Sie können damit einloggen, falls Ihre App nicht verfügbar ist.</small></p>
+                    <div class="card" style="margin-bottom: var(--space-xl);">
+                        <h3 style="margin-top: 0;">Backup-Codes</h3>
+                        <p style="margin-bottom: var(--space-md);"><small>Speichern Sie diese Codes sicher! Sie können damit einloggen, falls Ihre App nicht verfügbar ist.</small></p>
                         <?php
                         $codes = json_decode($twofa['backup_codes'], true);
-                        echo '<div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: var(--space-sm); font-family: monospace;">';
+                        echo '<div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(120px, 1fr)); gap: var(--space-sm); font-family: monospace; margin-top: var(--space-md);">';
                         foreach ($codes as $code) {
-                            echo '<div style="background: #f5f5f5; padding: var(--space-sm); text-align: center;">' . e($code) . '</div>';
+                            echo '<div style="background: #f5f5f5; padding: var(--space-md); text-align: center; border-radius: 4px;">' . e($code) . '</div>';
                         }
                         echo '</div>';
                         ?>
