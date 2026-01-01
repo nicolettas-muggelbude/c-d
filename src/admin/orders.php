@@ -77,69 +77,65 @@ include __DIR__ . '/../templates/header.php';
         </div>
 
         <!-- Bestellungen -->
-        <div class="card">
-            <h2 class="mb-lg">Bestellungen (<?= count($orders) ?>)</h2>
+        <h2 class="mb-lg">Bestellungen (<?= count($orders) ?>)</h2>
 
-            <?php if (empty($orders)): ?>
+        <?php if (empty($orders)): ?>
+            <div class="card">
                 <p class="text-muted">Keine Bestellungen gefunden.</p>
-            <?php else: ?>
-                <div style="overflow-x: auto;">
-                    <table class="table">
-                        <thead>
-                            <tr>
-                                <th>Bestellnr.</th>
-                                <th>Datum</th>
-                                <th>Kunde</th>
-                                <th>Gesamt</th>
-                                <th>Zahlungsart</th>
-                                <th>Status</th>
-                                <th>Aktionen</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            <?php foreach ($orders as $order): ?>
-                                <tr>
-                                    <td><strong><?= e($order['order_number']) ?></strong></td>
-                                    <td><?= date('d.m.Y H:i', strtotime($order['created_at'])) ?></td>
-                                    <td>
-                                        <?= e($order['customer_name']) ?><br>
-                                        <small class="text-muted"><?= e($order['customer_email']) ?></small>
-                                    </td>
-                                    <td><strong><?= format_price($order['total']) ?></strong></td>
-                                    <td>
-                                        <?php
-                                        $payment_labels = [
-                                            'prepayment' => 'Vorkasse',
-                                            'paypal' => 'PayPal'
-                                        ];
-                                        echo $payment_labels[$order['payment_method']] ?? $order['payment_method'];
-                                        ?>
-                                    </td>
-                                    <td>
-                                        <?php
-                                        $status_labels = [
-                                            'pending' => '⏳ Ausstehend',
-                                            'new' => '🆕 Neu',
-                                            'processing' => '⚙️ In Bearbeitung',
-                                            'shipped' => '📦 Versandt',
-                                            'completed' => '✅ Abgeschlossen',
-                                            'cancelled' => '❌ Storniert'
-                                        ];
-                                        echo $status_labels[$order['order_status']] ?? $order['order_status'];
-                                        ?>
-                                    </td>
-                                    <td>
-                                        <a href="<?= BASE_URL ?>/admin/order/<?= $order['id'] ?>" class="btn btn-sm btn-outline">
-                                            Details
-                                        </a>
-                                    </td>
-                                </tr>
-                            <?php endforeach; ?>
-                        </tbody>
-                    </table>
-                </div>
-            <?php endif; ?>
-        </div>
+            </div>
+        <?php else: ?>
+            <div class="grid grid-cols-1 grid-cols-md-2 grid-cols-lg-3 gap-lg">
+                <?php foreach ($orders as $order):
+                    // Status-Labels
+                    $status_labels = [
+                        'pending' => '⏳ Ausstehend',
+                        'new' => '🆕 Neu',
+                        'processing' => '⚙️ In Bearbeitung',
+                        'shipped' => '📦 Versandt',
+                        'completed' => '✅ Abgeschlossen',
+                        'cancelled' => '❌ Storniert'
+                    ];
+                    $status_label = $status_labels[$order['order_status']] ?? $order['order_status'];
+
+                    // Zahlungsart-Labels
+                    $payment_labels = [
+                        'prepayment' => 'Vorkasse',
+                        'paypal' => 'PayPal'
+                    ];
+                    $payment_label = $payment_labels[$order['payment_method']] ?? $order['payment_method'];
+                ?>
+                    <div class="card">
+                        <div style="display: flex; justify-content: space-between; align-items: start; margin-bottom: 1rem;">
+                            <div>
+                                <h3 style="margin: 0; font-size: 1.1rem;"><?= e($order['order_number']) ?></h3>
+                                <small class="text-muted"><?= date('d.m.Y H:i', strtotime($order['created_at'])) ?></small>
+                            </div>
+                            <span style="font-size: 1.25rem;"><?= $status_label ?></span>
+                        </div>
+
+                        <div style="margin-bottom: 1rem; padding-bottom: 1rem; border-bottom: 1px solid var(--border-color);">
+                            <strong><?= e($order['customer_name']) ?></strong><br>
+                            <small class="text-muted"><?= e($order['customer_email']) ?></small>
+                        </div>
+
+                        <div style="margin-bottom: 1rem;">
+                            <div style="display: flex; justify-content: space-between; margin-bottom: 0.5rem;">
+                                <span class="text-muted">Gesamt:</span>
+                                <strong style="font-size: 1.25rem; color: var(--color-primary);"><?= format_price($order['total']) ?></strong>
+                            </div>
+                            <div style="display: flex; justify-content: space-between; font-size: 0.9rem;">
+                                <span class="text-muted">Zahlung:</span>
+                                <span><?= $payment_label ?></span>
+                            </div>
+                        </div>
+
+                        <a href="<?= BASE_URL ?>/admin/order/<?= $order['id'] ?>" class="btn btn-primary btn-block">
+                            Details anzeigen →
+                        </a>
+                    </div>
+                <?php endforeach; ?>
+            </div>
+        <?php endif; ?>
     </div>
 </section>
 

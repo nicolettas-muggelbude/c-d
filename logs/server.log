@@ -11346,3 +11346,44 @@ sh: 1: /usr/sbin/sendmail: not found
 [Thu Jan  1 22:26:41 2026] Parsed URI: /assets/images/logo.png
 [Thu Jan  1 22:26:41 2026] 127.0.0.1:51710 [404]: GET /assets/images/logo.png?v=30 - No such file or directory
 [Thu Jan  1 22:26:41 2026] 127.0.0.1:51710 Closing
+[Thu Jan  1 22:27:56 2026] 127.0.0.1:52702 Accepted
+[Thu Jan  1 22:27:56 2026] === ROUTER CALLED ===
+[Thu Jan  1 22:27:56 2026] URI: /admin/orders
+[Thu Jan  1 22:27:56 2026] Parsed URI: /admin/orders
+[Thu Jan  1 22:27:56 2026] 127.0.0.1:52702 Closing
+[Thu Jan  1 22:27:56 2026] 127.0.0.1:52718 Accepted
+[Thu Jan  1 22:27:56 2026] === ROUTER CALLED ===
+[Thu Jan  1 22:27:56 2026] URI: /assets/css/variables.css?v=30
+[Thu Jan  1 22:27:56 2026] Parsed URI: /assets/css/variables.css
+[Thu Jan  1 22:27:56 2026] 127.0.0.1:52718 [200]: GET /assets/css/variables.css?v=30
+[Thu Jan  1 22:27:56 2026] 127.0.0.1:52734 Accepted
+[Thu Jan  1 22:27:56 2026] 127.0.0.1:52718 Closing
+[Thu Jan  1 22:27:56 2026] === ROUTER CALLED ===
+[Thu Jan  1 22:27:56 2026] URI: /assets/css/reset.css?v=30
+[Thu Jan  1 22:27:56 2026] Parsed URI: /assets/css/reset.css
+[Thu Jan  1 22:27:56 2026] 127.0.0.1:52734 [200]: GET /assets/css/reset.css?v=30
+[Thu Jan  1 22:27:56 2026] 127.0.0.1:52734 Closing
+[Thu Jan  1 22:27:56 2026] 127.0.0.1:52742 Accepted
+[Thu Jan  1 22:27:56 2026] === ROUTER CALLED ===
+[Thu Jan  1 22:27:56 2026] URI: /assets/css/base.css?v=30
+[Thu Jan  1 22:27:56 2026] Parsed URI: /assets/css/base.css
+[Thu Jan  1 22:27:56 2026] 127.0.0.1:52742 [200]: GET /assets/css/base.css?v=30
+[Thu Jan  1 22:27:56 2026] 127.0.0.1:52742 Closing
+[Thu Jan  1 22:27:56 2026] 127.0.0.1:52746 Accepted
+[Thu Jan  1 22:27:56 2026] === ROUTER CALLED ===
+[Thu Jan  1 22:27:56 2026] URI: /assets/css/buttons.css?v=30
+[Thu Jan  1 22:27:56 2026] Parsed URI: /assets/css/buttons.css
+[Thu Jan  1 22:27:56 2026] 127.0.0.1:52746 [200]: GET /assets/css/buttons.css?v=30
+[Thu Jan  1 22:27:56 2026] 127.0.0.1:52746 Closing
+[Thu Jan  1 22:27:56 2026] 127.0.0.1:52758 Accepted
+[Thu Jan  1 22:27:56 2026] === ROUTER CALLED ===
+[Thu Jan  1 22:27:56 2026] URI: /assets/css/components.css?v=30
+[Thu Jan  1 22:27:56 2026] Parsed URI: /assets/css/components.css
+[Thu Jan  1 22:27:56 2026] 127.0.0.1:52758 [200]: GET /assets/css/components.css?v=30
+[Thu Jan  1 22:27:56 2026] 127.0.0.1:52758 Closing
+[Thu Jan  1 22:27:56 2026] 127.0.0.1:52768 Accepted
+[Thu Jan  1 22:27:56 2026] === ROUTER CALLED ===
+[Thu Jan  1 22:27:56 2026] URI: /assets/images/logo.png?v=30
+[Thu Jan  1 22:27:56 2026] Parsed URI: /assets/images/logo.png
+[Thu Jan  1 22:27:56 2026] 127.0.0.1:52768 [404]: GET /assets/images/logo.png?v=30 - No such file or directory
+[Thu Jan  1 22:27:56 2026] 127.0.0.1:52768 Closing
