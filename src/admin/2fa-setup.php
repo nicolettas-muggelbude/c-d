@@ -31,11 +31,13 @@ if ($step === 'setup' && !$twofa) {
         $db->insert("
             INSERT INTO user_2fa (user_id, secret, enabled, backup_codes)
             VALUES (:user_id, :secret, FALSE, :backup_codes)
-            ON DUPLICATE KEY UPDATE secret = :secret, backup_codes = :backup_codes
+            ON DUPLICATE KEY UPDATE secret = :secret2, backup_codes = :backup_codes2
         ", [
             ':user_id' => $userId,
             ':secret' => $secret,
-            ':backup_codes' => json_encode($backupCodes)
+            ':backup_codes' => json_encode($backupCodes),
+            ':secret2' => $secret,
+            ':backup_codes2' => json_encode($backupCodes)
         ]);
 
         // Neu laden
