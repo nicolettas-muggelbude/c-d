@@ -140,6 +140,12 @@ switch ($page) {
         } elseif ($param === 'booking-detail') {
             require_admin();
             require __DIR__ . '/admin/booking-detail.php';
+        } elseif ($param === 'booking-calendar') {
+            require_admin();
+            require __DIR__ . '/admin/booking-calendar-v2.php';
+        } elseif ($param === 'booking-week') {
+            require_admin();
+            require __DIR__ . '/admin/booking-week.php';
         } else {
             require_admin();
             require __DIR__ . '/admin/index.php';
@@ -168,6 +174,10 @@ switch ($page) {
 
             case 'available-slots':
                 require __DIR__ . '/api/available-slots.php';
+                break;
+
+            case 'hellocash-search':
+                require __DIR__ . '/api/hellocash-search.php';
                 break;
 
             default:

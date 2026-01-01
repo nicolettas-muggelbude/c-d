@@ -59,10 +59,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $sql = "UPDATE booking_settings SET setting_value = :value, updated_at = NOW()
                     WHERE setting_key = :key";
 
-            $db->execute($sql, [':value' => $startTime, ':key' => 'booking_start_time']);
-            $db->execute($sql, [':value' => $endTime, ':key' => 'booking_end_time']);
-            $db->execute($sql, [':value' => $intervalMinutes, ':key' => 'booking_interval_minutes']);
-            $db->execute($sql, [':value' => $maxBookingsPerSlot, ':key' => 'max_bookings_per_slot']);
+            $db->update($sql, [':value' => $startTime, ':key' => 'booking_start_time']);
+            $db->update($sql, [':value' => $endTime, ':key' => 'booking_end_time']);
+            $db->update($sql, [':value' => $intervalMinutes, ':key' => 'booking_interval_minutes']);
+            $db->update($sql, [':value' => $maxBookingsPerSlot, ':key' => 'max_bookings_per_slot']);
 
             $success_message = 'Einstellungen erfolgreich gespeichert';
 

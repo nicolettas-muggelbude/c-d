@@ -90,8 +90,15 @@ include __DIR__ . '/../templates/header.php';
             <a href="<?= BASE_URL ?>/admin" class="btn btn-outline btn-sm">← Zurück zum Dashboard</a>
         </div>
 
-        <h1>Terminverwaltung</h1>
-        <p class="lead mb-lg">Alle Buchungen verwalten und bearbeiten</p>
+        <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 1.5rem;">
+            <div>
+                <h1 style="margin: 0 0 0.5rem 0;">Terminverwaltung</h1>
+                <p class="lead" style="margin: 0;">Alle Buchungen verwalten und bearbeiten</p>
+            </div>
+            <a href="<?= BASE_URL ?>/admin/booking-calendar" class="btn btn-primary">
+                📅 Kalender-Ansicht
+            </a>
+        </div>
 
         <?php if ($success_message): ?>
             <div class="alert alert-success mb-lg">

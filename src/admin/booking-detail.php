@@ -20,18 +20,77 @@ if (!$bookingId || !is_numeric($bookingId)) {
     exit;
 }
 
-// Status ändern
+// Status ändern oder Termin bearbeiten
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action'])) {
     if ($_POST['action'] === 'update_status' && isset($_POST['status'])) {
         $newStatus = $_POST['status'];
 
         if (in_array($newStatus, ['pending', 'confirmed', 'completed', 'cancelled'])) {
             $sql = "UPDATE bookings SET status = :status, updated_at = NOW() WHERE id = :id";
-            $db->execute($sql, [':status' => $newStatus, ':id' => $bookingId]);
+            $db->update($sql, [':status' => $newStatus, ':id' => $bookingId]);
 
             $_SESSION['success_message'] = 'Status erfolgreich aktualisiert';
             header('Location: ' . BASE_URL . '/admin/booking-detail?id=' . $bookingId);
             exit;
+        }
+    }
+
+    // Termin bearbeiten (Datum/Zeit)
+    if ($_POST['action'] === 'update_booking' && isset($_POST['booking_date'])) {
+        $newDate = $_POST['booking_date'];
+        $newTime = $_POST['booking_time'] ?? null;
+
+        $errors = [];
+
+        // Datum validieren
+        $dateObj = DateTime::createFromFormat('Y-m-d', $newDate);
+        if (!$dateObj) {
+            $errors[] = 'Ungültiges Datumsformat';
+        } else {
+            // Prüfen ob Datum in der Zukunft liegt
+            $today = new DateTime();
+            $today->setTime(0, 0, 0);
+            if ($dateObj < $today) {
+                $errors[] = 'Datum muss in der Zukunft liegen';
+            }
+
+            // Prüfen ob erlaubter Wochentag
+            $dayOfWeek = $dateObj->format('N');
+            $bookingType = $booking['booking_type'];
+
+            if ($bookingType === 'fixed') {
+                if ($dayOfWeek < 2 || $dayOfWeek > 5) {
+                    $errors[] = 'Feste Termine sind nur Dienstag bis Freitag möglich';
+                }
+            } else if ($bookingType === 'walkin') {
+                if ($dayOfWeek < 2 || $dayOfWeek > 6) {
+                    $errors[] = 'Walk-in Termine sind nur Dienstag bis Samstag möglich';
+                }
+            }
+        }
+
+        // Zeit validieren (nur bei festen Terminen)
+        if ($booking['booking_type'] === 'fixed') {
+            if (empty($newTime)) {
+                $errors[] = 'Bitte wählen Sie eine Uhrzeit';
+            } else if (!preg_match('/^\d{2}:\d{2}$/', $newTime)) {
+                $errors[] = 'Ungültiges Zeitformat';
+            }
+        }
+
+        if (empty($errors)) {
+            $sql = "UPDATE bookings SET booking_date = :date, booking_time = :time, updated_at = NOW() WHERE id = :id";
+            $db->update($sql, [
+                ':date' => $newDate,
+                ':time' => $booking['booking_type'] === 'fixed' ? $newTime : null,
+                ':id' => $bookingId
+            ]);
+
+            $_SESSION['success_message'] = 'Termin erfolgreich aktualisiert';
+            header('Location: ' . BASE_URL . '/admin/booking-detail?id=' . $bookingId);
+            exit;
+        } else {
+            $error_message = implode('<br>', $errors);
         }
     }
 }
@@ -122,6 +181,12 @@ include __DIR__ . '/../templates/header.php';
             </div>
         <?php endif; ?>
 
+        <?php if (isset($error_message)): ?>
+            <div class="alert alert-error mb-lg">
+                <?= $error_message ?>
+            </div>
+        <?php endif; ?>
+
         <!-- Termindetails -->
         <div class="card mb-lg">
             <h2 class="mb-lg">Termindetails</h2>
@@ -159,14 +224,16 @@ include __DIR__ . '/../templates/header.php';
                     </div>
                 </div>
 
-                <?php if ($booking['customer_notes']): ?>
-                    <div class="detail-item" style="grid-column: 1 / -1;">
-                        <label>Kundenanmerkungen</label>
-                        <div class="note-box">
+                <div class="detail-item" style="grid-column: 1 / -1;">
+                    <label>Kundenanmerkungen</label>
+                    <div class="note-box">
+                        <?php if (!empty($booking['customer_notes'])): ?>
                             <?= nl2br(e($booking['customer_notes'])) ?>
-                        </div>
+                        <?php else: ?>
+                            <span class="text-muted">Keine Anmerkungen</span>
+                        <?php endif; ?>
                     </div>
-                <?php endif; ?>
+                </div>
             </div>
         </div>
 
@@ -238,6 +305,49 @@ include __DIR__ . '/../templates/header.php';
             </div>
         </div>
 
+        <!-- Termin bearbeiten -->
+        <div class="card mb-lg">
+            <h2 class="mb-lg">Termin bearbeiten</h2>
+
+            <form method="POST" action="">
+                <input type="hidden" name="action" value="update_booking">
+
+                <div class="form-group">
+                    <label for="booking_date">Datum</label>
+                    <input type="date"
+                           id="booking_date"
+                           name="booking_date"
+                           value="<?= e($booking['booking_date']) ?>"
+                           class="form-control"
+                           required>
+                    <small class="text-muted">
+                        <?php if ($booking['booking_type'] === 'fixed'): ?>
+                            Feste Termine: Dienstag bis Freitag
+                        <?php else: ?>
+                            Walk-in: Dienstag bis Samstag
+                        <?php endif; ?>
+                    </small>
+                </div>
+
+                <?php if ($booking['booking_type'] === 'fixed'): ?>
+                    <div class="form-group">
+                        <label for="booking_time">Uhrzeit</label>
+                        <input type="time"
+                               id="booking_time"
+                               name="booking_time"
+                               value="<?= e($booking['booking_time']) ?>"
+                               class="form-control"
+                               required>
+                        <small class="text-muted">Verfügbare Zeiten: 11:00 und 12:00 Uhr</small>
+                    </div>
+                <?php endif; ?>
+
+                <div style="display: flex; gap: 1rem;">
+                    <button type="submit" class="btn btn-primary">Termin aktualisieren</button>
+                </div>
+            </form>
+        </div>
+
         <!-- Status ändern -->
         <div class="card">
             <h2 class="mb-lg">Status ändern</h2>
@@ -265,7 +375,7 @@ include __DIR__ . '/../templates/header.php';
 
                 <div style="display: flex; gap: 1rem;">
                     <button type="submit" class="btn btn-primary">Status aktualisieren</button>
-                    <a href="<?= BASE_URL ?>/admin/bookings" class="btn btn-outline">Abbrechen</a>
+                    <a href="<?= BASE_URL ?>/admin/bookings" class="btn btn-outline">Zurück zur Übersicht</a>
                 </div>
             </form>
         </div>

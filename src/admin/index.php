@@ -14,7 +14,7 @@ $db = Database::getInstance();
 // Statistiken holen
 $stats = [
     'orders_total' => $db->querySingle("SELECT COUNT(*) as count FROM orders")['count'] ?? 0,
-    'orders_pending' => $db->querySingle("SELECT COUNT(*) as count FROM orders WHERE status = 'pending'")['count'] ?? 0,
+    'orders_pending' => $db->querySingle("SELECT COUNT(*) as count FROM orders WHERE order_status IN ('new', 'processing')")['count'] ?? 0,
     'products' => $db->querySingle("SELECT COUNT(*) as count FROM products WHERE is_active = 1")['count'] ?? 0,
     'blog_posts' => $db->querySingle("SELECT COUNT(*) as count FROM blog_posts WHERE published = 1")['count'] ?? 0,
     'bookings_total' => $db->querySingle("SELECT COUNT(*) as count FROM bookings")['count'] ?? 0,
@@ -89,7 +89,7 @@ include __DIR__ . '/../templates/header.php';
                     📦 Bestellungen ansehen
                 </a>
 
-                <a href="<?= BASE_URL ?>/admin/bookings" class="btn btn-outline btn-block">
+                <a href="<?= BASE_URL ?>/admin/booking-calendar" class="btn btn-outline btn-block">
                     📅 Termine verwalten
                 </a>
 

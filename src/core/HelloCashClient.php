@@ -232,6 +232,27 @@ class HelloCashClient {
     }
 
     /**
+     * Alle User abrufen
+     *
+     * @param int $limit Maximale Anzahl User (Standard: 1000)
+     * @return array|null Array mit allen Usern oder null bei Fehler
+     */
+    public function getAllUsers($limit = 1000) {
+        if (!$this->isConfigured()) {
+            error_log('HelloCash API nicht konfiguriert');
+            return null;
+        }
+
+        try {
+            $response = $this->request('GET', '/users', ['limit' => $limit]);
+            return $response['users'] ?? [];
+        } catch (Exception $e) {
+            error_log('HelloCash getAllUsers Error: ' . $e->getMessage());
+            return null;
+        }
+    }
+
+    /**
      * HTTP-Request an HelloCash API senden
      *
      * @param string $method HTTP-Methode (GET, POST, PUT, DELETE)
