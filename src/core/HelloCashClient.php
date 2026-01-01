@@ -487,7 +487,9 @@ class HelloCashClient {
             }
 
             // API-Request
+            error_log("HelloCash Invoice Request: " . json_encode($payload));
             $response = $this->request('POST', '/invoices', $payload);
+            error_log("HelloCash Invoice Response: " . json_encode($response));
 
             if (isset($response['invoice_id'])) {
                 return [
@@ -497,10 +499,18 @@ class HelloCashClient {
                 ];
             }
 
+            // Detaillierte Fehlerinformation
+            $errorMsg = 'Invoice konnte nicht erstellt werden';
+            if (isset($response['error'])) {
+                $errorMsg .= ': ' . (is_array($response['error']) ? json_encode($response['error']) : $response['error']);
+            } elseif (isset($response['message'])) {
+                $errorMsg .= ': ' . $response['message'];
+            }
+
             return [
                 'invoice_id' => null,
                 'invoice_number' => null,
-                'error' => 'Invoice konnte nicht erstellt werden'
+                'error' => $errorMsg
             ];
 
         } catch (Exception $e) {
