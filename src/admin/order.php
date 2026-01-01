@@ -63,7 +63,7 @@ include __DIR__ . '/../templates/header.php';
             <div class="alert alert-error mb-lg"><?= e($error) ?></div>
         <?php endif; ?>
 
-        <div class="grid grid-cols-1 grid-cols-lg-3 gap-lg">
+        <div class="grid grid-cols-1 grid-cols-lg-3 gap-lg" style="align-items: start;">
             <!-- Hauptbereich -->
             <div style="grid-column: span 2;">
                 <!-- Bestellpositionen -->
@@ -155,69 +155,63 @@ include __DIR__ . '/../templates/header.php';
             <!-- Sidebar -->
             <div>
                 <!-- Status -->
-                <div class="card mb-lg">
-                    <h3 class="mb-md">Bestellstatus</h3>
+                <div class="card" style="padding: 0.5rem; margin-bottom: 1rem; height: fit-content;">
+                    <h3 style="margin: 0 0 0.25rem 0;">Status</h3>
 
                     <form method="POST">
                         <input type="hidden" name="csrf_token" value="<?= csrf_token() ?>">
                         <input type="hidden" name="action" value="update_status">
 
-                        <div class="form-group">
-                            <select name="order_status" class="form-control" onchange="this.form.submit()">
-                                <option value="pending" <?= $order['order_status'] === 'pending' ? 'selected' : '' ?>>⏳ Ausstehend</option>
-                                <option value="new" <?= $order['order_status'] === 'new' ? 'selected' : '' ?>>🆕 Neu</option>
-                                <option value="processing" <?= $order['order_status'] === 'processing' ? 'selected' : '' ?>>⚙️ In Bearbeitung</option>
-                                <option value="shipped" <?= $order['order_status'] === 'shipped' ? 'selected' : '' ?>>📦 Versandt</option>
-                                <option value="completed" <?= $order['order_status'] === 'completed' ? 'selected' : '' ?>>✅ Abgeschlossen</option>
-                                <option value="cancelled" <?= $order['order_status'] === 'cancelled' ? 'selected' : '' ?>>❌ Storniert</option>
-                            </select>
-                        </div>
+                        <select name="order_status" class="form-control" onchange="this.form.submit()" style="padding: 0.4rem 0.5rem; height: auto;">
+                            <option value="pending" <?= $order['order_status'] === 'pending' ? 'selected' : '' ?>>⏳ Ausstehend</option>
+                            <option value="new" <?= $order['order_status'] === 'new' ? 'selected' : '' ?>>🆕 Neu</option>
+                            <option value="processing" <?= $order['order_status'] === 'processing' ? 'selected' : '' ?>>⚙️ In Bearbeitung</option>
+                            <option value="shipped" <?= $order['order_status'] === 'shipped' ? 'selected' : '' ?>>📦 Versandt</option>
+                            <option value="completed" <?= $order['order_status'] === 'completed' ? 'selected' : '' ?>>✅ Abgeschlossen</option>
+                            <option value="cancelled" <?= $order['order_status'] === 'cancelled' ? 'selected' : '' ?>>❌ Storniert</option>
+                        </select>
                     </form>
                 </div>
 
                 <!-- Bestellinformationen -->
-                <div class="card mb-lg">
-                    <h3 class="mb-md">Bestellinformationen</h3>
+                <div class="card" style="padding: 1.25rem; margin-bottom: 1rem; height: fit-content;">
+                    <h3 style="margin: 0 0 1rem 0; font-size: 1rem;">Bestellinformationen</h3>
 
-                    <table style="width: 100%; font-size: 0.9rem;">
-                        <tr>
-                            <td><strong>Datum:</strong></td>
-                            <td><?= date('d.m.Y H:i', strtotime($order['created_at'])) ?></td>
-                        </tr>
-                        <tr>
-                            <td><strong>Zahlungsart:</strong></td>
-                            <td>
-                                <?php
-                                $payment_labels = [
-                                    'prepayment' => 'Vorkasse',
-                                    'paypal' => 'PayPal'
-                                ];
-                                echo $payment_labels[$order['payment_method']] ?? $order['payment_method'];
-                                ?>
-                            </td>
-                        </tr>
-                        <tr>
-                            <td><strong>Lieferart:</strong></td>
-                            <td>
-                                <?php
-                                $delivery_labels = [
-                                    'billing' => 'An Rechnungsadresse',
-                                    'pickup' => 'Abholung',
-                                    'shipping' => 'An andere Adresse'
-                                ];
-                                echo $delivery_labels[$order['delivery_method']] ?? $order['delivery_method'];
-                                ?>
-                            </td>
-                        </tr>
-                    </table>
+                    <div style="line-height: 1.6;">
+                        <div style="margin-bottom: 0.75rem;">
+                            <strong>Datum:</strong><br>
+                            <?= date('d.m.Y H:i', strtotime($order['created_at'])) ?>
+                        </div>
+                        <div style="margin-bottom: 0.75rem;">
+                            <strong>Zahlungsart:</strong><br>
+                            <?php
+                            $payment_labels = [
+                                'prepayment' => 'Vorkasse',
+                                'paypal' => 'PayPal'
+                            ];
+                            echo $payment_labels[$order['payment_method']] ?? $order['payment_method'];
+                            ?>
+                        </div>
+                        <div>
+                            <strong>Lieferart:</strong><br>
+                            <?php
+                            $delivery_labels = [
+                                'billing' => 'An Rechnungsadresse',
+                                'pickup' => 'Abholung',
+                                'shipping' => 'An andere Adresse'
+                            ];
+                            echo $delivery_labels[$order['delivery_method']] ?? $order['delivery_method'];
+                            ?>
+                        </div>
+                    </div>
                 </div>
 
                 <!-- HelloCash Integration -->
                 <?php if (!empty($order['hellocash_invoice_link'])): ?>
-                    <div class="card">
-                        <h3 class="mb-md">HelloCash Rechnung</h3>
+                    <div class="card" style="padding: 1.25rem; height: fit-content;">
+                        <h3 style="margin: 0 0 1rem 0; font-size: 1rem;">HelloCash Rechnung</h3>
 
-                        <p style="font-size: 0.9rem; margin-bottom: 1rem;">
+                        <p style="margin-bottom: 1rem;">
                             <strong>Invoice-ID:</strong> <?= e($order['hellocash_invoice_id']) ?>
                         </p>
 
