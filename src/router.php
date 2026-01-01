@@ -149,6 +149,12 @@ switch ($page) {
         } elseif ($param === 'email-templates') {
             require_admin();
             require __DIR__ . '/admin/email-templates.php';
+        } elseif ($param === 'smtp-settings') {
+            require_admin();
+            require __DIR__ . '/admin/smtp-settings.php';
+        } elseif ($param === 'smtp-test') {
+            require_admin();
+            require __DIR__ . '/admin/smtp-test.php';
         } else {
             require_admin();
             require __DIR__ . '/admin/index.php';

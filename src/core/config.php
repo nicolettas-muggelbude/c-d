@@ -72,6 +72,15 @@ define('MAIL_FROM', 'info@pc-wittfoot.de');
 define('MAIL_FROM_NAME', 'PC-Wittfoot UG');
 define('MAIL_ADMIN', 'admin@pc-wittfoot.de');
 
+// SMTP-Einstellungen (PHPMailer)
+define('SMTP_ENABLED', false);                    // true = SMTP verwenden, false = PHP mail()
+define('SMTP_HOST', 'smtp.gmail.com');            // SMTP Server
+define('SMTP_PORT', 587);                         // Port (587 = TLS, 465 = SSL)
+define('SMTP_ENCRYPTION', 'tls');                 // 'tls' oder 'ssl'
+define('SMTP_USERNAME', '');                      // SMTP Benutzername
+define('SMTP_PASSWORD', '');                      // SMTP Passwort
+define('SMTP_DEBUG', 0);                          // 0 = aus, 1 = Fehler, 2 = verbose
+
 // =============================================
 // API-KEYS (für Produktion ausfüllen)
 // =============================================
@@ -114,6 +123,9 @@ define('CACHE_PAGES', 7200);         // 2 Stunden
 // =============================================
 // AUTO-LOADING
 // =============================================
+
+// Composer Autoload (für PHPMailer & andere Packages)
+require_once dirname(dirname(__DIR__)) . '/vendor/autoload.php';
 
 // Autoload-Funktion für Klassen
 spl_autoload_register(function($class) {

@@ -1476,3 +1476,249 @@ elseif ($param === 'email-templates') {
 
 **Zugriff:** `/admin/email-templates`
 
+## Session 2026-01-01 (Fortsetzung): PHPMailer SMTP-Integration
+
+### Erreichte Ziele ✅
+
+#### 1. PHPMailer Installation
+**Problem:** PHP mail() Funktion ist unzuverlässig, landet oft im Spam, keine SMTP-Unterstützung.
+
+**Lösung:**
+- PHPMailer v7.0.1 via Composer installiert
+- Composer lokal heruntergeladen (`composer.phar`) für Entwicklung
+- Vendor-Ordner kann via FTP auf Produktiv-Server deployed werden
+
+**Dateien:**
+- `composer.json` - Composer-Konfiguration
+- `composer.lock` - Dependency Lock-File
+- `vendor/` - PHPMailer & Dependencies
+
+#### 2. SMTP-Konfiguration
+**Datenbank-basierte Konfiguration** für flexible Admin-Verwaltung:
+
+**Tabelle `smtp_settings`:**
+```sql
+- smtp_enabled (BOOLEAN) - SMTP aktiviert oder PHP mail()
+- smtp_host (VARCHAR) - SMTP Server (z.B. smtp.gmail.com)
+- smtp_port (INT) - Port (587 = TLS, 465 = SSL)
+- smtp_encryption (ENUM) - tls, ssl, oder none
+- smtp_username (VARCHAR) - SMTP Benutzername
+- smtp_password (VARCHAR) - SMTP Passwort
+- smtp_debug (INT) - Debug-Level (0-2)
+- updated_at (TIMESTAMP) - Letzte Änderung
+```
+
+**Standard-Werte:**
+- SMTP deaktiviert (verwendet PHP mail())
+- Vorkonfiguriert für Gmail (smtp.gmail.com:587, TLS)
+- Debug aus für Produktion
+
+**Dateien:**
+- `database/create-smtp-settings.sql` - Schema
+- `src/core/config.php` - Composer Autoload & Fallback-Konstanten
+
+#### 3. EmailService mit PHPMailer
+**Komplett überarbeiteter Email-Service:**
+
+**Features:**
+- Automatische Wahl zwischen SMTP und PHP mail()
+- Liest Konfiguration aus Datenbank (nicht hardcoded!)
+- Besseres Error-Handling mit Try-Catch
+- Detailliertes Logging (zeigt SMTP-Server an)
+- UTF-8 Support
+- Debug-Ausgabe konfigurierbar
+
+**Code-Änderungen:**
+```php
+// Vorher: Hardcoded mail() Funktion
+$sent = @mail($to, $subject, $body, $headers);
+
+// Nachher: PHPMailer mit DB-Konfiguration
+$mail = new \PHPMailer\PHPMailer\PHPMailer(true);
+$smtp = $this->db->querySingle("SELECT * FROM smtp_settings WHERE id = 1");
+
+if ($smtp && $smtp['smtp_enabled']) {
+    $mail->isSMTP();
+    $mail->Host = $smtp['smtp_host'];
+    // ... weitere SMTP-Einstellungen
+} else {
+    $mail->isMail();  // Fallback zu PHP mail()
+}
+```
+
+**Vorteile:**
+- ✅ Bessere Zustellbarkeit (weniger Spam)
+- ✅ Verschlüsselte Verbindung (TLS/SSL)
+- ✅ Authentifizierung mit SMTP-Credentials
+- ✅ Detaillierte Error-Messages
+- ✅ Flexibel: SMTP per Klick ein/ausschalten
+
+**Datei:** `src/core/EmailService.php`
+
+#### 4. Admin-UI für SMTP-Verwaltung
+**Vollständige Verwaltungsoberfläche** (`/admin/smtp-settings`):
+
+**Features:**
+- ✅ **SMTP aktivieren/deaktivieren** - Checkbox zum Umschalten
+- ✅ **Server-Konfiguration:**
+  - SMTP Host (z.B. smtp.gmail.com, smtp.office365.com)
+  - Port (Standard: 587 für TLS, 465 für SSL)
+  - Verschlüsselung (TLS/SSL/Keine)
+- ✅ **Authentifizierung:**
+  - Benutzername
+  - Passwort (nur ändern wenn neues eingegeben)
+- ✅ **Debug-Level:**
+  - Aus (Produktion)
+  - Nur Fehler
+  - Verbose (Entwicklung)
+- ✅ **Aktuelle Konfiguration** - Übersicht der gespeicherten Einstellungen
+- ✅ **Info-Box** mit Hinweisen für Gmail, Office365, etc.
+
+**Design:**
+- Responsive Formular mit Validierung
+- Form-Row Layout für Port/Verschlüsselung
+- Passwort-Feld: Placeholder-Text erklärt Verhalten
+- Übersichtliche Tabelle mit aktueller Config
+
+**Datei:** `src/admin/smtp-settings.php`
+
+#### 5. Test-Email Funktion
+**Dedizierte Test-Seite** (`/admin/smtp-test`):
+
+**Features:**
+- ✅ Test-Email an beliebige Adresse senden
+- ✅ Zeigt aktuelle SMTP-Methode an (SMTP oder PHP mail())
+- ✅ Bei SMTP: Zeigt Server, Port, Verschlüsselung
+- ✅ **Debug-Ausgabe** - Komplette SMTP-Kommunikation sichtbar
+- ✅ Erfolgs-/Fehlermeldungen
+- ✅ Hinweise für Gmail, Office365, Spam-Ordner
+
+**Debug-Ausgabe:**
+```
+SMTP -> FROM SERVER: 220 smtp.gmail.com ESMTP ready
+SMTP -> FROM SERVER: 250-smtp.gmail.com at your service
+...
+```
+
+**Test-Email Inhalt:**
+- Versanddatum/Zeit
+- Verwendete Methode (SMTP/PHP mail())
+- SMTP-Server Details (falls SMTP)
+- Bestätigungstext
+
+**Datei:** `src/admin/smtp-test.php`
+
+#### 6. Dashboard-Integration
+**Neue Links im Admin-Dashboard:**
+
+```php
+✉️ Email-Templates verwalten  → /admin/email-templates
+🔧 SMTP-Einstellungen         → /admin/smtp-settings
+```
+
+Zugriff: Dashboard → "🔧 SMTP-Einstellungen" → "🧪 Test-Email senden"
+
+#### 7. Router-Erweiterung
+**Neue Routen:**
+```php
+/admin/smtp-settings  → SMTP-Konfiguration
+/admin/smtp-test      → Test-Email senden
+```
+
+**Datei:** `src/router.php`
+
+### Technische Details
+
+#### Composer Autoload
+```php
+// src/core/config.php
+require_once dirname(dirname(__DIR__)) . '/vendor/autoload.php';
+```
+
+Lädt PHPMailer und alle anderen Composer-Packages automatisch.
+
+#### PHPMailer Konfiguration
+```php
+// SMTP aktiviert
+$mail->isSMTP();
+$mail->Host = 'smtp.gmail.com';
+$mail->Port = 587;
+$mail->SMTPSecure = 'tls';
+$mail->SMTPAuth = true;
+$mail->Username = 'email@gmail.com';
+$mail->Password = 'app-password';
+
+// PHP mail() Fallback
+$mail->isMail();
+```
+
+#### Gmail-Konfiguration
+Für Gmail-Versand erforderlich:
+1. 2-Faktor-Authentifizierung aktivieren
+2. App-Passwort generieren (nicht normales Passwort!)
+3. SMTP-Einstellungen:
+   - Host: `smtp.gmail.com`
+   - Port: `587`
+   - Verschlüsselung: `TLS`
+   - Benutzername: Deine Gmail-Adresse
+   - Passwort: App-Passwort (16-stellig)
+
+#### Office365-Konfiguration
+1. SMTP-Einstellungen:
+   - Host: `smtp.office365.com`
+   - Port: `587`
+   - Verschlüsselung: `TLS`
+   - Benutzername: Deine Office365-Email
+   - Passwort: Office365-Passwort
+
+### Dateistruktur (Neu)
+
+```
+/
+├── composer.json              # Composer-Konfiguration (NEU)
+├── composer.phar              # Composer Binary (NEU)
+├── vendor/                    # Dependencies (NEU)
+│   └── phpmailer/phpmailer/
+├── database/
+│   └── create-smtp-settings.sql (NEU)
+├── src/
+│   ├── core/
+│   │   ├── config.php         # Composer Autoload hinzugefügt
+│   │   └── EmailService.php   # PHPMailer-Integration
+│   └── admin/
+│       ├── index.php          # Dashboard-Link hinzugefügt
+│       ├── smtp-settings.php  # SMTP-Verwaltung (NEU)
+│       └── smtp-test.php      # Test-Email (NEU)
+```
+
+### Projektstand nach Session
+
+#### Komplett implementiert ✅
+- ✅ PHPMailer v7.0.1 installiert
+- ✅ Datenbank-basierte SMTP-Konfiguration
+- ✅ EmailService auf PHPMailer migriert
+- ✅ Admin-UI für SMTP-Verwaltung
+- ✅ Test-Email Funktion mit Debug-Ausgabe
+- ✅ Dashboard-Integration
+- ✅ Kompatibilität mit Gmail, Office365, eigenen SMTP-Servern
+
+#### Bereit für Produktion
+- **Email-Versand:** Flexibel (SMTP oder PHP mail())
+- **Konfiguration:** Admin-editierbar über UI
+- **Testing:** Integrierte Test-Funktion
+- **Logging:** Detaillierte Error-Messages
+- **Sicherheit:** Passwörter in Datenbank (verschlüsselt empfohlen)
+
+#### Deployment-Hinweise
+1. **Composer Dependencies:** `vendor/` Ordner via FTP hochladen
+2. **Datenbank:** `create-smtp-settings.sql` importieren
+3. **SMTP-Einstellungen:** Im Admin-Bereich konfigurieren
+4. **Test:** Test-Email senden vor Produktiv-Betrieb
+
+#### Verbesserungsmöglichkeiten (Optional)
+- Passwort-Verschlüsselung in Datenbank
+- Multiple SMTP-Profile (z.B. für verschiedene Email-Typen)
+- Email-Queue für bessere Performance
+- Statistiken: Erfolgreiche/Fehlgeschlagene Emails
+- HTML-Email Support (derzeit: Plain Text)
+

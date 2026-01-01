@@ -101,6 +101,10 @@ include __DIR__ . '/../templates/header.php';
                     ✉️ Email-Templates verwalten
                 </a>
 
+                <a href="<?= BASE_URL ?>/admin/smtp-settings" class="btn btn-outline btn-block">
+                    🔧 SMTP-Einstellungen
+                </a>
+
                 <a href="<?= BASE_URL ?>/admin/logout" class="btn btn-outline btn-block" style="color: var(--color-error);">
                     🚪 Abmelden
                 </a>

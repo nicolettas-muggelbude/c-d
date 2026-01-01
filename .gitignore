@@ -1,0 +1,28 @@
+# Composer
+/vendor/
+composer.phar
+
+# Logs
+/logs/*.log
+
+# Cache
+/src/cache/*
+!/src/cache/.gitkeep
+
+# Uploads
+/src/uploads/*
+!/src/uploads/.gitkeep
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Config (sollte nicht committed werden, aber hier ist es für Entwicklung)
+# src/core/config.php

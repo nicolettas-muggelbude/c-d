@@ -142,22 +142,61 @@ class EmailService {
     }
 
     /**
-     * Email versenden
+     * Email versenden (mit PHPMailer)
      */
     private function sendMail($to, $subject, $body) {
-        $headers = "From: " . MAIL_FROM_NAME . " <" . MAIL_FROM . ">\r\n";
-        $headers .= "Reply-To: " . MAIL_FROM . "\r\n";
-        $headers .= "Content-Type: text/plain; charset=UTF-8\r\n";
+        try {
+            $mail = new \PHPMailer\PHPMailer\PHPMailer(true);
 
-        $sent = @mail($to, $subject, $body, $headers);
+            // SMTP-Einstellungen aus Datenbank laden
+            $smtp = $this->db->querySingle("SELECT * FROM smtp_settings WHERE id = 1");
 
-        if ($sent) {
-            error_log("EmailService: Email sent to $to");
-        } else {
-            error_log("EmailService: Failed to send email to $to");
+            // SMTP oder PHP mail()
+            if ($smtp && $smtp['smtp_enabled']) {
+                // SMTP-Konfiguration
+                $mail->isSMTP();
+                $mail->Host       = $smtp['smtp_host'];
+                $mail->SMTPAuth   = !empty($smtp['smtp_username']);
+                $mail->Username   = $smtp['smtp_username'];
+                $mail->Password   = $smtp['smtp_password'];
+                $mail->SMTPSecure = $smtp['smtp_encryption'] !== 'none' ? $smtp['smtp_encryption'] : '';
+                $mail->Port       = $smtp['smtp_port'];
+                $mail->SMTPDebug  = $smtp['smtp_debug'];
+            } else {
+                // Standard PHP mail()
+                $mail->isMail();
+            }
+
+            // Absender
+            $mail->setFrom(MAIL_FROM, MAIL_FROM_NAME);
+            $mail->addReplyTo(MAIL_FROM, MAIL_FROM_NAME);
+
+            // Empfänger
+            $mail->addAddress($to);
+
+            // Inhalt
+            $mail->CharSet = 'UTF-8';
+            $mail->isHTML(false); // Plain Text
+            $mail->Subject = $subject;
+            $mail->Body    = $body;
+
+            // Versenden
+            $sent = $mail->send();
+
+            if ($sent) {
+                $method = ($smtp && $smtp['smtp_enabled']) ? "via SMTP ({$smtp['smtp_host']})" : "via PHP mail()";
+                error_log("EmailService: Email sent to $to {$method}");
+            }
+
+            return $sent;
+
+        } catch (\PHPMailer\PHPMailer\Exception $e) {
+            error_log("EmailService: Failed to send email to $to - Error: {$mail->ErrorInfo}");
+            return false;
+        } catch (\Exception $e) {
+            error_log("EmailService: Failed to send email to $to - Error: {$e->getMessage()}");
+            return false;
         }
-
-        return $sent;
     }
 
     /**
