@@ -182,7 +182,7 @@ include __DIR__ . '/../templates/header.php';
                         });
                         </script>
 
-                        <div style="background: #f5f5f5; padding: var(--space-md); border-radius: var(--border-radius-sm); text-align: center;">
+                        <div style="background: var(--color-bg-secondary, #f5f5f5); color: var(--color-text, #000); padding: var(--space-md); border-radius: var(--border-radius-sm); text-align: center; border: 1px solid var(--color-border, #ddd);">
                             <small>Manueller Schlüssel:</small><br>
                             <code style="font-size: 1.1em; letter-spacing: 2px;"><?= e(chunk_split($twofa['secret'], 4, ' ')) ?></code>
                         </div>
@@ -218,7 +218,7 @@ include __DIR__ . '/../templates/header.php';
                         $codes = json_decode($twofa['backup_codes'], true);
                         echo '<div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(120px, 1fr)); gap: var(--space-sm); font-family: monospace; margin-top: var(--space-md);">';
                         foreach ($codes as $code) {
-                            echo '<div style="background: #f5f5f5; padding: var(--space-md); text-align: center; border-radius: 4px;">' . e($code) . '</div>';
+                            echo '<div style="background: var(--color-bg-secondary, #f5f5f5); color: var(--color-text, #000); padding: var(--space-md); text-align: center; border-radius: 4px; border: 1px solid var(--color-border, #ddd);">' . e($code) . '</div>';
                         }
                         echo '</div>';
                         ?>
@@ -245,7 +245,7 @@ include __DIR__ . '/../templates/header.php';
                         $codes = json_decode($twofa['backup_codes'], true);
                         echo '<div style="display: grid; grid-template-columns: 1fr; gap: var(--space-sm); font-family: monospace; margin-bottom: var(--space-md);">';
                         foreach ($codes as $code) {
-                            echo '<div style="background: #f5f5f5; padding: var(--space-sm); text-align: center;">' . e($code) . '</div>';
+                            echo '<div style="background: var(--color-bg-secondary, #f5f5f5); color: var(--color-text, #000); padding: var(--space-sm); text-align: center; border-radius: 4px; border: 1px solid var(--color-border, #ddd);">' . e($code) . '</div>';
                         }
                         echo '</div>';
                         ?>
