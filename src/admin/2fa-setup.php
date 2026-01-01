@@ -28,7 +28,12 @@ error_log("2FA Setup: POST method = " . $_SERVER['REQUEST_METHOD']);
 
 // Step 1: Secret generieren und QR-Code anzeigen
 if ($step === 'setup') {
+    error_log("2FA Setup: In setup block");
+    error_log("2FA Setup: POST action = " . ($_POST['action'] ?? 'NOT SET'));
+
     if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && $_POST['action'] === 'generate') {
+        error_log("2FA Setup: Generating secret...");
+
         // Neues Secret generieren
         $secret = TOTP::generateSecret();
         $backupCodes = TOTP::generateBackupCodes();
@@ -46,12 +51,8 @@ if ($step === 'setup') {
             ':backup_codes2' => json_encode($backupCodes)
         ]);
 
-        // Neu laden
-        $twofa = $db->querySingle("SELECT * FROM user_2fa WHERE user_id = :user_id", [
-            ':user_id' => $userId
-        ]);
-
-        $step = 'verify';
+        // Weiterleitung zur Verifizierung
+        redirect(BASE_URL . '/admin/2fa-setup?step=verify');
     }
 }
 
@@ -72,15 +73,13 @@ if ($step === 'verify' && $twofa && !$twofa['enabled']) {
                 UPDATE user_2fa SET enabled = TRUE WHERE user_id = :user_id
             ", [':user_id' => $userId]);
 
-            $success = '2FA wurde erfolgreich aktiviert!';
-            $step = 'manage';
+            error_log("2FA Verify: 2FA aktiviert - redirect zu manage");
 
-            // Neu laden
-            $twofa = $db->querySingle("SELECT * FROM user_2fa WHERE user_id = :user_id", [
-                ':user_id' => $userId
-            ]);
+            // Erfolg-Meldung in Session speichern
+            set_flash('success', '2FA wurde erfolgreich aktiviert!');
 
-            error_log("2FA Verify: Enabled nach Update: " . ($twofa['enabled'] ? 'TRUE' : 'FALSE'));
+            // Weiterleitung zur Verwaltung
+            redirect(BASE_URL . '/admin/2fa-setup?step=manage');
         } else {
             error_log("2FA Verify: Code ist UNGÜLTIG");
             $error = 'Ungültiger Code. Bitte versuchen Sie es erneut.';
