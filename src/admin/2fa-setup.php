@@ -20,6 +20,12 @@ $step = $_GET['step'] ?? ($twofa && $twofa['enabled'] ? 'manage' : 'setup');
 $error = '';
 $success = '';
 
+// Debug-Logging
+error_log("2FA Setup: Current step = " . $step);
+error_log("2FA Setup: twofa exists = " . ($twofa ? 'YES' : 'NO'));
+error_log("2FA Setup: twofa enabled = " . ($twofa && $twofa['enabled'] ? 'TRUE' : 'FALSE'));
+error_log("2FA Setup: POST method = " . $_SERVER['REQUEST_METHOD']);
+
 // Step 1: Secret generieren und QR-Code anzeigen
 if ($step === 'setup') {
     if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && $_POST['action'] === 'generate') {
