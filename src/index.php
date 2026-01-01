@@ -170,6 +170,38 @@ include __DIR__ . '/templates/header.php';
 </section>
 <?php endif; ?>
 
+<!-- Blog Preview -->
+<?php if (!empty($blog_posts)): ?>
+<section class="section">
+    <div class="container">
+        <h2 class="text-center mb-lg">Aktuelles & Tipps</h2>
+
+        <div class="grid grid-cols-1 grid-cols-md-3 gap-lg">
+            <?php foreach ($blog_posts as $post): ?>
+                <article class="card">
+                    <div class="card-meta">
+                        <time datetime="<?= e($post['published_at']) ?>">
+                            <?= format_date($post['published_at']) ?>
+                        </time>
+                    </div>
+
+                    <h3><?= e($post['title']) ?></h3>
+                    <p><?= e($post['excerpt']) ?></p>
+
+                    <a href="<?= BASE_URL ?>/blog/<?= e($post['slug']) ?>" class="btn btn-outline btn-sm">
+                        Weiterlesen
+                    </a>
+                </article>
+            <?php endforeach; ?>
+        </div>
+
+        <div class="text-center mt-xl">
+            <a href="<?= BASE_URL ?>/blog" class="btn btn-outline">Alle Beiträge ansehen</a>
+        </div>
+    </div>
+</section>
+<?php endif; ?>
+
 <!-- Warum PC-Wittfoot -->
 <section class="section bg-primary text-white">
     <div class="container">
@@ -202,38 +234,6 @@ include __DIR__ . '/templates/header.php';
         </div>
     </div>
 </section>
-
-<!-- Blog Preview -->
-<?php if (!empty($blog_posts)): ?>
-<section class="section">
-    <div class="container">
-        <h2 class="text-center mb-lg">Aktuelles & Tipps</h2>
-
-        <div class="grid grid-cols-1 grid-cols-md-3 gap-lg">
-            <?php foreach ($blog_posts as $post): ?>
-                <article class="card">
-                    <div class="card-meta">
-                        <time datetime="<?= e($post['published_at']) ?>">
-                            <?= format_date($post['published_at']) ?>
-                        </time>
-                    </div>
-
-                    <h3><?= e($post['title']) ?></h3>
-                    <p><?= e($post['excerpt']) ?></p>
-
-                    <a href="<?= BASE_URL ?>/blog/<?= e($post['slug']) ?>" class="btn btn-outline btn-sm">
-                        Weiterlesen
-                    </a>
-                </article>
-            <?php endforeach; ?>
-        </div>
-
-        <div class="text-center mt-xl">
-            <a href="<?= BASE_URL ?>/blog" class="btn btn-outline">Alle Beiträge ansehen</a>
-        </div>
-    </div>
-</section>
-<?php endif; ?>
 
 <!-- CTA Section -->
 <section class="section bg-secondary">

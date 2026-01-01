@@ -178,6 +178,7 @@ require_once CORE_PATH . '/helpers.php';
 require_once CORE_PATH . '/database.php';
 
 require_once CORE_PATH . '/Security.php';
+require_once CORE_PATH . '/DeviceFingerprint.php';
 
 // Security-Headers setzen
 if (class_exists('Security')) {

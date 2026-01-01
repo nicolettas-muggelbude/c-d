@@ -398,6 +398,21 @@ nav {
     gap: 24px;
 }
 
+/* Semantische Listen-Struktur */
+nav ul {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+}
+
+nav li {
+    margin: 0;
+    padding: 0;
+}
+
 /* Mobile-Menü wenn geöffnet */
 nav.active {
     display: flex;
@@ -423,6 +438,11 @@ nav.active {
         padding: 0;
         border: none;
         box-shadow: none;
+    }
+
+    nav ul {
+        flex-direction: row;
+        gap: 24px;
     }
 
     nav.active {

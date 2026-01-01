@@ -73,11 +73,33 @@
         const hamburger = document.getElementById('hamburger');
         const nav = document.getElementById('nav');
 
+        function closeMenu() {
+            nav.classList.remove('active');
+            hamburger.setAttribute('aria-expanded', 'false');
+            hamburger.setAttribute('aria-label', 'Menü öffnen');
+        }
+
+        function openMenu() {
+            nav.classList.add('active');
+            hamburger.setAttribute('aria-expanded', 'true');
+            hamburger.setAttribute('aria-label', 'Menü schließen');
+        }
+
         hamburger.addEventListener('click', () => {
-            nav.classList.toggle('active');
-            const expanded = nav.classList.contains('active');
-            hamburger.setAttribute('aria-expanded', expanded);
-            hamburger.setAttribute('aria-label', expanded ? 'Menü schließen' : 'Menü öffnen');
+            const isOpen = nav.classList.contains('active');
+            if (isOpen) {
+                closeMenu();
+            } else {
+                openMenu();
+            }
+        });
+
+        // ESC-Taste zum Schließen des Menüs (Barrierefreiheit)
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'Escape' && nav.classList.contains('active')) {
+                closeMenu();
+                hamburger.focus(); // Focus zurück zum Hamburger-Button
+            }
         });
 
         // Darkmode Toggle

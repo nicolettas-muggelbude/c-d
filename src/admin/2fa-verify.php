@@ -35,7 +35,8 @@ if (!$twofa) {
 // Verification
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $code = preg_replace('/[^0-9]/', '', $_POST['code'] ?? '');
-    $useBackup = isset($_POST['use_backup']);
+    $useBackup = !empty($_POST['use_backup']) && $_POST['use_backup'] === '1';
+    $trustDevice = isset($_POST['trust_device']);
 
     if (empty($code)) {
         $error = 'Bitte geben Sie einen Code ein.';
@@ -55,7 +56,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             ]);
 
             // Login abschließen
-            completeLogin($userId);
+            completeLogin($userId, $trustDevice);
         } else {
             $error = 'Ungültiger Backup-Code.';
         }
@@ -63,14 +64,14 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         // TOTP-Code verifizieren
         if (TOTP::verify($twofa['secret'], $code, 1)) {
             // Login abschließen
-            completeLogin($userId);
+            completeLogin($userId, $trustDevice);
         } else {
             $error = 'Ungültiger Code. Bitte versuchen Sie es erneut.';
         }
     }
 }
 
-function completeLogin($userId) {
+function completeLogin($userId, $trustDevice = false) {
     global $db;
 
     $user = $db->querySingle("SELECT * FROM users WHERE id = :id", [':id' => $userId]);
@@ -85,9 +86,16 @@ function completeLogin($userId) {
         $_SESSION['user_name'] = $user['full_name'] ?? $user['username'];
         $_SESSION['is_admin'] = ($user['role'] === 'admin');
 
+        // Gerät als vertrauenswürdig markieren, falls gewünscht
+        if ($trustDevice) {
+            DeviceFingerprint::trust($user['id'], 30); // 30 Tage gültig
+        }
+
         // Audit-Log
         $security = new Security();
-        $security->logAudit('admin_login_2fa', 'user', $user['id']);
+        $security->logAudit('admin_login_2fa', 'user', $user['id'], [
+            'trusted_device' => $trustDevice
+        ]);
 
         redirect(BASE_URL . '/admin');
     }
@@ -130,6 +138,16 @@ include __DIR__ . '/../templates/header.php';
                         </div>
 
                         <input type="hidden" name="use_backup" id="use_backup" value="0">
+
+                        <div class="form-group" style="margin-top: var(--space-md);">
+                            <label class="form-check">
+                                <input type="checkbox" name="trust_device" id="trust_device">
+                                <span>Dieses Gerät für 30 Tage merken</span>
+                            </label>
+                            <small class="text-muted" style="display: block; margin-top: var(--space-xs);">
+                                Sie müssen auf diesem Gerät für 30 Tage keinen 2FA-Code mehr eingeben.
+                            </small>
+                        </div>
 
                         <button type="submit" class="btn btn-primary btn-block btn-lg">
                             Verifizieren

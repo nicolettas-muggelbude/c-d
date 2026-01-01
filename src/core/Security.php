@@ -218,7 +218,7 @@ class Security {
         header("Content-Security-Policy: default-src 'self'; script-src 'self' 'unsafe-inline' https://cdnjs.cloudflare.com; style-src 'self' 'unsafe-inline'; img-src 'self' data: https://chart.googleapis.com; font-src 'self';");
 
         // HTTPS in Produktion erzwingen
-        if (!empty($_SERVER['HTTPS']) || $_SERVER['SERVER_PORT'] == 443) {
+        if (!empty($_SERVER['HTTPS']) || ($_SERVER['SERVER_PORT'] ?? 80) == 443) {
             header('Strict-Transport-Security: max-age=31536000; includeSubDomains');
         }
     }

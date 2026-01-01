@@ -53,14 +53,33 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 ", [':user_id' => $user['id']]);
 
                 if ($twofa) {
-                    // 2FA ist aktiviert - weiter zur 2FA-Verifizierung
-                    $_SESSION['2fa_pending'] = true;
-                    $_SESSION['2fa_user_id'] = $user['id'];
+                    // Prüfe, ob Gerät vertrauenswürdig ist
+                    $trustedDevice = DeviceFingerprint::isTrusted($user['id']);
 
-                    // Audit-Log (Passwort erfolgreich, 2FA ausstehend)
-                    $security->logAudit('admin_login_password', 'user', $user['id']);
+                    if ($trustedDevice) {
+                        // Vertrauenswürdiges Gerät - 2FA überspringen
+                        $_SESSION['user_id'] = $user['id'];
+                        $_SESSION['user_role'] = $user['role'];
+                        $_SESSION['user_name'] = $user['full_name'] ?? $user['username'];
+                        $_SESSION['is_admin'] = ($user['role'] === 'admin');
 
-                    redirect(BASE_URL . '/admin/2fa-verify');
+                        // Last-used aktualisieren
+                        DeviceFingerprint::updateLastUsed($user['id']);
+
+                        // Audit-Log
+                        $security->logAudit('admin_login_trusted_device', 'user', $user['id']);
+
+                        redirect(BASE_URL . '/admin');
+                    } else {
+                        // 2FA ist aktiviert - weiter zur 2FA-Verifizierung
+                        $_SESSION['2fa_pending'] = true;
+                        $_SESSION['2fa_user_id'] = $user['id'];
+
+                        // Audit-Log (Passwort erfolgreich, 2FA ausstehend)
+                        $security->logAudit('admin_login_password', 'user', $user['id']);
+
+                        redirect(BASE_URL . '/admin/2fa-verify');
+                    }
                 } else {
                     // Kein 2FA - Login direkt abschließen
                     $_SESSION['user_id'] = $user['id'];

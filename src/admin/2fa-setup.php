@@ -20,20 +20,9 @@ $step = $_GET['step'] ?? ($twofa && $twofa['enabled'] ? 'manage' : 'setup');
 $error = '';
 $success = '';
 
-// Debug-Logging
-error_log("2FA Setup: Current step = " . $step);
-error_log("2FA Setup: twofa exists = " . ($twofa ? 'YES' : 'NO'));
-error_log("2FA Setup: twofa enabled = " . ($twofa && $twofa['enabled'] ? 'TRUE' : 'FALSE'));
-error_log("2FA Setup: POST method = " . $_SERVER['REQUEST_METHOD']);
-
 // Step 1: Secret generieren und QR-Code anzeigen
 if ($step === 'setup') {
-    error_log("2FA Setup: In setup block");
-    error_log("2FA Setup: POST action = " . ($_POST['action'] ?? 'NOT SET'));
-
     if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && $_POST['action'] === 'generate') {
-        error_log("2FA Setup: Generating secret...");
-
         // Neues Secret generieren
         $secret = TOTP::generateSecret();
         $backupCodes = TOTP::generateBackupCodes();
@@ -61,19 +50,11 @@ if ($step === 'verify' && $twofa && !$twofa['enabled']) {
     if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['code'])) {
         $code = $_POST['code'];
 
-        // Debug-Logging
-        error_log("2FA Verify: Code eingegeben: " . $code);
-        error_log("2FA Verify: Secret: " . $twofa['secret']);
-
         if (TOTP::verify($twofa['secret'], $code)) {
-            error_log("2FA Verify: Code ist GÜLTIG - aktiviere 2FA");
-
             // 2FA aktivieren
             $db->update("
                 UPDATE user_2fa SET enabled = TRUE WHERE user_id = :user_id
             ", [':user_id' => $userId]);
-
-            error_log("2FA Verify: 2FA aktiviert - redirect zu manage");
 
             // Erfolg-Meldung in Session speichern
             set_flash('success', '2FA wurde erfolgreich aktiviert!');
@@ -81,7 +62,6 @@ if ($step === 'verify' && $twofa && !$twofa['enabled']) {
             // Weiterleitung zur Verwaltung
             redirect(BASE_URL . '/admin/2fa-setup?step=manage');
         } else {
-            error_log("2FA Verify: Code ist UNGÜLTIG");
             $error = 'Ungültiger Code. Bitte versuchen Sie es erneut.';
         }
     }
@@ -111,6 +91,28 @@ if ($step === 'manage' && isset($_POST['action']) && $_POST['action'] === 'regen
         $twofa['backup_codes'] = json_encode($backupCodes);
         $success = 'Backup-Codes wurden neu generiert.';
     }
+}
+
+// Vertrauenswürdiges Gerät entfernen
+if ($step === 'manage' && isset($_POST['action']) && $_POST['action'] === 'revoke_device') {
+    if (csrf_verify($_POST['csrf_token'] ?? '')) {
+        $deviceId = intval($_POST['device_id'] ?? 0);
+        if (DeviceFingerprint::revoke($userId, $deviceId)) {
+            $success = 'Gerät wurde entfernt.';
+        } else {
+            $error = 'Gerät konnte nicht entfernt werden.';
+        }
+    }
+}
+
+// Vertrauenswürdige Geräte laden
+$trustedDevices = [];
+if ($step === 'manage' && $twofa && $twofa['enabled']) {
+    $trustedDevices = $db->query("
+        SELECT * FROM trusted_devices
+        WHERE user_id = :user_id
+        ORDER BY last_used_at DESC, created_at DESC
+    ", [':user_id' => $userId]) ?: [];
 }
 
 $page_title = '2FA Einstellungen | Admin | PC-Wittfoot UG';
@@ -269,6 +271,46 @@ include __DIR__ . '/../templates/header.php';
                             </button>
                         </form>
                     </div>
+                </div>
+
+                <!-- Vertrauenswürdige Geräte -->
+                <div class="card" style="margin-top: var(--space-lg);">
+                    <h3>Vertrauenswürdige Geräte<?php if (!empty($trustedDevices)): ?> (<?= count($trustedDevices) ?>)<?php endif; ?></h3>
+                    <p><small>Diese Geräte müssen für 30 Tage keinen 2FA-Code eingeben.</small></p>
+
+                    <?php if (!empty($trustedDevices)): ?>
+                        <div style="margin-top: var(--space-md);">
+                            <?php foreach ($trustedDevices as $device): ?>
+                                <div style="display: flex; justify-content: space-between; align-items: center; padding: var(--space-md); background: var(--bg-secondary); border-radius: var(--border-radius-sm); margin-bottom: var(--space-sm);">
+                                    <div>
+                                        <strong><?= e($device['device_name']) ?></strong><br>
+                                        <small class="text-muted">
+                                            Hinzugefügt: <?= format_datetime($device['created_at'], 'd.m.Y H:i') ?><br>
+                                            <?php if ($device['last_used_at']): ?>
+                                                Zuletzt: <?= format_datetime($device['last_used_at'], 'd.m.Y H:i') ?><br>
+                                            <?php endif; ?>
+                                            Gültig bis: <?= format_datetime($device['expires_at'], 'd.m.Y H:i') ?>
+                                        </small>
+                                    </div>
+                                    <form method="post" style="display: inline;" onsubmit="return confirm('Gerät wirklich entfernen?')">
+                                        <input type="hidden" name="csrf_token" value="<?= csrf_token() ?>">
+                                        <input type="hidden" name="action" value="revoke_device">
+                                        <input type="hidden" name="device_id" value="<?= $device['id'] ?>">
+                                        <button type="submit" class="btn btn-outline btn-sm" style="color: var(--color-error); border-color: var(--color-error);">
+                                            Entfernen
+                                        </button>
+                                    </form>
+                                </div>
+                            <?php endforeach; ?>
+                        </div>
+                    <?php else: ?>
+                        <div style="margin-top: var(--space-md); padding: var(--space-md); background: var(--color-bg-secondary, #f5f5f5); border-radius: var(--border-radius-sm); text-align: center;">
+                            <p style="margin: 0; color: var(--color-text-muted);">
+                                Noch keine vertrauenswürdigen Geräte vorhanden.<br>
+                                <small>Aktivieren Sie beim nächsten Login die Option "Dieses Gerät für 30 Tage merken".</small>
+                            </p>
+                        </div>
+                    <?php endif; ?>
                 </div>
             </div>
         <?php endif; ?>

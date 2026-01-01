@@ -107,7 +107,7 @@ function truncate($text, $length = 100, $suffix = '...') {
 function asset($path) {
     $url = ASSETS_URL . '/' . ltrim($path, '/');
     // Cache-Busting: Version-Parameter hinzufügen
-    $version = '29'; // Bei CSS-Änderungen erhöhen
+    $version = '30'; // Bei CSS-Änderungen erhöhen
     return $url . '?v=' . $version;
 }
 
