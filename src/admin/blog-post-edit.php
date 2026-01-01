@@ -221,16 +221,14 @@ include __DIR__ . '/../templates/header.php';
                             </label>
                         </div>
 
-                        <div class="form-group">
+                        <div class="form-group mb-lg">
                             <label for="published_at">Veröffentlichungsdatum</label>
                             <input type="datetime-local"
                                    id="published_at"
                                    name="published_at"
                                    value="<?= date('Y-m-d\TH:i', strtotime($form_data['published_at'])) ?>">
                         </div>
-                    </div>
 
-                    <div class="card mb-lg">
                         <button type="submit" class="btn btn-primary btn-block btn-lg">
                             <?= $id ? 'Aktualisieren' : 'Erstellen' ?>
                         </button>
