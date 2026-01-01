@@ -12,6 +12,7 @@ if (is_admin()) {
 }
 
 $error = '';
+$security = new Security();
 
 // Login-Verarbeitung
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
@@ -25,22 +26,50 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     } elseif (empty($email) || empty($password)) {
         $error = 'Bitte E-Mail und Passwort eingeben.';
     } else {
-        // User aus DB laden
-        $db = Database::getInstance();
-        $user = $db->querySingle("
-            SELECT * FROM users
-            WHERE email = :email AND role = 'admin'
-        ", [':email' => $email]);
+        // Rate-Limiting prüfen (IP-basiert)
+        $rateLimitIP = $security->checkRateLimit($security->getClientIP(), 'ip');
 
-        if ($user && verify_password($password, $user['password_hash'])) {
-            // Login erfolgreich
-            $_SESSION['user_id'] = $user['id'];
-            $_SESSION['user_role'] = $user['role'];
-            $_SESSION['user_name'] = $user['full_name'] ?? $user['username'];
-
-            redirect(BASE_URL . '/admin');
+        if (!$rateLimitIP['allowed']) {
+            $error = $rateLimitIP['message'];
         } else {
-            $error = 'Ungültige Anmeldedaten.';
+            // User aus DB laden
+            $db = Database::getInstance();
+            $user = $db->querySingle("
+                SELECT * FROM users
+                WHERE email = :email AND role = 'admin'
+            ", [':email' => $email]);
+
+            if ($user && verify_password($password, $user['password_hash'])) {
+                // Login-Versuch protokollieren (ERFOLG)
+                $security->logLoginAttempt($email, true);
+
+                // Session regenerieren (gegen Session Fixation)
+                $security->regenerateSession();
+
+                // Login erfolgreich
+                $_SESSION['user_id'] = $user['id'];
+                $_SESSION['user_role'] = $user['role'];
+                $_SESSION['user_name'] = $user['full_name'] ?? $user['username'];
+                $_SESSION['is_admin'] = ($user['role'] === 'admin');
+
+                // Audit-Log
+                $security->logAudit('admin_login', 'user', $user['id']);
+
+                redirect(BASE_URL . '/admin');
+            } else {
+                // Login-Versuch protokollieren (FEHLER)
+                $security->logLoginAttempt($email, false);
+
+                $remainingAttempts = $rateLimitIP['remaining'] - 1;
+                if ($remainingAttempts > 0) {
+                    $error = sprintf(
+                        'Ungültige Anmeldedaten. Noch %d Versuch(e) übrig.',
+                        $remainingAttempts
+                    );
+                } else {
+                    $error = 'Ungültige Anmeldedaten. Zu viele Fehlversuche - Account vorübergehend gesperrt.';
+                }
+            }
         }
     }
 }

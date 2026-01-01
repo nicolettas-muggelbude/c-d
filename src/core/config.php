@@ -7,9 +7,24 @@
  * Enthält sensible Zugangsdaten.
  */
 
-// Error Reporting (für Entwicklung)
+// =============================================
+// UMGEBUNG
+// =============================================
+
+// Produktionsmodus (auf Server: true)
+define('PRODUCTION_MODE', false);
+
+// Error Reporting
 error_reporting(E_ALL);
-ini_set('display_errors', 1);
+if (PRODUCTION_MODE) {
+    // Produktion: Fehler nur loggen, nicht anzeigen
+    ini_set('display_errors', 0);
+    ini_set('display_startup_errors', 0);
+} else {
+    // Entwicklung: Fehler anzeigen
+    ini_set('display_errors', 1);
+    ini_set('display_startup_errors', 1);
+}
 ini_set('log_errors', 1);
 ini_set('error_log', dirname(dirname(__DIR__)) . '/logs/error.log');
 
@@ -50,8 +65,20 @@ ini_set('session.cookie_httponly', 1);
 ini_set('session.use_only_cookies', 1);
 ini_set('session.cookie_samesite', 'Lax');
 
-// CSRF-Token Secret
-define('CSRF_SECRET', 'CHANGE_THIS_IN_PRODUCTION_' . md5(BASE_PATH));
+// Secure Cookie nur über HTTPS (in Produktion)
+if (PRODUCTION_MODE && (!empty($_SERVER['HTTPS']) || $_SERVER['SERVER_PORT'] == 443)) {
+    ini_set('session.cookie_secure', 1);
+}
+
+// Session-Lifetime (2 Stunden)
+ini_set('session.gc_maxlifetime', 7200);
+ini_set('session.cookie_lifetime', 7200);
+
+// CSRF-Token Secret (in Produktion durch echten Random-String ersetzen!)
+define('CSRF_SECRET', PRODUCTION_MODE ?
+    getenv('CSRF_SECRET') ?: 'CHANGE_THIS_TO_RANDOM_STRING' :
+    'dev_secret_' . md5(BASE_PATH)
+);
 
 // Session-Name
 define('SESSION_NAME', 'pc_wittfoot_session');
@@ -149,3 +176,11 @@ spl_autoload_register(function($class) {
 
 require_once CORE_PATH . '/helpers.php';
 require_once CORE_PATH . '/database.php';
+
+require_once CORE_PATH . '/Security.php';
+
+// Security-Headers setzen
+if (class_exists('Security')) {
+    $security = new Security();
+    $security->setSecurityHeaders();
+}
