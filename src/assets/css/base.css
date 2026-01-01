@@ -24,14 +24,7 @@ body {
 
 /* Main Content Area */
 main {
-  min-height: calc(100vh - var(--header-height) - 400px);
   padding-bottom: var(--space-xxl);
-}
-
-@media (min-width: 992px) {
-  main {
-    min-height: calc(100vh - var(--header-height-desktop) - 400px);
-  }
 }
 
 /* ===== TYPOGRAPHY ===== */
