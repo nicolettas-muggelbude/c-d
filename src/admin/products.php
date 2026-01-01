@@ -10,6 +10,40 @@ require_admin();
 
 $db = Database::getInstance();
 
+// Bulk-Delete: Unverknüpfte, inaktive/ausverkaufte Produkte
+if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && $_POST['action'] === 'bulk_delete_unused') {
+    if (!csrf_verify($_POST['csrf_token'] ?? '')) {
+        set_flash('error', 'CSRF-Token ungültig.');
+    } else {
+        // Produkte finden die gelöscht werden können
+        $deletable = $db->query("
+            SELECT p.id, p.name, p.image
+            FROM products p
+            LEFT JOIN order_items oi ON p.id = oi.product_id
+            WHERE oi.id IS NULL
+            AND (p.is_active = 0 OR p.stock = 0)
+        ");
+
+        $deleted_count = 0;
+        foreach ($deletable as $product) {
+            // Bild löschen
+            if (!empty($product['image'])) {
+                $image_file = __DIR__ . '/../../uploads/' . $product['image'];
+                if (file_exists($image_file)) {
+                    unlink($image_file);
+                }
+            }
+
+            // Produkt löschen
+            $db->update("DELETE FROM products WHERE id = :id", [':id' => $product['id']]);
+            $deleted_count++;
+        }
+
+        set_flash('success', "$deleted_count Produkt(e) gelöscht.");
+        redirect(BASE_URL . '/admin/products');
+    }
+}
+
 // Filter
 $source_filter = $_GET['source'] ?? 'all';
 $status_filter = $_GET['status'] ?? 'all';
@@ -44,6 +78,15 @@ if (!empty($search)) {
 $sql .= " ORDER BY created_at DESC LIMIT 200";
 
 $products = $db->query($sql, $params);
+
+// Anzahl löschbarer Produkte ermitteln
+$deletable_count = $db->querySingle("
+    SELECT COUNT(*) as count
+    FROM products p
+    LEFT JOIN order_items oi ON p.id = oi.product_id
+    WHERE oi.id IS NULL
+    AND (p.is_active = 0 OR p.stock = 0)
+");
 
 $page_title = 'Produktverwaltung | Admin | PC-Wittfoot UG';
 $page_description = 'Produkte verwalten';
@@ -100,6 +143,28 @@ include __DIR__ . '/../templates/header.php';
                 </div>
             </form>
         </div>
+
+        <!-- Bulk-Delete-Option -->
+        <?php if ($deletable_count && $deletable_count['count'] > 0): ?>
+            <div class="card mb-lg" style="border-color: var(--color-warning); background-color: #fffbf0;">
+                <div style="display: flex; justify-content: space-between; align-items: center;">
+                    <div>
+                        <h3 style="margin: 0 0 0.5rem 0; color: var(--color-warning);">🗑️ Reorganisierung</h3>
+                        <p style="margin: 0;">
+                            <strong><?= $deletable_count['count'] ?></strong> Produkt(e) können gelöscht werden
+                            <br><small class="text-muted">(Inaktiv oder ausverkauft, ohne Bestellungen)</small>
+                        </p>
+                    </div>
+                    <form method="POST" onsubmit="return confirm('<?= $deletable_count['count'] ?> Produkt(e) wirklich löschen? Diese Aktion kann nicht rückgängig gemacht werden!');">
+                        <input type="hidden" name="csrf_token" value="<?= csrf_token() ?>">
+                        <input type="hidden" name="action" value="bulk_delete_unused">
+                        <button type="submit" class="btn btn-outline" style="color: var(--color-warning); border-color: var(--color-warning);">
+                            Alle löschen
+                        </button>
+                    </form>
+                </div>
+            </div>
+        <?php endif; ?>
 
         <!-- Produkte -->
         <h2 class="mb-lg">Produkte (<?= count($products) ?>)</h2>
