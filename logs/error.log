@@ -200,3 +200,9 @@ Stack trace:
 #1 /home/nicole/projekte/c-d/src/server.php(33): require('...')
 #2 {main}
   thrown in /home/nicole/projekte/c-d/src/admin/maintenance.php on line 96
+[01-Jan-2026 17:06:52 Europe/Berlin] PHP Fatal error:  Uncaught Error: Call to undefined method Database::execute() in /home/nicole/projekte/c-d/src/admin/blog-post-edit.php:110
+Stack trace:
+#0 /home/nicole/projekte/c-d/src/router.php(136): require()
+#1 /home/nicole/projekte/c-d/src/server.php(33): require('...')
+#2 {main}
+  thrown in /home/nicole/projekte/c-d/src/admin/blog-post-edit.php on line 110

@@ -83,7 +83,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         if (empty($errors)) {
             if ($id) {
                 // Update
-                $db->execute("
+                $db->update("
                     UPDATE blog_posts SET
                         title = :title,
                         slug = :slug,
@@ -107,7 +107,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 set_flash('success', 'Blog-Post wurde aktualisiert.');
             } else {
                 // Insert
-                $db->execute("
+                $db->insert("
                     INSERT INTO blog_posts (title, slug, excerpt, content, published, published_at, author_id)
                     VALUES (:title, :slug, :excerpt, :content, :published, :published_at, :author_id)
                 ", [
