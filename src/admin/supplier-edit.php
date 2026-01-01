@@ -261,15 +261,15 @@ include __DIR__ . '/../templates/header.php';
                 </div>
 
                 <div class="form-group">
-                    <label for="mapping_category">Kategorie (CSV-Spalte)</label>
-                    <input type="text" id="mapping_category" name="mapping_category" value="<?= e($column_mapping['category'] ?? '') ?>" placeholder="z.B. 'category' oder 'Kategorie'">
-                    <small class="text-muted">Optional: CSV-Spalte mit Kategorie-Namen</small>
-                </div>
-
-                <div class="form-group">
                     <label for="description_filter">Beschreibungs-Filter</label>
                     <textarea id="description_filter" name="description_filter" rows="4" placeholder="Texte/Wörter die aus Beschreibungen entfernt werden sollen (ein String pro Zeile)"><?= $is_edit && $supplier ? e($supplier['description_filter']) : '' ?></textarea>
                     <small class="text-muted">Unerwünschte Texte oder Werbebotschaften entfernen. Ein Text pro Zeile. Groß-/Kleinschreibung wird ignoriert.</small>
+                </div>
+
+                <div class="form-group">
+                    <label for="mapping_category">Kategorie (CSV-Spalte)</label>
+                    <input type="text" id="mapping_category" name="mapping_category" value="<?= e($column_mapping['category'] ?? '') ?>" placeholder="z.B. 'category' oder 'Kategorie'">
+                    <small class="text-muted">Optional: CSV-Spalte mit Kategorie-Namen</small>
                 </div>
 
                 <h3 style="margin-top: 1.5rem; margin-bottom: 1rem;">Kategorie-Zuordnung</h3>
