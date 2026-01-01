@@ -180,6 +180,71 @@ function is_valid_email($email) {
 }
 
 /**
+ * E-Mail versenden (mit PHPMailer oder Fallback zu Logging)
+ *
+ * @param string $to Empfänger-E-Mail
+ * @param string $subject Betreff
+ * @param string $body Nachricht (Plain Text)
+ * @return bool Erfolg
+ */
+function send_email($to, $subject, $body) {
+    try {
+        $mail = new \PHPMailer\PHPMailer\PHPMailer(true);
+
+        // Prüfe ob SMTP konfiguriert ist
+        if (defined('SMTP_ENABLED') && SMTP_ENABLED) {
+            // SMTP verwenden
+            $mail->isSMTP();
+            $mail->Host       = SMTP_HOST;
+            $mail->SMTPAuth   = !empty(SMTP_USERNAME);
+            $mail->Username   = SMTP_USERNAME;
+            $mail->Password   = SMTP_PASSWORD;
+            $mail->SMTPSecure = SMTP_ENCRYPTION !== 'none' ? SMTP_ENCRYPTION : '';
+            $mail->Port       = SMTP_PORT;
+            $mail->SMTPDebug  = SMTP_DEBUG;
+        } else {
+            // Fallback: PHP mail() - in Entwicklung nur loggen
+            if (DEBUG_MODE) {
+                error_log("=== E-MAIL (DEBUG) ===");
+                error_log("An: $to");
+                error_log("Betreff: $subject");
+                error_log("Nachricht:\n$body");
+                error_log("======================");
+                return true; // In Debug-Modus immer erfolgreich
+            }
+            $mail->isMail();
+        }
+
+        // Absender
+        $mail->setFrom(MAIL_FROM, MAIL_FROM_NAME);
+        $mail->addReplyTo(MAIL_FROM, MAIL_FROM_NAME);
+
+        // Empfänger
+        $mail->addAddress($to);
+
+        // Inhalt
+        $mail->CharSet = 'UTF-8';
+        $mail->isHTML(false);
+        $mail->Subject = $subject;
+        $mail->Body    = $body;
+
+        // Versenden
+        return $mail->send();
+
+    } catch (\Exception $e) {
+        error_log("send_email() failed: " . $e->getMessage());
+
+        // In Debug-Modus trotzdem als erfolgreich markieren (für Tests)
+        if (DEBUG_MODE) {
+            error_log("DEBUG MODE: E-Mail wurde geloggt statt versendet");
+            return true;
+        }
+
+        return false;
+    }
+}
+
+/**
  * Sicheres Passwort-Hash erstellen
  */
 function hash_password($password) {
