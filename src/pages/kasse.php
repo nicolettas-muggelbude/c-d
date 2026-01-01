@@ -260,7 +260,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
                 // HelloCash Invoice erstellen (falls User vorhanden)
                 $hellocashInvoiceId = null;
-                $hellocashInvoiceNumber = null;
+                $hellocashInvoiceLink = null;
 
                 if ($hellocashUserId && $hellocashClient->isConfigured()) {
                     // Items für HelloCash vorbereiten
@@ -291,21 +291,21 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
                     if ($invoiceResult['invoice_id']) {
                         $hellocashInvoiceId = $invoiceResult['invoice_id'];
-                        $hellocashInvoiceNumber = $invoiceResult['invoice_number'];
+                        $hellocashInvoiceLink = $invoiceResult['invoice_link'];
 
-                        // Invoice-IDs in Datenbank speichern
+                        // Invoice-Daten in Datenbank speichern
                         $db->update("
                             UPDATE orders
                             SET hellocash_invoice_id = :invoice_id,
-                                hellocash_invoice_number = :invoice_number
+                                hellocash_invoice_link = :invoice_link
                             WHERE id = :order_id
                         ", [
                             ':invoice_id' => $hellocashInvoiceId,
-                            ':invoice_number' => $hellocashInvoiceNumber,
+                            ':invoice_link' => $hellocashInvoiceLink,
                             ':order_id' => $order_id
                         ]);
 
-                        error_log("HelloCash Invoice erstellt: ID=$hellocashInvoiceId, Nummer=$hellocashInvoiceNumber");
+                        error_log("HelloCash Invoice erstellt: ID=$hellocashInvoiceId, Link=$hellocashInvoiceLink");
                     } else {
                         error_log("HelloCash Invoice-Erstellung fehlgeschlagen: " . ($invoiceResult['error'] ?? 'Unbekannter Fehler'));
                     }

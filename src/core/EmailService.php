@@ -320,6 +320,13 @@ class EmailService {
         $paymentMethod = $paymentMethods[$order['payment_method']] ?? $order['payment_method'];
         $body .= "Zahlungsart: $paymentMethod\n\n";
 
+        // HelloCash Rechnungslink (falls vorhanden)
+        if (!empty($order['hellocash_invoice_link'])) {
+            $body .= "--- Ihre Rechnung ---\n\n";
+            $body .= "Ihre Rechnung können Sie hier einsehen und herunterladen:\n";
+            $body .= $order['hellocash_invoice_link'] . "\n\n";
+        }
+
         $body .= "Wir melden uns in Kürze bei Ihnen mit weiteren Details.\n\n";
         $body .= "Mit freundlichen Grüßen\n";
         $body .= "Ihr Team von PC-Wittfoot UG\n\n";
@@ -400,11 +407,18 @@ class EmailService {
             $body .= $order['order_notes'] . "\n\n";
         }
 
-        if ($order['hellocash_invoice_number']) {
-            $body .= "HelloCash Rechnung: " . $order['hellocash_invoice_number'] . "\n";
+        // HelloCash Rechnungslink (für Buchhaltung)
+        if (!empty($order['hellocash_invoice_link'])) {
+            $body .= "--- HelloCash Rechnung ---\n";
+            $body .= "Link zur Originalrechnung (für Buchhaltung):\n";
+            $body .= $order['hellocash_invoice_link'] . "\n";
+            if (!empty($order['hellocash_invoice_id'])) {
+                $body .= "Invoice-ID: " . $order['hellocash_invoice_id'] . "\n";
+            }
+            $body .= "\n";
         }
 
-        $body .= "\nBestellung im Admin-Bereich ansehen:\n";
+        $body .= "Bestellung im Admin-Bereich ansehen:\n";
         $body .= BASE_URL . "/admin/orders/" . $order['id'] . "\n";
 
         // E-Mail an Admin versenden

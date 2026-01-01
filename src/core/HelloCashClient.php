@@ -449,13 +449,14 @@ class HelloCashClient {
      *       - tax_rate: Steuersatz (z.B. 19)
      *   - payment_method: Zahlungsmethode (optional, default: 'Vorkasse')
      *   - notes: Notizen (optional)
-     * @return array ['invoice_id' => int, 'invoice_number' => string, 'error' => string|null]
+     * @return array ['invoice_id' => int, 'invoice_link' => string, 'invoice_text' => string, 'error' => string|null]
      */
     public function createInvoice($invoiceData) {
         if (!$this->isConfigured()) {
             return [
                 'invoice_id' => null,
-                'invoice_number' => null,
+                'invoice_link' => null,
+                'invoice_text' => null,
                 'error' => 'HelloCash API nicht konfiguriert'
             ];
         }
@@ -478,7 +479,8 @@ class HelloCashClient {
                 'invoice_user_id' => (int)$invoiceData['user_id'],
                 'items' => $items,
                 'invoice_paymentMethod' => $invoiceData['payment_method'] ?? 'Vorkasse',
-                'invoice_type' => 'json'
+                'invoice_type' => 'digital',  // Digital-Link für Kunde & Buchhaltung
+                'locale' => 'de_DE'  // Deutsche Rechnung
             ];
 
             // Notizen hinzufügen falls vorhanden
@@ -491,10 +493,12 @@ class HelloCashClient {
             $response = $this->request('POST', '/invoices', [], $payload);
             error_log("HelloCash Invoice Response: " . json_encode($response));
 
-            if (isset($response['invoice_id'])) {
+            // Response für invoice_type: digital enthält link, text, qr, invoice_id
+            if (isset($response['invoice_id']) && isset($response['link'])) {
                 return [
                     'invoice_id' => $response['invoice_id'],
-                    'invoice_number' => $response['invoice_number'] ?? null,
+                    'invoice_link' => $response['link'],
+                    'invoice_text' => $response['text'] ?? null,
                     'error' => null
                 ];
             }
@@ -509,7 +513,8 @@ class HelloCashClient {
 
             return [
                 'invoice_id' => null,
-                'invoice_number' => null,
+                'invoice_link' => null,
+                'invoice_text' => null,
                 'error' => $errorMsg
             ];
 
@@ -517,7 +522,8 @@ class HelloCashClient {
             error_log('HelloCash createInvoice Error: ' . $e->getMessage());
             return [
                 'invoice_id' => null,
-                'invoice_number' => null,
+                'invoice_link' => null,
+                'invoice_text' => null,
                 'error' => $e->getMessage()
             ];
         }

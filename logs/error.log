@@ -531,3 +531,12 @@ PC-Wittfoot UG
 [01-Jan-2026 21:32:18 Europe/Berlin] PHP Warning:  Undefined array key "price" in /home/nicole/projekte/c-d/src/pages/bestellung.php on line 195
 [01-Jan-2026 21:32:18 Europe/Berlin] PHP Deprecated:  number_format(): Passing null to parameter #1 ($num) of type float is deprecated in /home/nicole/projekte/c-d/src/core/helpers.php on line 55
 [01-Jan-2026 21:32:18 Europe/Berlin] PHP Warning:  Undefined array key "price" in /home/nicole/projekte/c-d/src/pages/bestellung.php on line 196
+[01-Jan-2026 21:45:53 Europe/Berlin] PHP Warning:  require_once(core/Database.php): Failed to open stream: No such file or directory in Command line code on line 3
+[01-Jan-2026 21:45:53 Europe/Berlin] PHP Fatal error:  Uncaught Error: Failed opening required 'core/Database.php' (include_path='.:/usr/share/php') in Command line code:3
+Stack trace:
+#0 {main}
+  thrown in Command line code on line 3
+[01-Jan-2026 21:46:10 Europe/Berlin] PHP Fatal error:  Uncaught Error: Call to undefined method Database::exec() in Command line code:9
+Stack trace:
+#0 {main}
+  thrown in Command line code on line 9
