@@ -63,6 +63,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && (!isset($_POST['action']) || $_POST
     } else {
         $name = sanitize($_POST['name'] ?? '');
         $sku = sanitize($_POST['sku'] ?? '');
+        $ean = sanitize($_POST['ean'] ?? '');
         $description = trim($_POST['description'] ?? '');
         $price = (float)($_POST['price'] ?? 0);
         $stock = (int)($_POST['stock'] ?? 0);
@@ -131,6 +132,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && (!isset($_POST['action']) || $_POST
                     UPDATE products SET
                         name = :name,
                         sku = :sku,
+                        ean = :ean,
                         description = :description,
                         price = :price,
                         stock = :stock,
@@ -145,6 +147,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && (!isset($_POST['action']) || $_POST
                 ", [
                     ':name' => $name,
                     ':sku' => $sku,
+                    ':ean' => $ean ?: null,
                     ':description' => $description,
                     ':price' => $price,
                     ':stock' => $stock,
@@ -162,15 +165,16 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && (!isset($_POST['action']) || $_POST
                 // Insert
                 $db->insert("
                     INSERT INTO products (
-                        name, sku, slug, description, price, stock, image, category_id,
+                        name, sku, ean, slug, description, price, stock, image, category_id,
                         is_active, source, in_showroom, sync_with_hellocash, free_shipping, created_at
                     ) VALUES (
-                        :name, :sku, :slug, :description, :price, :stock, :image, :category_id,
+                        :name, :sku, :ean, :slug, :description, :price, :stock, :image, :category_id,
                         :is_active, :source, :in_showroom, :sync_with_hellocash, :free_shipping, NOW()
                     )
                 ", [
                     ':name' => $name,
                     ':sku' => $sku,
+                    ':ean' => $ean ?: null,
                     ':slug' => create_slug($name),
                     ':description' => $description,
                     ':price' => $price,
@@ -229,6 +233,12 @@ include __DIR__ . '/../templates/header.php';
                     <label for="sku">SKU / Artikelnummer *</label>
                     <input type="text" id="sku" name="sku" value="<?= $is_edit ? e($product['sku']) : '' ?>" required>
                     <small class="text-muted">Eindeutige Artikelnummer</small>
+                </div>
+
+                <div class="form-group">
+                    <label for="ean">EAN / Barcode</label>
+                    <input type="text" id="ean" name="ean" value="<?= $is_edit ? e($product['ean']) : '' ?>" maxlength="20">
+                    <small class="text-muted">EAN-13 oder EAN-8 Barcode (nur für Adminbereich und HelloCash)</small>
                 </div>
 
                 <div class="form-group">

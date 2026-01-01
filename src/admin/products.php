@@ -210,6 +210,9 @@ include __DIR__ . '/../templates/header.php';
                             <div style="flex: 1;">
                                 <h3 style="margin: 0; font-size: 1.1rem;"><?= e($product['name']) ?></h3>
                                 <small class="text-muted">SKU: <?= e($product['sku']) ?></small>
+                                <?php if (!empty($product['ean'])): ?>
+                                    <br><small class="text-muted">EAN: <?= e($product['ean']) ?></small>
+                                <?php endif; ?>
                             </div>
                             <?php if ($status_badge): ?>
                                 <div style="font-size: 1.1rem; margin-left: 0.5rem;"><?= $status_badge ?></div>

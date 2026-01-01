@@ -465,13 +465,20 @@ class HelloCashClient {
             // Items vorbereiten
             $items = [];
             foreach ($invoiceData['items'] as $item) {
-                $items[] = [
+                $itemData = [
                     'item_name' => $item['name'],
                     'item_quantity' => (string)$item['quantity'],
                     'item_price' => (string)$item['price'],
                     'item_taxRate' => (string)($item['tax_rate'] ?? 19),
                     'item_type' => 'article'
                 ];
+
+                // EAN/Barcode hinzufügen falls vorhanden
+                if (!empty($item['ean'])) {
+                    $itemData['item_ean'] = $item['ean'];
+                }
+
+                $items[] = $itemData;
             }
 
             // Request-Payload

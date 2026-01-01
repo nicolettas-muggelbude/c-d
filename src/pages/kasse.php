@@ -266,12 +266,19 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     // Items für HelloCash vorbereiten
                     $invoiceItems = [];
                     foreach ($cart->getItems() as $item) {
-                        $invoiceItems[] = [
+                        $invoiceItem = [
                             'name' => $item['name'],
                             'quantity' => $item['quantity'],
                             'price' => $item['price'],
                             'tax_rate' => 19 // 19% MwSt
                         ];
+
+                        // EAN hinzufügen falls vorhanden
+                        if (!empty($item['ean'])) {
+                            $invoiceItem['ean'] = $item['ean'];
+                        }
+
+                        $invoiceItems[] = $invoiceItem;
                     }
 
                     // Zahlungsmethode mappen
