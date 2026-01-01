@@ -52,6 +52,8 @@ function csrf_verify($token) {
  * Preis formatieren
  */
 function format_price($price, $withCurrency = true) {
+    // NULL-Werte auf 0 setzen (PHP 8+ Kompatibilität)
+    $price = $price ?? 0.0;
     $formatted = number_format($price, 2, ',', '.');
     return $withCurrency ? $formatted . ' ' . CURRENCY : $formatted;
 }

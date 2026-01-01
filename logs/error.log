@@ -550,3 +550,5 @@ Stack trace:
 [01-Jan-2026 22:20:14 Europe/Berlin] EmailService: Failed to send email to admin@pc-wittfoot.de - Error: Could not instantiate mail function.
 [01-Jan-2026 22:20:14 Europe/Berlin] DB Error: SQLSTATE[23000]: Integrity constraint violation: 1452 Cannot add or update a child row: a foreign key constraint fails (`pc_wittfoot`.`email_log`, CONSTRAINT `email_log_ibfk_1` FOREIGN KEY (`booking_id`) REFERENCES `bookings` (`id`) ON DELETE CASCADE) | SQL: INSERT INTO email_log (booking_id, email_type, recipient_email, subject, body, status, sent_at)
                 VALUES (:booking_id, :email_type, :recipient, :subject, :body, :status, NOW())
+[01-Jan-2026 22:26:33 Europe/Berlin] PHP Deprecated:  number_format(): Passing null to parameter #1 ($num) of type float is deprecated in /home/nicole/projekte/c-d/src/core/helpers.php on line 55
+[01-Jan-2026 22:26:40 Europe/Berlin] PHP Deprecated:  number_format(): Passing null to parameter #1 ($num) of type float is deprecated in /home/nicole/projekte/c-d/src/core/helpers.php on line 55
