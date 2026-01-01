@@ -204,9 +204,9 @@ include __DIR__ . '/../templates/header.php';
                                 </button>
                             </div>
 
-                            <!-- Formatierungs-Hilfe (ausklappbar) -->
-                            <div id="format-help" style="display: none; background: var(--color-bg-secondary, #f5f5f5); border: 1px solid var(--color-border, #ddd); border-radius: 4px; padding: var(--space-md); margin-bottom: var(--space-md);">
-                                <h4 style="margin-top: 0;">HTML-Formatierung</h4>
+                            <!-- Formatierungs-Hilfe (kompakt, oberhalb) -->
+                            <div id="format-help" style="display: none; background: var(--color-bg, #fff); border: 1px solid var(--color-border, #ddd); border-radius: 4px; padding: var(--space-md); margin-bottom: var(--space-md); max-height: 400px; overflow-y: auto; box-shadow: 0 2px 8px rgba(0,0,0,0.1);">
+                                <div style="color: var(--color-text, #000);">
 
                                 <h5>Überschriften</h5>
                                 <code>&lt;h2&gt;Große Überschrift&lt;/h2&gt;</code><br>
@@ -256,9 +256,10 @@ function hello() {
 }
 &lt;/code&gt;&lt;/pre&gt;</code></pre>
 
-                                <p style="margin-top: var(--space-md); padding: var(--space-sm); background: #e3f2fd; border-radius: 4px;">
+                                <p style="margin-top: var(--space-md); margin-bottom: 0; padding: var(--space-sm); background: #e3f2fd; border-radius: 4px; color: #000;">
                                     <strong>💡 Tipp:</strong> Bilder müssen zuerst in <code>/uploads/blog/</code> hochgeladen werden.
                                 </p>
+                                </div>
                             </div>
 
                             <textarea id="content"
