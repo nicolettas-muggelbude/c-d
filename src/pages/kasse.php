@@ -277,7 +277,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     // Zahlungsmethode mappen
                     $paymentMethodMap = [
                         'prepayment' => 'Vorkasse',
-                        'cash' => 'Bar',
                         'paypal' => 'PayPal'
                     ];
                     $hcPaymentMethod = $paymentMethodMap[$customer_data['payment_method']] ?? 'Vorkasse';
@@ -530,12 +529,6 @@ include __DIR__ . '/../templates/header.php';
                                 <input type="radio" name="payment_method" value="paypal"
                                        <?= ($form_data['payment_method'] ?? '') === 'paypal' ? 'checked' : '' ?>>
                                 <span>PayPal</span>
-                            </label>
-
-                            <label class="form-check">
-                                <input type="radio" name="payment_method" value="cash"
-                                       <?= ($form_data['payment_method'] ?? '') === 'cash' ? 'checked' : '' ?>>
-                                <span>Barzahlung bei Abholung</span>
                             </label>
                         </div>
                     </div>

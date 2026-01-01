@@ -293,7 +293,6 @@ class EmailService {
         // Zahlungsart
         $paymentMethods = [
             'prepayment' => 'Vorkasse / Überweisung',
-            'cash' => 'Barzahlung bei Abholung',
             'paypal' => 'PayPal'
         ];
         $paymentMethod = $paymentMethods[$order['payment_method']] ?? $order['payment_method'];
