@@ -198,6 +198,12 @@ switch ($page) {
         } elseif ($param === 'csv-import') {
             require_admin();
             require __DIR__ . '/admin/csv-import.php';
+        } elseif ($param === 'categories') {
+            require_admin();
+            require __DIR__ . '/admin/categories.php';
+        } elseif ($param === 'category-edit') {
+            require_admin();
+            require __DIR__ . '/admin/category-edit.php';
         } else {
             require_admin();
             require __DIR__ . '/admin/index.php';
