@@ -1,0 +1,283 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Farbpalette Option C - Ausgewogen & Warm</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+            background: #f5f5f5;
+            padding: 20px;
+        }
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: white;
+            padding: 40px;
+            border-radius: 8px;
+        }
+        h1 {
+            color: #3D5A4C;
+            margin-bottom: 10px;
+        }
+        h2 {
+            color: #3D5A4C;
+            margin: 30px 0 20px;
+            border-bottom: 2px solid #C8A882;
+            padding-bottom: 10px;
+        }
+        .palette {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 20px;
+            margin: 30px 0;
+        }
+        .color-box {
+            text-align: center;
+        }
+        .color-sample {
+            height: 120px;
+            border-radius: 8px;
+            margin-bottom: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: bold;
+            text-shadow: 0 1px 3px rgba(0,0,0,0.3);
+        }
+        .color-name {
+            font-size: 14px;
+            font-weight: bold;
+            margin-bottom: 5px;
+            color: #333;
+        }
+        .color-code {
+            font-size: 12px;
+            color: #666;
+            font-family: monospace;
+        }
+
+        /* Beispiel-Komponenten */
+        .example-header {
+            background: linear-gradient(135deg, #3D5A4C 0%, #4A6B5A 100%);
+            color: white;
+            padding: 20px 40px;
+            margin: 30px 0;
+            border-radius: 8px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .example-header nav a {
+            color: #F8F4EE;
+            text-decoration: none;
+            margin-left: 20px;
+            transition: color 0.3s;
+        }
+        .example-header nav a:hover {
+            color: #E8A75C;
+        }
+        .hero-section {
+            background: linear-gradient(135deg, #F8F4EE 0%, #EBE3D5 100%);
+            padding: 50px 40px;
+            margin: 30px 0;
+            border-radius: 12px;
+            border-left: 6px solid #3D5A4C;
+        }
+        .hero-section h2 {
+            color: #3D5A4C;
+            border: none;
+            margin: 0 0 15px 0;
+            padding: 0;
+        }
+        .hero-section p {
+            color: #5A5A5A;
+            font-size: 18px;
+            margin-bottom: 25px;
+            line-height: 1.6;
+        }
+        .example-section {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 30px;
+            margin: 30px 0;
+        }
+        .service-box {
+            background: white;
+            padding: 30px;
+            border-radius: 8px;
+            border: 1px solid #E8E1D4;
+            transition: all 0.3s;
+        }
+        .service-box:hover {
+            box-shadow: 0 4px 15px rgba(61, 90, 76, 0.15);
+            transform: translateY(-2px);
+        }
+        .service-box h4 {
+            color: #3D5A4C;
+            margin-bottom: 12px;
+            font-size: 18px;
+        }
+        .service-box p {
+            color: #5A5A5A;
+            line-height: 1.6;
+        }
+        .service-icon {
+            width: 50px;
+            height: 50px;
+            background: linear-gradient(135deg, #6B8E7B 0%, #8BC34A 100%);
+            border-radius: 8px;
+            margin-bottom: 15px;
+        }
+        .btn-primary {
+            background: linear-gradient(135deg, #6B8E7B 0%, #8BC34A 100%);
+            color: white;
+            padding: 14px 35px;
+            border: none;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: bold;
+            cursor: pointer;
+            margin: 10px 10px 10px 0;
+            transition: all 0.3s;
+            box-shadow: 0 2px 8px rgba(107, 142, 123, 0.3);
+        }
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(107, 142, 123, 0.4);
+        }
+        .btn-accent {
+            background: linear-gradient(135deg, #E8A75C 0%, #E67E22 100%);
+            color: white;
+            padding: 14px 35px;
+            border: none;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s;
+            box-shadow: 0 2px 8px rgba(232, 167, 92, 0.3);
+        }
+        .btn-accent:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(232, 167, 92, 0.4);
+        }
+        .info-badge {
+            display: inline-block;
+            background: #F8F4EE;
+            color: #3D5A4C;
+            padding: 8px 16px;
+            border-radius: 20px;
+            font-size: 14px;
+            font-weight: bold;
+            border: 1px solid #E8E1D4;
+            margin: 5px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Option C - Ausgewogen & Warm (beste Balance)</h1>
+        <p style="color: #666; margin-bottom: 30px;">Harmonische Mischung aus gedämpften Grün-/Brauntönen, warm und professionell zugleich</p>
+
+        <h2>Farbpalette</h2>
+        <div class="palette">
+            <div class="color-box">
+                <div class="color-sample" style="background: #3D5A4C;">Hauptfarbe</div>
+                <div class="color-name">Tannen-Grün</div>
+                <div class="color-code">#3D5A4C</div>
+                <div class="color-code">Header, Überschriften</div>
+            </div>
+            <div class="color-box">
+                <div class="color-sample" style="background: #6B8E7B;">Grün-Mittel</div>
+                <div class="color-name">Jade-Grün</div>
+                <div class="color-code">#6B8E7B</div>
+                <div class="color-code">Buttons, Links</div>
+            </div>
+            <div class="color-box">
+                <div class="color-sample" style="background: #E8A75C;">Orange</div>
+                <div class="color-name">Sand-Orange</div>
+                <div class="color-code">#E8A75C</div>
+                <div class="color-code">Akzente, CTA</div>
+            </div>
+            <div class="color-box">
+                <div class="color-sample" style="background: #C8A882;">Braun</div>
+                <div class="color-name">Warm-Braun</div>
+                <div class="color-code">#C8A882</div>
+                <div class="color-code">Trenner, Details</div>
+            </div>
+            <div class="color-box">
+                <div class="color-sample" style="background: #F8F4EE; color: #333;">Creme</div>
+                <div class="color-name">Creme</div>
+                <div class="color-code">#F8F4EE</div>
+                <div class="color-code">Hintergründe</div>
+            </div>
+            <div class="color-box">
+                <div class="color-sample" style="background: #5A5A5A;">Grau</div>
+                <div class="color-name">Text-Grau</div>
+                <div class="color-code">#5A5A5A</div>
+                <div class="color-code">Fließtext</div>
+            </div>
+        </div>
+
+        <h2>Beispiel: Header/Navigation</h2>
+        <div class="example-header">
+            <div style="display: flex; align-items: center;">
+                <strong style="font-size: 20px;">PC-Wittfoot UG</strong>
+                <span style="margin-left: 15px; opacity: 0.8; font-size: 14px;">Ihr IT-Systemhaus</span>
+            </div>
+            <nav>
+                <a href="#">Home</a>
+                <a href="#">Leistungen</a>
+                <a href="#">Shop</a>
+                <a href="#">Über uns</a>
+                <a href="#">Kontakt</a>
+            </nav>
+        </div>
+
+        <h2>Beispiel: Hero-Bereich</h2>
+        <div class="hero-section">
+            <h2>Kompetente IT-Beratung mit persönlicher Note</h2>
+            <p>Ob Hardware-Reparatur, Systemberatung oder Softwareentwicklung – wir nehmen uns Zeit für Sie. Bei einer Tasse Kaffee besprechen wir in Ruhe Ihre Anforderungen.</p>
+            <div>
+                <span class="info-badge">⭐ 5 Sterne auf Google</span>
+                <span class="info-badge">✓ Top Zufriedenheit</span>
+                <span class="info-badge">🛠️ Fachwerkstatt</span>
+            </div>
+            <div style="margin-top: 25px;">
+                <button class="btn-primary">Online Termin buchen</button>
+                <button class="btn-accent">Jetzt anrufen</button>
+            </div>
+        </div>
+
+        <h2>Beispiel: Service-Bereiche</h2>
+        <div class="example-section">
+            <div class="service-box">
+                <div class="service-icon"></div>
+                <h4>Hardware & Reparatur</h4>
+                <p>Fachgerechte Reparaturen in unserer Werkstatt. Refurbished Hardware mit Garantie. Alle Marken, alle Geräte.</p>
+            </div>
+            <div class="service-box">
+                <div class="service-icon"></div>
+                <h4>Beratung & Projektierung</h4>
+                <p>Individuelle IT-Lösungen für Gewerbe, Praxen und Kanzleien. Kompetent, verständlich, ehrlich.</p>
+            </div>
+        </div>
+
+        <div style="margin-top: 50px; padding: 20px; background: #f9f9f9; border-radius: 8px;">
+            <h3 style="color: #3D5A4C; margin-bottom: 10px;">Charakter dieser Palette:</h3>
+            <ul style="color: #5A5A5A; line-height: 1.8; margin-left: 20px;">
+                <li><strong>Natürlich & warm:</strong> Grün-Braun-Töne schaffen eine einladende, erdige Atmosphäre</li>
+                <li><strong>Professionell & vertrauenswürdig:</strong> Gedämpftes Grün wirkt seriös ohne steril zu sein</li>
+                <li><strong>Harmonisch:</strong> Alle Farben ergänzen sich organisch, kein harter Kontrast</li>
+                <li><strong>Freundlich & zugänglich:</strong> Warme Creme- und Sandtöne laden zum Verweilen ein</li>
+                <li><strong>Logo-Bezug:</strong> Greift Grün auf, Orange wird weicher/wärmer interpretiert</li>
+                <li><strong>Unique:</strong> Hebt sich von typischen "Tech-Blau" Websites ab</li>
+            </ul>
+        </div>
+    </div>
+</body>
+</html>

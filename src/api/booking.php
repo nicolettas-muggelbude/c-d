@@ -1,0 +1,439 @@
+<?php
+/**
+ * API-Endpoint: Terminbuchung
+ * PC-Wittfoot UG
+ *
+ * POST /api/booking - Neuen Termin erstellen
+ */
+
+header('Content-Type: application/json; charset=UTF-8');
+
+require_once __DIR__ . '/../core/config.php';
+
+// Nur POST erlauben
+if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+    http_response_code(405);
+    echo json_encode(['success' => false, 'error' => 'Method not allowed']);
+    exit;
+}
+
+// JSON-Daten lesen
+$input = file_get_contents('php://input');
+$data = json_decode($input, true);
+
+// Debug-Logging
+error_log('=== Booking Request Start ===');
+error_log('Raw Input: ' . $input);
+error_log('Decoded Data: ' . json_encode($data));
+
+// Validierung
+$errors = [];
+
+// Terminart validieren
+if (empty($data['booking_type']) || !in_array($data['booking_type'], ['fixed', 'walkin'])) {
+    $errors[] = 'Ungültige Terminart';
+}
+
+// Dienstleistung validieren
+if (empty($data['service_type'])) {
+    $errors[] = 'Bitte wählen Sie eine Dienstleistung';
+}
+
+// Datum validieren
+if (empty($data['booking_date'])) {
+    $errors[] = 'Bitte wählen Sie ein Datum';
+} else {
+    $date = DateTime::createFromFormat('Y-m-d', $data['booking_date']);
+    if (!$date) {
+        $errors[] = 'Ungültiges Datumsformat';
+    } else {
+        // Prüfen ob Datum in der Zukunft liegt
+        $today = new DateTime();
+        $today->setTime(0, 0, 0);
+        if ($date < $today) {
+            $errors[] = 'Datum muss in der Zukunft liegen';
+        }
+
+        // Prüfen ob erlaubter Wochentag
+        $dayOfWeek = $date->format('N');
+        $bookingType = $data['booking_type'] ?? '';
+
+        if ($bookingType === 'fixed') {
+            // Feste Termine: Dienstag bis Freitag (2-5)
+            if ($dayOfWeek < 2 || $dayOfWeek > 5) {
+                $errors[] = 'Feste Termine sind nur Dienstag bis Freitag möglich';
+            }
+        } else if ($bookingType === 'walkin') {
+            // Walk-in: Dienstag bis Samstag (2-6)
+            if ($dayOfWeek < 2 || $dayOfWeek > 6) {
+                $errors[] = 'Walk-in Termine sind nur Dienstag bis Samstag möglich';
+            }
+        }
+    }
+}
+
+// Zeit validieren (nur bei festen Terminen)
+if ($data['booking_type'] === 'fixed') {
+    if (empty($data['booking_time'])) {
+        $errors[] = 'Bitte wählen Sie eine Uhrzeit';
+    } else {
+        // Zeitformat validieren (HH:MM)
+        if (!preg_match('/^\d{2}:\d{2}$/', $data['booking_time'])) {
+            $errors[] = 'Ungültiges Zeitformat';
+        }
+
+        // Optional: Prüfen ob Zeit verfügbar ist
+        // (Wird durch Frontend bereits geprüft, aber zusätzliche Sicherheit)
+    }
+}
+
+// Kundendaten validieren
+if (empty($data['customer_firstname']) || strlen(trim($data['customer_firstname'])) < 2) {
+    $errors[] = 'Bitte geben Sie Ihren Vornamen ein';
+}
+
+if (empty($data['customer_lastname']) || strlen(trim($data['customer_lastname'])) < 2) {
+    $errors[] = 'Bitte geben Sie Ihren Nachnamen ein';
+}
+
+if (empty($data['customer_email']) || !filter_var($data['customer_email'], FILTER_VALIDATE_EMAIL)) {
+    $errors[] = 'Bitte geben Sie eine gültige E-Mail-Adresse ein';
+}
+
+// Mobilnummer bereinigen (führende 0 entfernen)
+if (!empty($data['customer_phone_mobile'])) {
+    $data['customer_phone_mobile'] = ltrim(trim($data['customer_phone_mobile']), '0');
+}
+
+// Festnetz bereinigen (führende 0 entfernen)
+if (!empty($data['customer_phone_landline'])) {
+    $data['customer_phone_landline'] = ltrim(trim($data['customer_phone_landline']), '0');
+}
+
+if (empty($data['customer_phone_mobile'])) {
+    $errors[] = 'Bitte geben Sie Ihre Mobilnummer ein';
+}
+
+// Adresse validieren
+if (empty($data['customer_street']) || strlen(trim($data['customer_street'])) < 2) {
+    $errors[] = 'Bitte geben Sie Ihre Straße ein';
+}
+
+if (empty($data['customer_house_number'])) {
+    $errors[] = 'Bitte geben Sie Ihre Hausnummer ein';
+}
+
+if (empty($data['customer_postal_code']) || !preg_match('/^\d{5}$/', $data['customer_postal_code'])) {
+    $errors[] = 'Bitte geben Sie eine gültige PLZ ein (5 Ziffern)';
+}
+
+if (empty($data['customer_city']) || strlen(trim($data['customer_city'])) < 2) {
+    $errors[] = 'Bitte geben Sie Ihren Ort ein';
+}
+
+// Fehler zurückgeben
+if (!empty($errors)) {
+    error_log('Validation Errors: ' . json_encode($errors));
+    http_response_code(400);
+    echo json_encode([
+        'success' => false,
+        'error' => implode(', ', $errors),
+        'errors' => $errors
+    ]);
+    exit;
+}
+
+error_log('Validation passed - preparing HelloCash integration');
+
+// HelloCash API Integration
+$hellocashUserId = null;
+$hellocashClient = new HelloCashClient();
+
+if ($hellocashClient->isConfigured()) {
+    $customerData = [
+        'firstname' => trim($data['customer_firstname']),
+        'lastname' => trim($data['customer_lastname']),
+        'email' => trim($data['customer_email']),
+        'phone_country' => $data['customer_phone_country'] ?? '+49',
+        'phone_mobile' => trim($data['customer_phone_mobile']),
+        'phone_landline' => isset($data['customer_phone_landline']) && !empty($data['customer_phone_landline']) ? trim($data['customer_phone_landline']) : null,
+        'company' => isset($data['customer_company']) && !empty($data['customer_company']) ? trim($data['customer_company']) : null,
+        // Adresse
+        'street' => trim($data['customer_street']),
+        'house_number' => trim($data['customer_house_number']),
+        'postal_code' => trim($data['customer_postal_code']),
+        'city' => trim($data['customer_city'])
+    ];
+
+    $result = $hellocashClient->findOrCreateUser($customerData);
+
+    if ($result['user_id']) {
+        $hellocashUserId = $result['user_id'];
+        error_log('HelloCash User: ' . ($result['is_new'] ? 'Neu erstellt' : 'Gefunden') . ' - ID: ' . $hellocashUserId);
+    } else if ($result['error']) {
+        error_log('HelloCash Error: ' . $result['error']);
+    }
+} else {
+    error_log('HelloCash API not configured');
+}
+
+// In Datenbank speichern
+$db = Database::getInstance();
+error_log('Preparing database insert...');
+
+try {
+    $sql = "
+        INSERT INTO bookings (
+            booking_type,
+            service_type,
+            booking_date,
+            booking_time,
+            customer_notes,
+            customer_firstname,
+            customer_lastname,
+            customer_company,
+            customer_email,
+            customer_phone_country,
+            customer_phone_mobile,
+            customer_phone_landline,
+            customer_street,
+            customer_house_number,
+            customer_postal_code,
+            customer_city,
+            hellocash_customer_id,
+            status,
+            created_at
+        ) VALUES (
+            :booking_type,
+            :service_type,
+            :booking_date,
+            :booking_time,
+            :customer_notes,
+            :customer_firstname,
+            :customer_lastname,
+            :customer_company,
+            :customer_email,
+            :customer_phone_country,
+            :customer_phone_mobile,
+            :customer_phone_landline,
+            :customer_street,
+            :customer_house_number,
+            :customer_postal_code,
+            :customer_city,
+            :hellocash_customer_id,
+            'pending',
+            NOW()
+        )
+    ";
+
+    $params = [
+        ':booking_type' => $data['booking_type'],
+        ':service_type' => $data['service_type'],
+        ':booking_date' => $data['booking_date'],
+        ':booking_time' => $data['booking_type'] === 'fixed' ? $data['booking_time'] : null,
+        ':customer_notes' => isset($data['customer_notes']) ? trim($data['customer_notes']) : null,
+        ':customer_firstname' => trim($data['customer_firstname']),
+        ':customer_lastname' => trim($data['customer_lastname']),
+        ':customer_company' => isset($data['customer_company']) ? trim($data['customer_company']) : null,
+        ':customer_email' => trim($data['customer_email']),
+        ':customer_phone_country' => $data['customer_phone_country'] ?? '+49',
+        ':customer_phone_mobile' => trim($data['customer_phone_mobile']),
+        ':customer_phone_landline' => isset($data['customer_phone_landline']) && !empty($data['customer_phone_landline']) ? trim($data['customer_phone_landline']) : null,
+        ':customer_street' => trim($data['customer_street']),
+        ':customer_house_number' => trim($data['customer_house_number']),
+        ':customer_postal_code' => trim($data['customer_postal_code']),
+        ':customer_city' => trim($data['customer_city']),
+        ':hellocash_customer_id' => $hellocashUserId
+    ];
+
+    error_log('Insert params: ' . json_encode($params));
+    $bookingId = $db->insert($sql, $params);
+    error_log('Booking ID: ' . $bookingId);
+
+    if ($bookingId) {
+        // Erfolg
+        http_response_code(201);
+        echo json_encode([
+            'success' => true,
+            'booking_id' => $bookingId,
+            'message' => 'Termin erfolgreich gebucht'
+        ]);
+
+        // Email-Benachrichtigungen senden (asynchron)
+        sendBookingEmails($bookingId, $data);
+
+    } else {
+        throw new Exception('Fehler beim Speichern in der Datenbank');
+    }
+
+} catch (Exception $e) {
+    // Fehler loggen (detailliert)
+    error_log('=== Booking API Error ===');
+    error_log('Error Message: ' . $e->getMessage());
+    error_log('Error Code: ' . $e->getCode());
+    error_log('Error File: ' . $e->getFile() . ':' . $e->getLine());
+    error_log('Stack Trace: ' . $e->getTraceAsString());
+
+    http_response_code(500);
+    echo json_encode([
+        'success' => false,
+        'error' => 'Fehler beim Speichern der Buchung'
+    ]);
+}
+
+/**
+ * Email-Benachrichtigungen senden
+ */
+function sendBookingEmails($bookingId, $data) {
+    $serviceLabels = [
+        'pc-reparatur' => 'PC-Reparatur',
+        'notebook-reparatur' => 'Notebook-Reparatur',
+        'beratung' => 'Beratung',
+        'software' => 'Software-Installation',
+        'datenrettung' => 'Datenrettung',
+        'virus-entfernung' => 'Virus-Entfernung',
+        'upgrade' => 'Hardware-Upgrade',
+        'sonstiges' => 'Sonstiges'
+    ];
+
+    $typeLabel = $data['booking_type'] === 'fixed' ? 'Fester Termin' : 'Ich komme vorbei';
+    $serviceLabel = $serviceLabels[$data['service_type']] ?? $data['service_type'];
+
+    $date = DateTime::createFromFormat('Y-m-d', $data['booking_date']);
+    $dateFormatted = $date->format('d.m.Y');
+    $dayOfWeek = $date->format('l');
+    $dayNames = [
+        'Monday' => 'Montag',
+        'Tuesday' => 'Dienstag',
+        'Wednesday' => 'Mittwoch',
+        'Thursday' => 'Donnerstag',
+        'Friday' => 'Freitag',
+        'Saturday' => 'Samstag',
+        'Sunday' => 'Sonntag'
+    ];
+    $dayFormatted = $dayNames[$dayOfWeek] ?? $dayOfWeek;
+
+    $fullName = trim($data['customer_firstname'] . ' ' . $data['customer_lastname']);
+    $phoneNumber = $data['customer_phone_country'] . ' ' . $data['customer_phone_mobile'];
+
+    // ========================================
+    // Email an Kunde
+    // ========================================
+
+    $customerSubject = "Terminbestätigung #$bookingId - PC-Wittfoot UG";
+
+    $customerMessage = "Sehr geehrte/r $fullName,\n\n";
+    $customerMessage .= "vielen Dank für Ihre Terminbuchung bei PC-Wittfoot UG.\n\n";
+    $customerMessage .= "Ihre Buchungsnummer: #$bookingId\n\n";
+    $customerMessage .= "Details:\n";
+    $customerMessage .= "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n";
+    $customerMessage .= "Terminart:     $typeLabel\n";
+    $customerMessage .= "Dienstleistung: $serviceLabel\n";
+    $customerMessage .= "Datum:         $dayFormatted, $dateFormatted\n";
+
+    if ($data['booking_type'] === 'fixed') {
+        $customerMessage .= "Uhrzeit:       {$data['booking_time']} Uhr\n";
+    } else {
+        $customerMessage .= "Uhrzeit:       Ab 14:00 Uhr (Walk-in)\n";
+    }
+
+    $customerMessage .= "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n\n";
+
+    if (!empty($data['customer_notes'])) {
+        $customerMessage .= "Ihre Bemerkungen:\n";
+        $customerMessage .= $data['customer_notes'] . "\n\n";
+    }
+
+    $customerMessage .= "Bitte bringen Sie folgendes mit:\n";
+    $customerMessage .= "• Ihr Gerät (PC/Notebook)\n";
+    $customerMessage .= "• Netzkabel und ggf. Zubehör\n";
+    $customerMessage .= "• Wichtige Passwörter (Windows-Login etc.)\n\n";
+
+    $customerMessage .= "Bei Fragen oder Änderungen erreichen Sie uns unter:\n";
+    $customerMessage .= "E-Mail: " . MAIL_FROM . "\n";
+    $customerMessage .= "Telefon: 089 123456789\n\n"; // TODO: Echte Telefonnummer eintragen
+    $customerMessage .= "Mit freundlichen Grüßen\n";
+    $customerMessage .= "Ihr Team von PC-Wittfoot UG\n";
+
+    // Email-Header für Kunde
+    $customerHeaders = "From: " . MAIL_FROM_NAME . " <" . MAIL_FROM . ">\r\n";
+    $customerHeaders .= "Reply-To: " . MAIL_FROM . "\r\n";
+    $customerHeaders .= "Content-Type: text/plain; charset=UTF-8\r\n";
+    $customerHeaders .= "X-Mailer: PHP/" . phpversion();
+
+    // ========================================
+    // Email an Admin
+    // ========================================
+
+    $adminSubject = "Neue Terminbuchung #$bookingId - $fullName";
+
+    $adminMessage = "Neue Terminbuchung eingegangen!\n\n";
+    $adminMessage .= "Buchungsnummer: #$bookingId\n\n";
+    $adminMessage .= "TERMINDETAILS\n";
+    $adminMessage .= "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n";
+    $adminMessage .= "Terminart:      $typeLabel\n";
+    $adminMessage .= "Dienstleistung: $serviceLabel\n";
+    $adminMessage .= "Datum:          $dayFormatted, $dateFormatted\n";
+
+    if ($data['booking_type'] === 'fixed') {
+        $adminMessage .= "Uhrzeit:        {$data['booking_time']} Uhr\n";
+    } else {
+        $adminMessage .= "Uhrzeit:        Walk-in (ab 14:00 Uhr)\n";
+    }
+
+    $adminMessage .= "\nKUNDENDATEN\n";
+    $adminMessage .= "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n";
+    $adminMessage .= "Name:           $fullName\n";
+
+    if (!empty($data['customer_company'])) {
+        $adminMessage .= "Firma:          {$data['customer_company']}\n";
+    }
+
+    $adminMessage .= "E-Mail:         {$data['customer_email']}\n";
+    $adminMessage .= "Telefon:        $phoneNumber\n";
+
+    if (!empty($data['customer_phone_landline'])) {
+        $adminMessage .= "Festnetz:       {$data['customer_phone_country']} {$data['customer_phone_landline']}\n";
+    }
+
+    $adminMessage .= "\nAdresse:\n";
+    $adminMessage .= "{$data['customer_street']} {$data['customer_house_number']}\n";
+    $adminMessage .= "{$data['customer_postal_code']} {$data['customer_city']}\n";
+
+    if (!empty($data['customer_notes'])) {
+        $adminMessage .= "\nKUNDENANMERKUNGEN\n";
+        $adminMessage .= "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n";
+        $adminMessage .= $data['customer_notes'] . "\n";
+    }
+
+    $adminMessage .= "\n━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n";
+    $adminMessage .= "Status ändern: " . BASE_URL . "/admin/booking-detail?id=$bookingId\n";
+
+    // Email-Header für Admin
+    $adminHeaders = "From: " . MAIL_FROM_NAME . " <" . MAIL_FROM . ">\r\n";
+    $adminHeaders .= "Reply-To: {$data['customer_email']}\r\n";
+    $adminHeaders .= "Content-Type: text/plain; charset=UTF-8\r\n";
+    $adminHeaders .= "X-Mailer: PHP/" . phpversion();
+
+    // ========================================
+    // Emails versenden
+    // ========================================
+
+    // Email an Kunde senden
+    $customerSent = @mail($data['customer_email'], $customerSubject, $customerMessage, $customerHeaders);
+
+    if ($customerSent) {
+        error_log("Booking confirmation email sent to customer: {$data['customer_email']}");
+    } else {
+        error_log("Failed to send booking confirmation email to customer: {$data['customer_email']}");
+    }
+
+    // Email an Admin senden
+    $adminSent = @mail(MAIL_ADMIN, $adminSubject, $adminMessage, $adminHeaders);
+
+    if ($adminSent) {
+        error_log("Booking notification email sent to admin: " . MAIL_ADMIN);
+    } else {
+        error_log("Failed to send booking notification email to admin: " . MAIL_ADMIN);
+    }
+}

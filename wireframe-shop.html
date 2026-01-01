@@ -1,0 +1,553 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Wireframe: Shop-Übersicht - PC-Wittfoot</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: Arial, sans-serif;
+            background: #f5f5f5;
+            color: #333;
+            line-height: 1.6;
+        }
+        .wireframe-note {
+            background: #fffbcc;
+            border-left: 4px solid #ffc107;
+            padding: 15px;
+            margin: 20px;
+            font-size: 14px;
+        }
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            background: white;
+        }
+
+        /* Header */
+        header {
+            background: #ddd;
+            padding: 20px;
+            border-bottom: 3px solid #999;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .logo {
+            background: #999;
+            padding: 15px 40px;
+            font-weight: bold;
+        }
+        nav {
+            display: flex;
+            gap: 20px;
+        }
+        nav a {
+            background: #bbb;
+            padding: 10px 15px;
+            text-decoration: none;
+            color: #333;
+            border: 2px solid #999;
+        }
+
+        /* Breadcrumbs */
+        .breadcrumbs {
+            padding: 15px 40px;
+            background: #f9f9f9;
+            border-bottom: 1px solid #ddd;
+            font-size: 14px;
+        }
+
+        /* Shop Layout */
+        .shop-container {
+            display: grid;
+            grid-template-columns: 280px 1fr;
+            gap: 30px;
+            padding: 40px;
+        }
+
+        /* Sidebar */
+        .sidebar {
+            background: #f9f9f9;
+            padding: 25px;
+            border: 2px solid #ddd;
+            height: fit-content;
+        }
+        .filter-section {
+            margin-bottom: 30px;
+        }
+        .filter-section h3 {
+            font-size: 16px;
+            margin-bottom: 15px;
+            padding-bottom: 10px;
+            border-bottom: 2px solid #ddd;
+        }
+        .filter-option {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 10px;
+            font-size: 14px;
+        }
+        .filter-option input[type="checkbox"] {
+            width: 18px;
+            height: 18px;
+        }
+        .price-range {
+            margin-top: 15px;
+        }
+        .price-range input {
+            width: 100%;
+            margin-top: 10px;
+        }
+
+        /* Main Content */
+        .shop-main {
+        }
+        .shop-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 30px;
+            padding-bottom: 20px;
+            border-bottom: 2px solid #ddd;
+        }
+        .shop-header h1 {
+            font-size: 32px;
+        }
+        .shop-controls {
+            display: flex;
+            gap: 15px;
+            align-items: center;
+        }
+        .shop-controls select {
+            padding: 10px 15px;
+            border: 2px solid #ddd;
+            background: white;
+        }
+        .view-toggle {
+            display: flex;
+            gap: 5px;
+        }
+        .view-toggle button {
+            padding: 10px 15px;
+            border: 2px solid #ddd;
+            background: white;
+            cursor: pointer;
+        }
+        .view-toggle button.active {
+            background: #8BC34A;
+            color: white;
+            border-color: #8BC34A;
+        }
+
+        /* Product Grid */
+        .product-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 25px;
+        }
+        .product-card {
+            border: 2px solid #ddd;
+            padding: 20px;
+            background: white;
+            transition: all 0.3s;
+        }
+        .product-card:hover {
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+            border-color: #8BC34A;
+        }
+        .product-image {
+            width: 100%;
+            height: 200px;
+            background: #eee;
+            margin-bottom: 15px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #999;
+        }
+        .product-badge {
+            position: relative;
+        }
+        .badge {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            background: #E67E22;
+            color: white;
+            padding: 5px 10px;
+            font-size: 12px;
+            font-weight: bold;
+        }
+        .product-category {
+            font-size: 12px;
+            color: #999;
+            text-transform: uppercase;
+            margin-bottom: 8px;
+        }
+        .product-title {
+            font-size: 18px;
+            font-weight: bold;
+            margin-bottom: 10px;
+        }
+        .product-specs {
+            font-size: 13px;
+            color: #666;
+            margin-bottom: 15px;
+            line-height: 1.8;
+        }
+        .product-price {
+            font-size: 24px;
+            font-weight: bold;
+            color: #8BC34A;
+            margin-bottom: 15px;
+        }
+        .product-stock {
+            font-size: 13px;
+            color: #8BC34A;
+            margin-bottom: 15px;
+        }
+        .product-stock.out {
+            color: #999;
+        }
+        .btn {
+            padding: 12px 20px;
+            font-size: 14px;
+            font-weight: bold;
+            border: 2px solid #333;
+            cursor: pointer;
+            width: 100%;
+        }
+        .btn-primary {
+            background: #8BC34A;
+            color: white;
+            border-color: #8BC34A;
+        }
+        .btn-secondary {
+            background: white;
+            color: #333;
+            border-color: #ddd;
+        }
+
+        /* Pagination */
+        .pagination {
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+            margin-top: 40px;
+            padding-top: 40px;
+            border-top: 2px solid #ddd;
+        }
+        .pagination button {
+            padding: 10px 15px;
+            border: 2px solid #ddd;
+            background: white;
+            cursor: pointer;
+        }
+        .pagination button.active {
+            background: #8BC34A;
+            color: white;
+            border-color: #8BC34A;
+        }
+
+        /* Footer */
+        footer {
+            background: #333;
+            color: #ccc;
+            padding: 40px;
+            text-align: center;
+            margin-top: 60px;
+        }
+    </style>
+</head>
+<body>
+    <div class="wireframe-note">
+        <strong>📐 WIREFRAME - SHOP-ÜBERSICHT</strong><br>
+        Zeigt Produktliste mit Filtern, Sortierung und Kategorien. Grid-Ansicht für Desktop.
+    </div>
+
+    <div class="container">
+        <!-- HEADER -->
+        <header>
+            <div class="logo">[PC-WITTFOOT LOGO]</div>
+            <nav>
+                <a href="#">Home</a>
+                <a href="#">Leistungen ▼</a>
+                <a href="#" style="background: #8BC34A; color: white;">Shop</a>
+                <a href="#">News</a>
+                <a href="#">Über uns</a>
+                <a href="#">Kontakt</a>
+            </nav>
+            <div style="display: flex; gap: 10px; align-items: center;">
+                <button style="background: #8BC34A; color: white; padding: 10px 20px; border: none; font-weight: bold;">Termin buchen</button>
+                <div style="background: #E67E22; color: white; padding: 10px 15px; font-weight: bold;">🛒 2</div>
+                <div style="padding: 10px;">🌙</div>
+            </div>
+        </header>
+
+        <!-- BREADCRUMBS -->
+        <div class="breadcrumbs">
+            <span style="color: #999;">Home</span> > <strong>Shop</strong> > Laptops & Notebooks
+        </div>
+
+        <!-- SHOP CONTAINER -->
+        <div class="shop-container">
+            <!-- SIDEBAR - FILTER -->
+            <aside class="sidebar">
+                <h2 style="font-size: 20px; margin-bottom: 25px;">Filter</h2>
+
+                <!-- Kategorien -->
+                <div class="filter-section">
+                    <h3>Kategorien</h3>
+                    <div class="filter-option">
+                        <input type="checkbox" id="cat1" checked>
+                        <label for="cat1">Laptops & Notebooks (24)</label>
+                    </div>
+                    <div class="filter-option">
+                        <input type="checkbox" id="cat2">
+                        <label for="cat2">Desktop-PCs (18)</label>
+                    </div>
+                    <div class="filter-option">
+                        <input type="checkbox" id="cat3">
+                        <label for="cat3">Monitore (12)</label>
+                    </div>
+                    <div class="filter-option">
+                        <input type="checkbox" id="cat4">
+                        <label for="cat4">Tablets & Handys (8)</label>
+                    </div>
+                    <div class="filter-option">
+                        <input type="checkbox" id="cat5">
+                        <label for="cat5">Peripherie (31)</label>
+                    </div>
+                </div>
+
+                <!-- Zustand -->
+                <div class="filter-section">
+                    <h3>Zustand</h3>
+                    <div class="filter-option">
+                        <input type="checkbox" id="cond1" checked>
+                        <label for="cond1">Refurbished (42)</label>
+                    </div>
+                    <div class="filter-option">
+                        <input type="checkbox" id="cond2" checked>
+                        <label for="cond2">Neu (16)</label>
+                    </div>
+                    <div class="filter-option">
+                        <input type="checkbox" id="cond3">
+                        <label for="cond3">Gebraucht (8)</label>
+                    </div>
+                </div>
+
+                <!-- Marke -->
+                <div class="filter-section">
+                    <h3>Marke</h3>
+                    <div class="filter-option">
+                        <input type="checkbox" id="brand1">
+                        <label for="brand1">Dell (15)</label>
+                    </div>
+                    <div class="filter-option">
+                        <input type="checkbox" id="brand2">
+                        <label for="brand2">HP (12)</label>
+                    </div>
+                    <div class="filter-option">
+                        <input type="checkbox" id="brand3">
+                        <label for="brand3">Lenovo (10)</label>
+                    </div>
+                    <div class="filter-option">
+                        <input type="checkbox" id="brand4">
+                        <label for="brand4">exone (8)</label>
+                    </div>
+                    <div class="filter-option">
+                        <input type="checkbox" id="brand5">
+                        <label for="brand5">Apple (5)</label>
+                    </div>
+                </div>
+
+                <!-- Preis -->
+                <div class="filter-section">
+                    <h3>Preis</h3>
+                    <div class="price-range">
+                        <div style="display: flex; justify-content: space-between; font-size: 13px; margin-bottom: 10px;">
+                            <span>0 €</span>
+                            <span>2000 €</span>
+                        </div>
+                        <input type="range" min="0" max="2000" value="1000" style="width: 100%;">
+                        <div style="text-align: center; margin-top: 10px; font-weight: bold;">
+                            bis 1000 €
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Verfügbarkeit -->
+                <div class="filter-section">
+                    <h3>Verfügbarkeit</h3>
+                    <div class="filter-option">
+                        <input type="checkbox" id="stock1" checked>
+                        <label for="stock1">Auf Lager</label>
+                    </div>
+                    <div class="filter-option">
+                        <input type="checkbox" id="stock2">
+                        <label for="stock2">Bestellbar</label>
+                    </div>
+                </div>
+
+                <button class="btn btn-secondary" style="margin-top: 20px;">Filter zurücksetzen</button>
+            </aside>
+
+            <!-- MAIN CONTENT -->
+            <main class="shop-main">
+                <!-- Shop Header -->
+                <div class="shop-header">
+                    <div>
+                        <h1>Laptops & Notebooks</h1>
+                        <p style="color: #666; font-size: 14px; margin-top: 5px;">24 Produkte gefunden</p>
+                    </div>
+                    <div class="shop-controls">
+                        <label style="font-size: 14px; color: #666;">Sortieren:</label>
+                        <select>
+                            <option>Neueste zuerst</option>
+                            <option>Preis aufsteigend</option>
+                            <option>Preis absteigend</option>
+                            <option>Beliebteste</option>
+                        </select>
+                        <div class="view-toggle">
+                            <button class="active" title="Grid-Ansicht">▦</button>
+                            <button title="Listen-Ansicht">☰</button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Product Grid -->
+                <div class="product-grid">
+                    <!-- Product 1 -->
+                    <div class="product-card">
+                        <div class="product-badge">
+                            <div class="product-image">[PRODUKTBILD]</div>
+                            <div class="badge">NEU</div>
+                        </div>
+                        <div class="product-category">Laptops • exone</div>
+                        <h3 class="product-title">exone Business 7000 Pro</h3>
+                        <div class="product-specs">
+                            • Intel i7-12700<br>
+                            • 16GB RAM, 512GB SSD<br>
+                            • 15,6" Full HD
+                        </div>
+                        <div class="product-price">899,00 €</div>
+                        <div class="product-stock">✓ Auf Lager (3 verfügbar)</div>
+                        <button class="btn btn-primary">In den Warenkorb</button>
+                        <button class="btn btn-secondary" style="margin-top: 10px;">Details ansehen</button>
+                    </div>
+
+                    <!-- Product 2 -->
+                    <div class="product-card">
+                        <div class="product-badge">
+                            <div class="product-image">[PRODUKTBILD]</div>
+                        </div>
+                        <div class="product-category">Laptops • Dell</div>
+                        <h3 class="product-title">Dell Latitude E7470</h3>
+                        <div class="product-specs">
+                            • Intel i5-6300U<br>
+                            • 8GB RAM, 256GB SSD<br>
+                            • 14" Full HD
+                        </div>
+                        <div class="product-price">449,00 €</div>
+                        <div class="product-stock">✓ Auf Lager (8 verfügbar)</div>
+                        <button class="btn btn-primary">In den Warenkorb</button>
+                        <button class="btn btn-secondary" style="margin-top: 10px;">Details ansehen</button>
+                    </div>
+
+                    <!-- Product 3 -->
+                    <div class="product-card">
+                        <div class="product-badge">
+                            <div class="product-image">[PRODUKTBILD]</div>
+                        </div>
+                        <div class="product-category">Laptops • HP</div>
+                        <h3 class="product-title">HP EliteBook 840 G5</h3>
+                        <div class="product-specs">
+                            • Intel i7-8550U<br>
+                            • 16GB RAM, 512GB SSD<br>
+                            • 14" Full HD
+                        </div>
+                        <div class="product-price">599,00 €</div>
+                        <div class="product-stock">✓ Auf Lager (4 verfügbar)</div>
+                        <button class="btn btn-primary">In den Warenkorb</button>
+                        <button class="btn btn-secondary" style="margin-top: 10px;">Details ansehen</button>
+                    </div>
+
+                    <!-- Product 4 -->
+                    <div class="product-card">
+                        <div class="product-badge">
+                            <div class="product-image">[PRODUKTBILD]</div>
+                            <div class="badge" style="background: #999;">GEBRAUCHT</div>
+                        </div>
+                        <div class="product-category">Laptops • Lenovo</div>
+                        <h3 class="product-title">Lenovo ThinkPad T470</h3>
+                        <div class="product-specs">
+                            • Intel i5-7200U<br>
+                            • 8GB RAM, 256GB SSD<br>
+                            • 14" Full HD
+                        </div>
+                        <div class="product-price">379,00 €</div>
+                        <div class="product-stock">✓ Auf Lager (2 verfügbar)</div>
+                        <button class="btn btn-primary">In den Warenkorb</button>
+                        <button class="btn btn-secondary" style="margin-top: 10px;">Details ansehen</button>
+                    </div>
+
+                    <!-- Product 5 -->
+                    <div class="product-card">
+                        <div class="product-badge">
+                            <div class="product-image">[PRODUKTBILD]</div>
+                        </div>
+                        <div class="product-category">Laptops • Dell</div>
+                        <h3 class="product-title">Dell Precision 5520</h3>
+                        <div class="product-specs">
+                            • Intel i7-7820HQ<br>
+                            • 16GB RAM, 512GB SSD<br>
+                            • 15,6" 4K Touch
+                        </div>
+                        <div class="product-price">749,00 €</div>
+                        <div class="product-stock">✓ Auf Lager (1 verfügbar)</div>
+                        <button class="btn btn-primary">In den Warenkorb</button>
+                        <button class="btn btn-secondary" style="margin-top: 10px;">Details ansehen</button>
+                    </div>
+
+                    <!-- Product 6 (Out of stock) -->
+                    <div class="product-card" style="opacity: 0.7;">
+                        <div class="product-badge">
+                            <div class="product-image">[PRODUKTBILD]</div>
+                        </div>
+                        <div class="product-category">Laptops • HP</div>
+                        <h3 class="product-title">HP ProBook 450 G6</h3>
+                        <div class="product-specs">
+                            • Intel i5-8265U<br>
+                            • 8GB RAM, 256GB SSD<br>
+                            • 15,6" Full HD
+                        </div>
+                        <div class="product-price">429,00 €</div>
+                        <div class="product-stock out">⊗ Nicht auf Lager</div>
+                        <button class="btn btn-secondary" disabled style="opacity: 0.5;">Nicht verfügbar</button>
+                        <button class="btn btn-secondary" style="margin-top: 10px;">Details ansehen</button>
+                    </div>
+                </div>
+
+                <!-- Pagination -->
+                <div class="pagination">
+                    <button>« Zurück</button>
+                    <button class="active">1</button>
+                    <button>2</button>
+                    <button>3</button>
+                    <button>4</button>
+                    <button>Weiter »</button>
+                </div>
+            </main>
+        </div>
+
+        <!-- FOOTER -->
+        <footer>
+            <p>© 2025 PC-Wittfoot UG | Footer-Navigation hier</p>
+        </footer>
+    </div>
+</body>
+</html>

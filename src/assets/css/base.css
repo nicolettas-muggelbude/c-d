@@ -1,0 +1,297 @@
+/**
+ * Base Styles
+ * Grundlegende Typografie, Layout und Elemente
+ * Mobile-First Ansatz
+ */
+
+/* ===== BODY & HTML ===== */
+
+body {
+  font-family: var(--font-family-base);
+  font-size: var(--font-size-base);
+  line-height: var(--line-height-base);
+  color: var(--text-primary);
+  background-color: var(--bg-primary);
+  transition: background-color var(--transition-base), color var(--transition-base);
+  padding-top: var(--header-height);
+}
+
+@media (min-width: 992px) {
+  body {
+    padding-top: var(--header-height-desktop);
+  }
+}
+
+/* ===== TYPOGRAPHY ===== */
+
+h1, h2, h3, h4, h5, h6 {
+  font-family: var(--font-family-heading);
+  font-weight: var(--font-weight-bold);
+  line-height: var(--line-height-heading);
+  color: var(--text-primary);
+  margin-bottom: var(--space-md);
+}
+
+h1 { font-size: var(--font-size-h1); }
+h2 { font-size: var(--font-size-h2); }
+h3 { font-size: var(--font-size-h3); }
+h4 { font-size: var(--font-size-h4); }
+h5 { font-size: var(--font-size-h5); }
+h6 { font-size: var(--font-size-h6); }
+
+p {
+  margin-bottom: var(--space-md);
+  color: var(--text-secondary);
+}
+
+a {
+  color: var(--color-primary);
+  text-decoration: underline;
+  transition: color var(--transition-fast);
+}
+
+a:hover {
+  color: var(--color-primary-hover);
+}
+
+strong, b {
+  font-weight: var(--font-weight-bold);
+}
+
+em, i {
+  font-style: italic;
+}
+
+small {
+  font-size: var(--font-size-sm);
+}
+
+code {
+  font-family: var(--font-family-mono);
+  background: var(--bg-secondary);
+  padding: 2px 6px;
+  border-radius: var(--border-radius-sm);
+  font-size: 0.9em;
+}
+
+/* ===== LAYOUT CONTAINER ===== */
+
+.container {
+  width: 100%;
+  max-width: var(--container-max-width);
+  margin-left: auto;
+  margin-right: auto;
+  padding-left: var(--container-padding);
+  padding-right: var(--container-padding);
+}
+
+.container-fluid {
+  width: 100%;
+  padding-left: var(--container-padding);
+  padding-right: var(--container-padding);
+}
+
+/* ===== SECTIONS ===== */
+
+section {
+  padding: var(--space-xxl) 0;
+}
+
+/* Mobile: kleineres Padding */
+@media (max-width: 767px) {
+  section {
+    padding: var(--space-xl) 0;
+  }
+}
+
+/* ===== GRID SYSTEM (Mobile-First) ===== */
+
+.row {
+  display: flex;
+  flex-wrap: wrap;
+  margin-left: calc(var(--space-md) * -1);
+  margin-right: calc(var(--space-md) * -1);
+}
+
+.col {
+  flex: 1;
+  padding-left: var(--space-md);
+  padding-right: var(--space-md);
+}
+
+/* Mobile: 1 Spalte */
+.col-12 { width: 100%; padding-left: var(--space-md); padding-right: var(--space-md); }
+
+/* Tablet (768px+): 2 Spalten möglich */
+@media (min-width: 768px) {
+  .col-md-6 { width: 50%; }
+  .col-md-4 { width: 33.333%; }
+  .col-md-3 { width: 25%; }
+}
+
+/* Desktop (992px+): flexibles Grid */
+@media (min-width: 992px) {
+  .col-lg-6 { width: 50%; }
+  .col-lg-4 { width: 33.333%; }
+  .col-lg-3 { width: 25%; }
+  .col-lg-2 { width: 16.666%; }
+}
+
+/* ===== UTILITIES ===== */
+
+/* Spacing */
+.mt-0 { margin-top: 0; }
+.mt-sm { margin-top: var(--space-sm); }
+.mt-md { margin-top: var(--space-md); }
+.mt-lg { margin-top: var(--space-lg); }
+.mt-xl { margin-top: var(--space-xl); }
+
+.mb-0 { margin-bottom: 0; }
+.mb-sm { margin-bottom: var(--space-sm); }
+.mb-md { margin-bottom: var(--space-md); }
+.mb-lg { margin-bottom: var(--space-lg); }
+.mb-xl { margin-bottom: var(--space-xl); }
+
+.p-0 { padding: 0; }
+.p-sm { padding: var(--space-sm); }
+.p-md { padding: var(--space-md); }
+.p-lg { padding: var(--space-lg); }
+.p-xl { padding: var(--space-xl); }
+
+/* Text Alignment */
+.text-left { text-align: left; }
+.text-center { text-align: center; }
+.text-right { text-align: right; }
+
+/* Text Colors */
+.text-primary { color: var(--text-primary); }
+.text-secondary { color: var(--text-secondary); }
+.text-muted { color: var(--text-muted); }
+
+/* Display */
+.d-none { display: none; }
+.d-block { display: block; }
+.d-inline { display: inline; }
+.d-inline-block { display: inline-block; }
+.d-flex { display: flex; }
+
+/* Flexbox Utilities */
+.flex-row { flex-direction: row; }
+.flex-column { flex-direction: column; }
+.justify-start { justify-content: flex-start; }
+.justify-center { justify-content: center; }
+.justify-end { justify-content: flex-end; }
+.justify-between { justify-content: space-between; }
+.align-start { align-items: flex-start; }
+.align-center { align-items: center; }
+.align-end { align-items: flex-end; }
+.gap-sm { gap: var(--space-sm); }
+.gap-md { gap: var(--space-md); }
+.gap-lg { gap: var(--space-lg); }
+
+/* Responsive Display */
+@media (max-width: 767px) {
+  .d-mobile-none { display: none; }
+  .d-mobile-block { display: block; }
+}
+
+@media (min-width: 768px) {
+  .d-tablet-none { display: none; }
+  .d-tablet-block { display: block; }
+}
+
+@media (min-width: 992px) {
+  .d-desktop-none { display: none; }
+  .d-desktop-block { display: block; }
+}
+
+/* ===== ACCESSIBILITY (SR-ONLY) ===== */
+
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border-width: 0;
+}
+
+/* ===== IMAGES ===== */
+
+img {
+  height: auto;
+}
+
+.img-fluid {
+  max-width: 100%;
+  height: auto;
+}
+
+.img-cover {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.img-contain {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+}
+
+/* ===== CARDS ===== */
+
+.card {
+  background: var(--bg-primary);
+  border: var(--border-width-sm) solid var(--border-color);
+  border-radius: var(--border-radius-md);
+  padding: var(--space-lg);
+  box-shadow: var(--shadow-sm);
+  transition: box-shadow var(--transition-base), transform var(--transition-base);
+}
+
+.card:hover {
+  box-shadow: var(--shadow-md);
+  transform: translateY(-2px);
+}
+
+.card-title {
+  font-size: var(--font-size-h4);
+  font-weight: var(--font-weight-bold);
+  margin-bottom: var(--space-sm);
+}
+
+.card-body {
+  color: var(--text-secondary);
+}
+
+/* ===== LISTS ===== */
+
+ul.styled-list, ol.styled-list {
+  list-style-position: inside;
+  padding-left: var(--space-md);
+  margin-bottom: var(--space-md);
+}
+
+ul.styled-list {
+  list-style-type: disc;
+}
+
+ol.styled-list {
+  list-style-type: decimal;
+}
+
+li {
+  margin-bottom: var(--space-sm);
+}
+
+/* ===== HORIZONTAL RULE ===== */
+
+hr {
+  border: 0;
+  border-top: var(--border-width-sm) solid var(--border-color);
+  margin: var(--space-lg) 0;
+}

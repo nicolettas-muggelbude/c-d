@@ -1,0 +1,905 @@
+FORMAT: 1A
+HOST: https://api.hellocash.business/api/v1
+
+# hellocashAPI v1
+
+## Authentication
+
+To authenticate your requests with the helloCash API, you have to use your bearer token.
+
+###### Bearer Token Authentication
+- register for a helloCash account at https://myhellocash.com/start-now-blue
+- navigate to > Cash Register > Settings > General > helloCash API
+- generate a token
+- include the token in the authorization header of your API requests
+- Note: API is only available in DEMO, PREMIUM and GASTRO mode.
+- Example Header:
+    + Request
+
+        + Headers
+
+                Authorization: Bearer YOURTOKEN
+
+## Character encoding
+
+Only unescaped unicode should be sent to the API, otherwise it may be that our firewall is blocking the request (403).
+The API itself returns the data in escaped form (e.g. ü => \u00fc)
+
+## Data Structures
+
+### Tax (object)
+
++ tax_taxRate: 20 (string, required) - taxRate
++ tax_gross: 10.00 (string, required) - gross amount of tax rate
++ tax_net: 8.33 (string, required) - net amount of tax rate
++ tax_tax: 1.67 (string, required) - tax amount of tax rate
+
+### BasePaymentMethod (object)
++ paymentMethod_id: 1512 (string, required) - system ID of the payment method
++ paymentMethod_name: Cash (string, required) - name of the payment method
+
+### PaymentMethodInvoice (BasePaymentMethod)
++ paymentMethod_total: 5.00 (string, required) - amount payed with the payment method
+
+### PaymentMethod (BasePaymentMethod)
++ paymentMethod_text: Amount received with thanks (string, required) - additional text on invoices when the payment method is used
+
+### BaseItem (object)
++ item_name: testing (string, required) - name of the item
++ item_quantity: 5.000 (string) - item amount (floats possible)
+    + Default: 0
++ item_price: 120 (string) - gross price for quantity 1 of the item
+    + Default: 0
++ item_taxRate: 20 (string) - tax rate of the item
+    + Default: 0
++ item_discount_unit: percent (enum[string]) - type of discount given
+    + Members
+        + absolute
+        + percent
++ item_discount_value: 1 (string, required) - amount of discount given (float for absolute, integer for percent)
+    + Default: 0
++ item_type: article (enum[string]) - position type (required for french accounts)
+    + Members
+        + article
+        + service
+
+### Colors (enum)
+#### Default
++ ` ` - default color (empty value)
+
+#### Sample
++ `color-2` - background #249724 | text #fff
+
+#### Members
++ ` ` - default color (empty value)
++ `color-1` - background #127e68 | text #fff
++ `color-2` - background #249724 | text #fff
++ `color-3` - background #22e7bf | text #676767
++ `color-4` - background #d57a16 | text #fff
++ `color-5` - background #f8ac59 | text #fff
++ `color-6` - background #fbee1c | text #676767
++ `color-7` - background #d01e31 | text #fff
++ `color-8` - background #743c93 | text #fff
++ `color-9` - background #e98c96 | text #fff
++ `color-10` - background #116295 | text #fff
++ `color-11` - background #325cff | text #fff
++ `color-12` - background #53ade6 | text #fff
++ `color-13` - background #303030 | text #fff
++ `color-14` - background #939393 | text #fff
++ `color-15` - background #c36e65 | text #fff
++ `color-16` - background #ff7b24 | text #000
++ `color-17` - background #ff190d | text #fff
++ `color-18` - background #43c056 | text #fff
++ `color-19` - background #4d201d | text #fff
+
+### CreateItem (BaseItem)
++ One Of
+    + item_service_id (string) - system ID of the referenced service
+        + Default: 0
+    + item_article_id (string) - system ID of the referenced article
+        + Default: 0
+
+### FetchItem (BaseItem)
++ item_id: 15682 (string, required) - system ID of the item
++ item_total: 594 (string, required)
+    item_quantity * item_price - item_discount
++ item_discount: `-6` (string, required) - calculated discount value for the given quantity of item
+    + Default: `-0`
++ item_service_id (string, required) - system ID of the referenced service
+    + Default: 0
++ item_article_id (string, required) - system ID of the referenced article
+    + Default: 0
++ item_foreignCompany (string) - name of foreign company for which the item is sold
+
+### InvoiceCancellation (object)
+
++ cancellation_number: 3 (string, required) - consecutive number of the cancellation
++ cancellation_cashier: Cashier (string) - name of the cashier who canceled the invoice
++ cancellation_cashier_id: 679 (string) - system ID of the cashier who canceled the invoice
++ cancellation_timestamp: `2017-10-19 12:05:56` (string, required)
++ cancellation_text: Your cancellation reason (string) - reason for cancellation
+
+### SignatureAT (object)
++ `signature_code`: `_R1-AT1_307_137_2017-08-23T14:11:43_1189,45_0,00_0,00_0,00_0,00_VFJB_51E2DAD0_YT1BCkIbSqk=_LeoiqRbyGmrCZnO9OsvmDQ+nhFfdgTIzAKeTLqDiL3c87XaJ8PE88nWu4Vn5wwcjP42YFKM6patJhduDSoD9ig==` (string, required) - Signature (QR) code
++ signature_text: `RKSV Nummer: 137 Kassen-ID: 307` (string, required) - Signature text
++ signature_additional_text: `Additional text` (string) - Signature text
++ signature_cancellation_code (string) - Cancellation signature (QR) code
++ signature_cancellation_text - Cancellation signature text
++ signature_cancellation_additional_text - Additional cancellation signature text
+
+### SignatureDE (object)
++ `tse_qr_code`: `V0;df82a623-3db4-4f8b-a70c-664830a1617f;Kassenbeleg-V1;Beleg^0.00_0.00_0.00_0.00_0.00^0.00:Bar;109;218;2021-07-20T12:30:28.000Z;2021-07-20T12:30:28.000Z;ecdsa-plain-SHA256;utcTime;tSSlm+5v/cDRov74noJMLOEk3KoHFcHuv7IRmg4REZNSobvz6zeGaAfPCwBDvbh9/DZO+RLDBiFlNoguNHhqlA==;MFkwEwYHKoZIzj0CAQYIKoZIzj0DAQcDQgAEwxkM5+h2f3F/dobBHhK49Dg/4Tz8n9XGyw98bCciHsDao0vKdoEtvVYwviGfYkRpuDJ3iJTXcTrCBgdf+94Omw==` (string) - QR code string
++ tse_data (array[object]) - TSE transaction data
++ tse_cancellation_qr_code (string) - QR code string of cancellation
++ tse_cancellation_data (array[object]) - TSE transaction data of cancellation
+
+### SignatureEnum (enum)
++ (SignatureAT)
+    Austria
++ (SignatureDE)
+    Germany
+
+### Customer (object)
+
++ customer_id: 6554 (string, required) - system ID of the customer
++ customer_salutation: Mr. (string) - customer salutation on invoice
++ customer_firstName: John (string) - customer first name on invoice
++ customer_surName:  Doe (string) - customer last name on invoice
++ customer_postalCode: 3250 (string) - customer postal code on invoice
++ customer_city: Wieselburg (string) - customer city on invoice
++ customer_country: Austria (string) - customer country on invoice
++ customer_street: Test Street (string) - customer street on invoice
++ customer_houseNumber: 60 (string) - customer house number on invoice
++ customer_email: test@test.com (string) - customer email on invoice
++ customer_phoneNumber: 0500 6525 001 (string) - customer phone number on invoice
++ customer_uid: AT542 ... (string) - customer VAT number on invoice
+
+### SimpleInvoice (object)
+
++ invoice_id: 6037 (string, required) - system ID of invoice
++ invoice_timestamp: `2017-03-29 14:56:02` (string, required) - creation time
++ invoice_number: 2 (string, required) - consecutive invoice number
++ invoice_cashier: Cashier (string, required, nullable) - name of cashier
++ invoice_cashier_id: 5 (string) - system ID of cashier
++ invoice_mode (string, required) - type of invoice (test when fetching test invoices)
+    + Default: default
++ invoice_payment: cash (string, required) - payment method name
++ invoice_total: 10.00 (string, required, nullable) - total gross value (after discounts)
++ invoice_discount: `-1.20` (string, optional) - amount of invoice discount
++ invoice_cancellation: 1 (enum[string], required) - was the invoice canceled or not
+    + Members
+        + 0 - not canceled
+        + 1 - canceled
++ taxes (array[Tax], required) - array of taxes by tax rate
+
+### ExtendedInvoice (SimpleInvoice)
++ invoice_totalNet: 8.33 (string, required) - total net value (after discounts)
++ invoice_totalTax: 1.67 (string, required) - total tax value (after discounts)
++ invoice_text: `Thanks for buying!` (string, optional) - additional invoice text
++ invoice_reference: true (boolean, optional) - Returns true when invoice references an existing one
++ invoice_small_business: true (boolean, optional) - Returns true when small business is selected in settings
++ invoice_differential_taxation: true (boolean, optional) - Returns true when differential taxation is selected in settings
++ invoice_tax_benefit: 1 (enum[number], optional) - Returns the chosen tax benefit in the settings the invoice was created with
+    + Members
+        + 1 - no tax benefit
+        + 2 - small business
+        + 3 - differential taxation
+        + 4 - **only AT and DE:** other tax concession
++ invoice_currency: EUR (string, required) - currency used for the invoice
++ company (object, required)
+    + name: Your company name (string, required) - own company name on invoice
+    + street: Street (string, required) - own street on invoice
+    + houseNumber: 28 (string, required) - own house number on invoice
+    + postalCode: 1010 (string, required) - own postal code on invoice
+    + city: Vienna (string, required) - own city on invoice
+    + email: test@test.at (string) - own email on invoice
+    + website: www.test.at (string) - own website url on invoice
+    + phoneNumber: 5456246 (string) - own phone number  on invoice
+    + companyRegister: ATU 6865884 (string) - own VAT number on invoice
+    + iban (string) - own IBAN on invoice
+    + bic (string) - own BIC on invoice
++ items (array[FetchItem], required)
++ customer (Customer, optional)
++ signature (SignatureEnum, optional) - Signature block for AT or DE if present
+
+### CanceledInvoice (ExtendedInvoice)
+
++ cancellation_details (InvoiceCancellation, optional) - Detailed information when invoice is cancelled
+
+### Employee (object)
+
++ employee_id: 676 (string, required) - system ID of the employee,
++ employee_name: Cashier (string, required) - name of the employee,
++ employee_updated_at: `2017-03-29 14:38:47` (string, required) - date when employee was last edited
+
+### PaginationMixin (object)
++ count: 2 (string, required) - total number of existing entries
++ limit (number, required) - request limit
+    + Default: 1000
++ offset (number, required) - request offset
+    + Default: 1
+
+### PaginationMixinNumberCount (PaginationMixin)
++ count: 2 (number, required) - total number of existing entries
++ limit (number, required) - request limit
+    + Default: 1000
++ offset (number, required) - request offset
+    + Default: 1
+
+### CashBookEntry (object)
++ cashBook_id: 1234 (string, required) - system ID of the cash book entry
++ cashBook_timestamp: `2017-09-15 09:59:13` (string, required) - creation time of the entry
++ cashBook_number: 284 (string, required) - consecutive number of the entry
++ cashBook_type: deposit (enum[string], required) - is the entry a withdrawal or deposit
+    + Members
+        + take out
+        + deposit
++ cashBook_total: 2.00 (string, required) - gross amount of the entry
++ cashBook_employee_id: 382 (string, required) - system ID of the employee who created the entry
++ cashBook_description: Description (string, required) - custom description of the entry
++ cashBook_system_entry: 1 (string, required) - `0 / 1 - was the entry automatically created or not? For example, creating an invoice with cash payment`
++ cashBook_mode: default (string, required) - test when fetching test entries, else default
++ cashBook_business_type: geschäftlich (enum[string], required) - type of entry (corporate or private)
+    + Members
+        + privat - private
+        + geschäftlich - corporate
++ cashBook_invoice_number: 455 (string, required) - number of the connected invoice or empty string
++ cashBook_cancellation: 0 (string, required) - `0 / 1 - was the entry canceled or not`
+
+### ProductCategory (object)
++ category_id: 3301 (string, required) - system ID of the category
++ category_name: Test category (string, required) - name of the category
+
+### BaseArticle (object)
++ article_id: 5779 (string) - system ID of the article
++ article_category_id: 1 (number, nullable) - system ID of the category, or null
++ article_name: Test Article (string, required) - name of the article
++ article_code: 123 (string) - article code
++ article_unit: Piece (string) - custom unit description
++ article_stock: 12 (string) - current stock
++ article_comment: Comment (string) - custom comment of the article
++ article_color (Colors) - selected color of the article in the web / app version
+
+### CreateArticle (BaseArticle)
++ article_id: 5779 (number) - system ID of an existing article to update it instead of creating a new one
++ article_stock: 12 (number) - starting stock of the new article (ignored when updating)
++ article_supplier_id: 1637 (number) - system ID of the article's supplier
++ article_manufacturer_id: 1424 (number) - system ID of the article's manufacturer
++ article_foreign_company_id: 39 (number) - system ID of the foreign company for which the article is sold (not available in Spain)
++ article_category_id: 3301 (number) - system ID of the category the article should belong to
++ article_negative_stock (boolean) - allow negative stock or not
+    + Default: false
++ article_stock_status: 0 (enum[number]) - status how stock should be handled
+    + Default: 1
+    + Members
+        + 0 - change stock when selling and send a email when min stock is reached
+        + 1 - change stock when selling
+        + 2 - do not change stock when selling
++ article_quick_edit (boolean) - enable or disable quick edit for the article (web / app version)
+    + Default: false
++ article_image: iVBORw0KGgoAAAANSUhEUgAAASwAAACWCAYA... (string) - base64 encoded article image
++ article_image_text (boolean) - show the article name on top of the image or not
+    + Default: false
++ article_net_purchase_price: 10.00 (number) - net purchasing price
++ article_ean_code: 123 (string) - EAN code
++ article_tax_rate: 20.00 (number) - tax rate of the article
++ article_gross_selling_price: 12.00 (string) - gross selling price
++ article_min_stock: 5 (string) - minimum stock for warning mail (when configured)
++ article_bill_reference (boolean) - is the article a reference to an invoice or not (not available in Spain)
+    + Default: false
++ article_image_url: (string) - flickr url
++ article_image_owner: (string) - flickr user
++ article_image_title: (string) - flickr image title
+
+### FetchArticle (BaseArticle)
++ article_net_purchacePrice: 10.00 (string) - net purchasing price (deprecated: use article_net_purchasePrice)
++ article_net_purchasePrice: 10.00 (string) - net purchasing price
++ article_eanCode: 123 (string) - EAN code
++ article_taxRate: 20.00 (string) - tax rate of the article
++ article_net_sellingPrice: 10.00 (string) - net selling price
++ article_gross_sellingPrice: 12.00 (string) - gross selling price
++ article_minStock: 5 (string, required) - minimum stock for warning mail (when configured)
++ article_billReference: 0 (enum[string]) - is the article a reference to an invoice or not  (not available in Spain)
+    + Members
+        + 0 - false
+        + 1 - true
++ article_imageId: 50142126002 (number, optional) - existing, uploaded image
++ `article_imageUrl`: `https://farm12.staticflickr.com/12345/12345678901_1234a56b7c_d.jpg` (string, optional) - flickr url
++ article_imageOwner: 12345678@N01 (string, optional) - flickr user
++ article_imageTitle: Test Picture (string, optional) - flickr image title
++ article_negativeStock: false (boolean) - allow stock to fall below 0
++ article_stockStatus: 0 (number) - enable stock management
++ article_quickEdit: false (boolean) - enable fast entry function for this article
+
+### ExtendedFetchArticle (FetchArticle)
++ category (ProductCategory) - information about the category (if set)
++ supplier (object, optional) - information about the supplier (if set)
+    + supplier_id: 1637 (string, required) - system ID of the supplier
+    + supplier_name: Test Supplier (string, required) - supplier's name
+    + supplier_address: Street 01, 1010 Vienna (string, required) - supplier's address
+    + supplier_phone_number: 06605515885 (string, required) - supplier's phone number
+    + supplier_email: supplier@test.com (string, required) - supplier's email
+    + supplier_webpage: www.supplier.com (string, required) - supplier's website
+    + supplier_contact_person: John Doe (string, required) - name of the contact person for the supplier
+    + supplier_contact_person_phone_number: 06605515885 (string, required) - contact person's phone number
+    + supplier_contact_person_email: john@doe.com (string, required) - contact person's email
+    + supplier_company_register: 534534 (string, required) - supplier's register number
+    + supplier_tax_number: 552 (string, required) - supplier's tax number
+    + supplier_comment: Comment (string, required) - custom comment / description about the supplier
++ manufacturer (object, optional) - information about the manufacturer (if set)
+    + manufacturer_id: 1424 (string, required) - system ID of the supplier
+    + manufacturer_name: Test Manufacturer (string, required) - manufacturer's name
++ foreignCompany (object, optional) - information about the foreign company (if set, not available in Spain)
+    + foreignCompany_id: 39 (string, required) - system ID of the foreign company
+    + foreignCompany_name: Test Foreign Company (string, required) - foreign company's name
+
+### StockChangeEntry (object)
++ stock_id: 1 (string, required) - system ID of the stock change
++ stock_article_id: 1 (string, required) - system ID of the related article
++ stock_timestamp: `2021-06-10 09:45:03` (string, required) - time of the stock change
++ stock_change: `-5.000` (string, required) - amount, how much the stock changed
++ stock_invoice_number: 1 (string, required) - system ID of the possibly related invoice
++ stock_delivery_note_number (string, required) - possible custom delivery note number
++ stock_description: description (string, required) - further description about the stock change
+
+### BaseArticleCategory (object)
++ article_category_id: 1 (number, required) - system ID of the category
++ article_parent_category_id: 1 (number, nullable, required) - system ID of the possible parent category, or null
++ article_category_name: `Test category` (string, required) - name of the category
+
+### CreateStockChange (object)
++ stock_change: `-5.000` (number) - amount, how much the stock changed
++ stock_invoice_number: 1 (number) - system ID of the possibly related invoice
++ stock_delivery_note_number: 1 (number, optional) - possible custom delivery note number
++ stock_description: description (string) - further description about the stock change
+
+### Service (object)
++ service_id: 5779 (string, required) - system ID of the service
++ service_name: Test Services (string, required) - name of the service
++ service_eanCode: 123 (string, required) - EAN code
++ service_taxRate: 20.00 (string, required) - tax rate of the service
++ service_net_sellingPrice: 10.00 (string, required) - net selling price
++ service_gross_sellingPrice: 12.00 (string, required) - gross selling price
++ service_comment: Comment (string, required) - custom comment of the service
++ service_color (Colors, required) - selected color of the service in the web / app version
+
+### ExtendedService (Service)
++ category (ProductCategory, optional) - information about the category (if set)
+
+### CustomField (object)
+*rel*: *value* (string, required) - name of the custom field and it's value
+
+### BaseUser (object)
++ user_salutation: Mr. (string, nullable) - user's salutation
++ user_firstname: Max (string, nullable) - user's first / given name
++ user_surname: Muster (string, nullable) - user's surname / last name
++ user_company: Company (string, nullable) - user's company name
++ user_email: test@test.com (string, nullable) - user's email
++ user_phoneNumber: 0500 6525 001 (string, nullable) - user's phone number
++ user_postalCode: 3250 (string, nullable) - user's postal code
++ user_city: Wieselburg (string, nullable) - user's city
++ user_street: Test Street (string, nullable) - user's street
++ user_houseNumber: 60 (string, nullable) - user's house number
++ user_birthday: `1990-10-02` (string, nullable) - user's birthday
++ user_uidNumber: AT542 ... (string, nullable) - user's VAT number
++ user_notes: Test note (string, nullable) - custom note about the customer
+
+### CreateUser (BaseUser)
++ user_country_code: AT (string) - user's country as ISO 3166-1 alpha-2 or alpha-3 code
++ user_surname: Muster (string) - surname / last name (this or company name is required)
++ user_company: Company (string) - user's company name (this or surname is required)
+
+### UpdateUser (BaseUser)
++ user_country_code: AT (string) - user's country as ISO 3166-1 alpha-2 or alpha-3 code
++ user_surname: Muster (string) - surname / last name (this or company name is required)
++ user_company: Company (string) - user's company name (this or surname is required)
+
+### FetchUser (BaseUser)
++ user_id: 6553 (number, required) - system ID of the user
++ user_number: 123 (number, required) - consecutive user number
++ user_timestamp: `2021-11-10T09:36:46.000Z`- creation time of the user
++ user_country: AT (string, nullable) - user's country as ISO 3166-1 alpha-2 code
++ user_custom_fields (object, nullable) - custom fields that have values for the user
+    + *field name (string)*: *value* (string) - name of the custom field with it's value
+
+### FetchUpdateUser (BaseUser)
++ user_id: 1 (number, required) - system ID of the user
++ user_number: 123 (number, required) - consecutive user number
++ user_timestamp: `2021-11-10T09:36:46.000Z`- creation time of the user
++ user_country: AT (string, nullable) - user's country as ISO 3166-1 alpha-2 code
++ user_custom_fields (object, nullable) - custom fields that have values for the user
+    + *field name (string)*: *value* (string) - name of the custom field with it's value
+
+## Invoices [/invoices]
+
+### Get a list of invoices [GET /invoices{?limit,offset,search,dateFrom,dateTo,mode,showDetails}]
++ Request (application/json)
+
+    + Headers
+
+            Authorization: Bearer <token>
+
++ Parameters
+    + limit (integer, optional) - maximum number of returned invoices (max 1000)
+        + Default: 1000
+    + offset (integer, optional) - `offset/page (a offset of 2 with limit 1000 gives the invoices 1001 - 2000)`
+        + Default: 1
+    + search (string, optional) - search for an invoice with a specific number or customer
+    + dateFrom (string, optional) - set from-date ('dateTo'-Parameter has to be set!)
+    + dateTo (string, optional) - set to-date ('dateFrom'-Parameter has to be set!)
+    + mode (string, optional) - set mode=test to get test invoices
+    + showDetails (boolean, optional) - get more invoice details, e.g. positions or customer
+
++ Response 200 (application/json)
+
+    + Attributes
+        + invoices (array[SimpleInvoice], required, fixed-type) - array of returned invoices
+        + Include PaginationMixin
+
+### Get a specific invoice [GET /invoices/{id}]
++ Parameters
+    + id: 1 (integer, required) - system ID of the invoice
+
++ Request (application/json)
+
+    + Headers
+
+            Authorization: Bearer <token>
+
++ Response 200 (application/json)
+    + Attributes (CanceledInvoice, required, fixed-type)
+        + paymentMethods (array[PaymentMethodInvoice], optional) - list of payment methods when `invoice_payment` is "Kombiniert"
+
+### Get a specific invoice as PDF [GET /invoices/{id}/pdf{?cancellation,locale}]
++ Parameters
+    + id: 1 (integer, required) - system ID of the invoice
+    + cancellation (boolean, optional) - get the invoice cancellation instead if true
+        + Default: false
+    + locale: es_ES (enum[string], optional) - set language for pdf
+        + Members
+            + `de_AT`
+            + `de_DE`
+            + `en_GB`
+            + `es_ES`
+            + `fr_FR`
+            + `cs_CZ`
+            + `pl_PL`
+        + Default: `en_GB`
+
++ Request (application/json)
+
+    + Headers
+
+            Authorization: Bearer <token>
+
++ Response 200 (application/json)
+
+    + Attributes
+        + pdf_base64_encoded: JVBERi0xLjQKMyAwIG9iago8PC9UeXBlIC9QYWdlCi9QYXJlbgPDw... (string, required) - base64 encoded pdf
+
+### Create a new invoice [POST /invoices]
++ Request (application/json)
+
+    + Headers
+
+            Authorization: Bearer <token>
+
+    + Attributes
+        + cashier_id: 679 (number) - cashier system id
+            + Default: 0
+        + invoice_testMode (boolean) - true if a test invoice should be created
+            + Default: false
+        + invoice_text: `Thanks for buying!` (string) - additional text on the invoice
+        + invoice_reference (boolean) - does the invoice reference an existing one
+            + Default: false
+        + invoice_paymentMethod: cash (string) - payment method used for the invoice
+            + Default: Bar
+        + invoice_discount_percent: 5 (number) - number of percent given as discount on the invoice
+            + Default: 0
+        + invoice_type: json (enum[string]) - output format for the invoice response
+            + Members
+                + `json`
+                + `pdf`
+                + `receipt`
+                + `digital`
+        + locale: es_ES (enum[string]) - set language for pdf / receipt
+            + Members
+                + `de_AT`
+                + `de_DE`
+                + `en_GB`
+                + `es_ES`
+                + `fr_FR`
+                + `cs_CZ`
+                + `pl_PL`
+            + Default: `en_GB`
+        + invoice_user_id: 6553 (number) - optional id of existing customer
+        + signature_mandatory: true (boolean) - Invoice signing must be enabled and possible or invoice creation fails
+        + items (array[CreateItem], required) - array of invoice positions
+
+
++ Response 200 (application/json)
+    + Description: `invoice_type: json` or not set
+    + Attributes (ExtendedInvoice, required, fixed-type)
+        + invoice_cancellation: 0 (string, required) - was the invoice canceled or not
+
++ Response 200 (application/json)
+    + Description: `invoice_type: pdf`
+    + Attributes (object)
+        + pdf_base64_encoded: `JVBERi0xLjQK...` (string) - The PDF encoded as a base64 string
+        + invoice_id: 6037 (number) - The ID of the created invoice
+
++ Response 200 (application/json)
+    + Description: `invoice_type: receipt`
+    + Attributes (object)
+        + html: `<!DOCTYPE html><html lang="de">...` (string) - Full encoded HTML content to render/print the receipt
+        + invoice_id: 6037 (number) - The ID of the created invoice
+
++ Response 200 (application/json)
+    + Description: `invoice_type: digital`
+    + Attributes (object)
+        + link: `https://myhellocash.com/invoice/95822?token=...&preview=1` (string) - Public invoice preview link
+        + text: `Your invoice from Musterfirma\n` (string) - Email or display text
+        + qr: `...` (string) - QR code (Base64 or image URL)
+        + invoice_id: 6037 (number) - The ID of the created invoice
+
+### Cancel an invoice [POST /invoices/{id}/cancellation]
+
++ Parameters
+    + id: 1 (integer, required) - system ID of the invoice
+
++ Request (application/json)
+
+    + Headers
+
+            Authorization: Bearer <token>
+
+    + Attributes
+        + cancellation_cashier_id: 838 (number) - system ID of the cashier who canceled the invoice
+        + cancellation_reason: Your cancellation reason (string) - reason for cancellation
+        + cancellation_cashBook_entry: false (boolean)
+            **deprecated:** use `cancellation_payment_method` instead
+
+            should the amount be deducted from the cash book (payout in cash)
+            + Default: false
+        + cancellation_payment_method: cash (string) - name of the payment method used for the invoice cancellation
+            + Default: cash
+
++ Response 200 (application/json)
+    + Attributes (CanceledInvoice, required, fixed-type)
+
+## Employees [/employees]
+
+### Get a list of employees [GET]
++ Request (application/json)
+
+    + Headers
+
+            Authorization: Bearer <token>
+
++ Response 200 (application/json)
+    + Attributes (array[Employee], required, fixed-type)
+
+### Get a specific employee [GET /employees/{id}]
++ Parameters
+    + id: 1 (integer, required) - system ID of the employee
+
++ Request (application/json)
+
+    + Headers
+
+            Authorization: Bearer <token>
+
++ Response 200 (application/json)
+    + Attributes (Employee, required, fixed-type)
+
+## Payment methods [/paymentMethods]
+
+### Get a list of payment methods [GET]
++ Request (application/json)
+
+    + Headers
+
+            Authorization: Bearer <token>
+
++ Response 200 (application/json)
+    + Attributes (array[PaymentMethod], fixed-type)
+
+### Get a specific payment method [GET /paymentMethods/{id}]
++ Parameters
+    + id: 1 (integer, required) - system ID of the payment method
+
++ Request (application/json)
+
+    + Headers
+
+            Authorization: Bearer <token>
+
++ Response 200 (application/json)
+    + Attributes (PaymentMethod, fixed-type)
+
+## CashBook [/cashBook{?limit,offset,dateFrom,dateTo,mode}]
+
+### Get a list of cashbook entries [GET]
++ Request (application/json)
+
+    + Headers
+
+            Authorization: Bearer <token>
+
++ Parameters
+    + limit (integer, optional) - maximum number of returned entries (max 1000)
+        + Default: 1000
+    + offset (integer, optional) - `offset/page (a offset of 2 with limit 1000 gives the entries 1001 - 2000)`
+        + Default: 1
+    + dateFrom (string, optional) - set from-date ('dateTo'-Parameter has to be set!)
+    + dateTo (string, optional) - set to-date ('dateFrom'-Parameter has to be set!)
+    + mode (string, optional) - set mode=test to get test cashbook entries
+
++ Response 200 (application/json)
+    + Attributes (object)
+        + entries (array[CashBookEntry], required, fixed-type) - array of returned cash book entries
+        + Include PaginationMixin
+
+###  Get the cashbook saldo [GET /cashBook/saldo{?mode}]
++ Request (application/json)
+
+    + Headers
+
+            Authorization: Bearer <token>
+
++ Parameters
+    + mode (string, optional) - set mode=test to get test saldo
+
++ Response 200 (application/json)
+    + Attributes (object, fixed-type)
+        + cashBook_saldo: 1000.00 (string) - current saldo
+
+### Create a new cashbook entry [POST /cashBook]
+
++ Request (application/json)
+    + Headers
+
+            Authorization: Bearer <token>
+
+    + Attributes (object)
+        + cashbook_testMode (boolean) - is the entry a test entry or not
+            + Default: false
+        + cashbook_payment: 0 (enum[number], required) - is the entry a withdrawal or deposit
+            + Members
+                + 0 - deposit
+                + 1 - take out
+        + cashbook_amount_gross: 10.00 (number) - gross amount of entry
+            + Default: 0
+        + cashbook_amount_net: 0.00 (number) - net amount of entry
+            + Default: 0
+        + cashbook_amount_tax: 0.00 (number) - tax amount of entry
+            + Default: 0
+        + cashbook_deliveryNumber: `Nr.: 1` (string) - text field for possible related delivery number
+        + cashBook_description: Description (string) - custom description of the entry
+        + cashbook_businessType: 1 (enum[number], required) - type of entry (corporate or private)
+            + Members
+                + 1 - business
+                + 2 - private
+
++ Response 200 (application/json)
+    + Attributes (CashBookEntry, fixed-type)
+
+## Articles [/articles{?limit,offset,caid,name,code}]
+
+### Get a list of articles [GET]
++ Request (application/json)
+
+    + Headers
+
+            Authorization: Bearer <token>
+
++ Parameters
+    + limit (integer, optional) - maximum number of returned articles (max 1000)
+        + Default: 250
+    + offset (integer, optional) - `offset/page (a offset of 2 with limit 250 gives the articles 251 - 500)`
+        + Default: 1
+    + caid (integer, optional) - get articles by a specific category
+    + name (string, optional) - filter articles by name (minimum length: 3 characters)
+    + code (string, optional) - filter articles by code
+
++ Response 200 (application/json)
+    + Attributes (object)
+        + articles (array[FetchArticle], required, fixed-type) - array of returned articles
+        + Include PaginationMixin
+
++ Response 422 (application/json)
+    + Attributes (object)
+        + message: "Validation Error" (string) - error message
+        + errors (object) - validation errors
+            + limit (array[string], optional) - array of error messages for the `limit` field
+                + Example: "The limit must be an integer."
+            + offset (array[string], optional) - array of error messages for the `offset` field
+                + Example: "The offset must be an integer."
+            + caid (array[string], optional) - array of error messages for the `caid` field
+                + Example: "The caid must be an integer."
+            + name (array[string], optional) - array of error messages for the `name` field
+                + Example: "The name must be at least 3 characters."
+
+### Get a specific article [GET /articles/{id}]
++ Parameters
+    + id: 1 (integer, required) - system ID of the article
+
++ Request (application/json)
+
+    + Headers
+
+            Authorization: Bearer <token>
+
++ Response 200 (application/json)
+    + Attributes (ExtendedFetchArticle, fixed-type)
+
+### Get article stock changes [GET /articles/{id}/stock-changes]
++ Parameters
+    + id: 1 (integer, required) - system ID of the article
+
++ Request (application/json)
+
+    + Headers
+
+            Authorization: Bearer <token>
+
++ Response 200 (application/json)
+    + Attributes (array[StockChangeEntry], required, fixed-type)
+
+### Get a list of categories [GET /articles/categories]
+
++ Request (application/json)
+
+    + Headers
+
+            Authorization: Bearer <token>
+
++ Response 200 (application/json)
+    + Attributes (object)
+        + categories (array[BaseArticleCategory], required, fixed-type) - array of returned categories
+        + count: 2 (number, required) - total number of existing entries
+
+### Create/Update article [POST /articles]
++ Request (application/json)
+
+    + Headers
+
+            Authorization: Bearer <token>
+
+    + Attributes (CreateArticle)
+
++ Response 200 (application/json)
+    + Attributes (ExtendedFetchArticle, fixed-type)
+
+### Change article stock [POST /articles/{id}/change-stock]
++ Parameters
+    + id: 1 (integer, required) - system ID of the article
+
++ Request (application/json)
+
+    + Headers
+
+            Authorization: Bearer <token>
+
+    + Attributes (CreateStockChange)
+
++ Response 200 (application/json)
+    + Attributes (StockChangeEntry, fixed-type)
+        + stock_total: 65 (string, required) - the new article stock
+
+### Delete article [DELETE /articles/{id}]
++ Parameters
+    + id: 1 (integer, required) - system ID of the article
+
++ Request (application/json)
+
+    + Headers
+
+            Authorization: Bearer <token>
+
++ Response 200 (application/json)
+    + Attributes (object)
+        + success: true (boolean) - indicates that the article was deleted successfully
+
++ Response 400 (application/json)
+    + Attributes (object)
+        + error: string - error message when the deletion fails
+
++ Response 404 (application/json)
+    + Attributes (object)
+        + error: Article not found (string) - error message when the article is not found
+
+## Services [/services{?limit,offset,caid}]
+
+### Get a list of services [GET]
++ Request (application/json)
+
+    + Headers
+
+            Authorization: Bearer <token>
+
++ Parameters
+    + limit (integer, optional) - maximum number of returned services (max 1000)
+        + Default: 250
+    + offset (integer, optional) - `offset/page (a offset of 2 with limit 250 gives the services 251 - 500)`
+        + Default: 1
+    + caid (integer, optional) - get services by a specific category
+        + Default: null
+
++ Response 200 (application/json)
+    + Attributes (object)
+        + services (array[Service], required, fixed-type) - array of returned service
+        + Include PaginationMixin
+
+### Get a specific service [GET /services/{id}]
++ Parameters
+    + id: 1 (integer, required) - system ID of the service
+
++ Request (application/json)
+
+    + Headers
+
+            Authorization: Bearer <token>
+
++ Response 200 (application/json)
+    + Attributes (ExtendedService, fixed-type)
+
+## Users [/users{?limit,offset}]
+
+### Get a list of users [GET]
++ Request (application/json)
+
+    + Headers
+
+            Authorization: Bearer <token>
+
++ Parameters
+    + limit (integer, optional) - maximum number of returned users (max 1000)
+        + Default: 250
+    + offset (integer, optional) - `offset/page (a offset of 2 with limit 250 gives the users 251 - 500)`
+        + Default: 1
+
++ Response 200 (application/json)
+    + Attributes (object)
+        + users (array[FetchUser], required, fixed-type) - array of returned users
+        + Include PaginationMixinNumberCount
+
+### Get a specific user [GET /users/{id}]
++ Parameters
+    + id: 1 (integer, required) - system ID of the user
+
++ Request (application/json)
+
+    + Headers
+
+            Authorization: Bearer <token>
+
++ Response 200 (application/json)
+    + Attributes (FetchUser, required, fixed-type)
+
+### Create a new user [POST /users]
++ Request (application/json)
+
+    + Headers
+
+            Authorization: Bearer <token>
+
+    + Attributes (CreateUser)
+
++ Response 200 (application/json)
+    + Attributes (FetchUser, required, fixed-type)
+
+### Update a existing user [POST /users/{id}]
++ Parameters
+    + id: 1 (integer, required) - system ID of the user
+
++ Request (application/json)
+
+    + Headers
+
+            Authorization: Bearer <token>
+
+    + Attributes (UpdateUser)
+
++ Response 200 (application/json)
+    + Attributes (FetchUpdateUser, required, fixed-type)

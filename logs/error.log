@@ -1,0 +1,155 @@
+[01-Jan-2026 02:56:08 Europe/Berlin] TEST: Error logging configured successfully
+[01-Jan-2026 02:56:32 Europe/Berlin] === Booking Request Start ===
+[01-Jan-2026 02:56:32 Europe/Berlin] Raw Input: {"booking_type":"fixed","service_type":"software","booking_date":"2026-01-02","booking_time":"11:15","customer_firstname":"Lise","customer_lastname":"Lotte","customer_company":"","customer_email":"liese.lotte@lusila.de","customer_phone_country":"+49","customer_phone_mobile":"178666666666","customer_phone_landline":"","customer_notes":""}
+[01-Jan-2026 02:56:32 Europe/Berlin] Decoded Data: {"booking_type":"fixed","service_type":"software","booking_date":"2026-01-02","booking_time":"11:15","customer_firstname":"Lise","customer_lastname":"Lotte","customer_company":"","customer_email":"liese.lotte@lusila.de","customer_phone_country":"+49","customer_phone_mobile":"178666666666","customer_phone_landline":"","customer_notes":""}
+[01-Jan-2026 02:56:32 Europe/Berlin] Validation passed - preparing HelloCash integration
+[01-Jan-2026 02:56:32 Europe/Berlin] PHP Fatal error:  Uncaught Error: Call to undefined function curl_init() in /home/nicole/projekte/c-d/src/core/HelloCashClient.php:239
+Stack trace:
+#0 /home/nicole/projekte/c-d/src/core/HelloCashClient.php(42): HelloCashClient->request()
+#1 /home/nicole/projekte/c-d/src/core/HelloCashClient.php(335): HelloCashClient->findUserByEmail()
+#2 /home/nicole/projekte/c-d/src/api/booking.php(133): HelloCashClient->findOrCreateUser()
+#3 /home/nicole/projekte/c-d/src/router.php(157): require('...')
+#4 /home/nicole/projekte/c-d/src/server.php(33): require('...')
+#5 {main}
+  thrown in /home/nicole/projekte/c-d/src/core/HelloCashClient.php on line 239
+[01-Jan-2026 02:57:25 Europe/Berlin] === Booking Request Start ===
+[01-Jan-2026 02:57:25 Europe/Berlin] Raw Input: {"booking_type":"fixed","service_type":"software","booking_date":"2026-01-02","booking_time":"11:15","customer_firstname":"Lisa","customer_lastname":"Fitz","customer_company":"","customer_email":"lisafitz@lusasi.de","customer_phone_country":"+49","customer_phone_mobile":"1786666666","customer_phone_landline":"","customer_notes":""}
+[01-Jan-2026 02:57:25 Europe/Berlin] Decoded Data: {"booking_type":"fixed","service_type":"software","booking_date":"2026-01-02","booking_time":"11:15","customer_firstname":"Lisa","customer_lastname":"Fitz","customer_company":"","customer_email":"lisafitz@lusasi.de","customer_phone_country":"+49","customer_phone_mobile":"1786666666","customer_phone_landline":"","customer_notes":""}
+[01-Jan-2026 02:57:25 Europe/Berlin] Validation passed - preparing HelloCash integration
+[01-Jan-2026 02:57:25 Europe/Berlin] PHP Fatal error:  Uncaught Error: Call to undefined function curl_init() in /home/nicole/projekte/c-d/src/core/HelloCashClient.php:239
+Stack trace:
+#0 /home/nicole/projekte/c-d/src/core/HelloCashClient.php(42): HelloCashClient->request()
+#1 /home/nicole/projekte/c-d/src/core/HelloCashClient.php(335): HelloCashClient->findUserByEmail()
+#2 /home/nicole/projekte/c-d/src/api/booking.php(133): HelloCashClient->findOrCreateUser()
+#3 /home/nicole/projekte/c-d/src/router.php(157): require('...')
+#4 /home/nicole/projekte/c-d/src/server.php(33): require('...')
+#5 {main}
+  thrown in /home/nicole/projekte/c-d/src/core/HelloCashClient.php on line 239
+[01-Jan-2026 03:08:48 Europe/Berlin] === Booking Request Start ===
+[01-Jan-2026 03:08:48 Europe/Berlin] Raw Input: {"booking_type":"fixed","service_type":"software","booking_date":"2026-01-02","booking_time":"11:15","customer_firstname":"liese","customer_lastname":"lotte","customer_company":"","customer_email":"lieselotte@name.de","customer_phone_country":"+49","customer_phone_mobile":"1786666666","customer_phone_landline":"","customer_notes":""}
+[01-Jan-2026 03:08:48 Europe/Berlin] Decoded Data: {"booking_type":"fixed","service_type":"software","booking_date":"2026-01-02","booking_time":"11:15","customer_firstname":"liese","customer_lastname":"lotte","customer_company":"","customer_email":"lieselotte@name.de","customer_phone_country":"+49","customer_phone_mobile":"1786666666","customer_phone_landline":"","customer_notes":""}
+[01-Jan-2026 03:08:48 Europe/Berlin] Validation passed - preparing HelloCash integration
+[01-Jan-2026 03:08:49 Europe/Berlin] HelloCash User: Neu erstellt - ID: 9
+[01-Jan-2026 03:08:49 Europe/Berlin] Preparing database insert...
+[01-Jan-2026 03:08:49 Europe/Berlin] Insert params: {":booking_type":"fixed",":service_type":"software",":booking_date":"2026-01-02",":booking_time":"11:15",":customer_notes":"",":customer_firstname":"liese",":customer_lastname":"lotte",":customer_company":"",":customer_email":"lieselotte@name.de",":customer_phone_country":"+49",":customer_phone_mobile":"1786666666",":customer_phone_landline":null,":hellocash_customer_id":9}
+[01-Jan-2026 03:08:49 Europe/Berlin] Booking ID: 1
+[01-Jan-2026 03:08:49 Europe/Berlin] Booking Email would be sent to: lieselotte@name.de
+[01-Jan-2026 03:08:49 Europe/Berlin] Subject: Terminbestätigung #1 - PC-Wittfoot UG
+[01-Jan-2026 03:08:49 Europe/Berlin] Message: Sehr geehrte/r liese lotte,
+
+vielen Dank für Ihre Terminbuchung bei PC-Wittfoot UG.
+
+Ihre Buchungsnummer: #1
+
+Details:
+- Terminart: Fester Termin
+- Dienstleistung: Software-Installation
+- Datum: 02.01.2026
+- Uhrzeit: 11:15 Uhr
+
+
+Bei Fragen erreichen Sie uns unter:
+Telefon: [TELEFONNUMMER]
+E-Mail: info@pc-wittfoot.de
+
+Mit freundlichen Grüßen
+Ihr Team von PC-Wittfoot UG
+
+[01-Jan-2026 03:29:05 Europe/Berlin] === Booking Request Start ===
+[01-Jan-2026 03:29:05 Europe/Berlin] Raw Input: {"booking_type":"fixed","service_type":"software","booking_date":"2026-01-02","booking_time":"11:15","customer_firstname":"Klaus","customer_lastname":"Klausen","customer_company":"","customer_email":"klausklause@klausi.de","customer_phone_country":"+49","customer_phone_mobile":"17855555555","customer_phone_landline":"","customer_street":"Klause","customer_house_number":"54","customer_postal_code":"26121","customer_city":"Oldenburg","customer_notes":""}
+[01-Jan-2026 03:29:05 Europe/Berlin] Decoded Data: {"booking_type":"fixed","service_type":"software","booking_date":"2026-01-02","booking_time":"11:15","customer_firstname":"Klaus","customer_lastname":"Klausen","customer_company":"","customer_email":"klausklause@klausi.de","customer_phone_country":"+49","customer_phone_mobile":"17855555555","customer_phone_landline":"","customer_street":"Klause","customer_house_number":"54","customer_postal_code":"26121","customer_city":"Oldenburg","customer_notes":""}
+[01-Jan-2026 03:29:05 Europe/Berlin] Validation passed - preparing HelloCash integration
+[01-Jan-2026 03:29:06 Europe/Berlin] HelloCash User: Neu erstellt - ID: 12
+[01-Jan-2026 03:29:06 Europe/Berlin] Preparing database insert...
+[01-Jan-2026 03:29:06 Europe/Berlin] Insert params: {":booking_type":"fixed",":service_type":"software",":booking_date":"2026-01-02",":booking_time":"11:15",":customer_notes":"",":customer_firstname":"Klaus",":customer_lastname":"Klausen",":customer_company":"",":customer_email":"klausklause@klausi.de",":customer_phone_country":"+49",":customer_phone_mobile":"17855555555",":customer_phone_landline":null,":hellocash_customer_id":12}
+[01-Jan-2026 03:29:06 Europe/Berlin] Booking ID: 2
+[01-Jan-2026 03:29:06 Europe/Berlin] Booking Email would be sent to: klausklause@klausi.de
+[01-Jan-2026 03:29:06 Europe/Berlin] Subject: Terminbestätigung #2 - PC-Wittfoot UG
+[01-Jan-2026 03:29:06 Europe/Berlin] Message: Sehr geehrte/r Klaus Klausen,
+
+vielen Dank für Ihre Terminbuchung bei PC-Wittfoot UG.
+
+Ihre Buchungsnummer: #2
+
+Details:
+- Terminart: Fester Termin
+- Dienstleistung: Software-Installation
+- Datum: 02.01.2026
+- Uhrzeit: 11:15 Uhr
+
+
+Bei Fragen erreichen Sie uns unter:
+Telefon: [TELEFONNUMMER]
+E-Mail: info@pc-wittfoot.de
+
+Mit freundlichen Grüßen
+Ihr Team von PC-Wittfoot UG
+
+[01-Jan-2026 03:30:55 Europe/Berlin] PHP Fatal error:  Uncaught Error: Call to private method HelloCashClient::request() from global scope in /home/nicole/projekte/c-d/tests/find-klaus.php:8
+Stack trace:
+#0 {main}
+  thrown in /home/nicole/projekte/c-d/tests/find-klaus.php on line 8
+[01-Jan-2026 03:53:30 Europe/Berlin] === Booking Request Start ===
+[01-Jan-2026 03:53:30 Europe/Berlin] Raw Input: {"booking_type":"fixed","service_type":"software","booking_date":"2026-01-02","booking_time":"11:15","customer_firstname":"Maxi","customer_lastname":"Müller","customer_company":"","customer_email":"maxi@müller.de","customer_phone_country":"+49","customer_phone_mobile":"17877777777","customer_phone_landline":"","customer_street":"marxweg","customer_house_number":"67","customer_postal_code":"26654","customer_city":"Rastede","customer_notes":""}
+[01-Jan-2026 03:53:30 Europe/Berlin] Decoded Data: {"booking_type":"fixed","service_type":"software","booking_date":"2026-01-02","booking_time":"11:15","customer_firstname":"Maxi","customer_lastname":"M\u00fcller","customer_company":"","customer_email":"maxi@m\u00fcller.de","customer_phone_country":"+49","customer_phone_mobile":"17877777777","customer_phone_landline":"","customer_street":"marxweg","customer_house_number":"67","customer_postal_code":"26654","customer_city":"Rastede","customer_notes":""}
+[01-Jan-2026 03:53:30 Europe/Berlin] Validation Errors: ["Bitte geben Sie eine g\u00fcltige E-Mail-Adresse ein"]
+[01-Jan-2026 03:53:50 Europe/Berlin] === Booking Request Start ===
+[01-Jan-2026 03:53:50 Europe/Berlin] Raw Input: {"booking_type":"fixed","service_type":"software","booking_date":"2026-01-02","booking_time":"11:15","customer_firstname":"Maxi","customer_lastname":"Müller","customer_company":"","customer_email":"maxi@mueller.de","customer_phone_country":"+49","customer_phone_mobile":"17877777777","customer_phone_landline":"","customer_street":"marxweg","customer_house_number":"67","customer_postal_code":"26654","customer_city":"Rastede","customer_notes":""}
+[01-Jan-2026 03:53:50 Europe/Berlin] Decoded Data: {"booking_type":"fixed","service_type":"software","booking_date":"2026-01-02","booking_time":"11:15","customer_firstname":"Maxi","customer_lastname":"M\u00fcller","customer_company":"","customer_email":"maxi@mueller.de","customer_phone_country":"+49","customer_phone_mobile":"17877777777","customer_phone_landline":"","customer_street":"marxweg","customer_house_number":"67","customer_postal_code":"26654","customer_city":"Rastede","customer_notes":""}
+[01-Jan-2026 03:53:50 Europe/Berlin] Validation passed - preparing HelloCash integration
+[01-Jan-2026 03:53:51 Europe/Berlin] HelloCash User: Neu erstellt - ID: 16
+[01-Jan-2026 03:53:51 Europe/Berlin] Preparing database insert...
+[01-Jan-2026 03:53:51 Europe/Berlin] Insert params: {":booking_type":"fixed",":service_type":"software",":booking_date":"2026-01-02",":booking_time":"11:15",":customer_notes":"",":customer_firstname":"Maxi",":customer_lastname":"M\u00fcller",":customer_company":"",":customer_email":"maxi@mueller.de",":customer_phone_country":"+49",":customer_phone_mobile":"17877777777",":customer_phone_landline":null,":hellocash_customer_id":16}
+[01-Jan-2026 03:53:51 Europe/Berlin] Booking ID: 3
+[01-Jan-2026 03:53:51 Europe/Berlin] Booking Email would be sent to: maxi@mueller.de
+[01-Jan-2026 03:53:51 Europe/Berlin] Subject: Terminbestätigung #3 - PC-Wittfoot UG
+[01-Jan-2026 03:53:51 Europe/Berlin] Message: Sehr geehrte/r Maxi Müller,
+
+vielen Dank für Ihre Terminbuchung bei PC-Wittfoot UG.
+
+Ihre Buchungsnummer: #3
+
+Details:
+- Terminart: Fester Termin
+- Dienstleistung: Software-Installation
+- Datum: 02.01.2026
+- Uhrzeit: 11:15 Uhr
+
+
+Bei Fragen erreichen Sie uns unter:
+Telefon: [TELEFONNUMMER]
+E-Mail: info@pc-wittfoot.de
+
+Mit freundlichen Grüßen
+Ihr Team von PC-Wittfoot UG
+
+[01-Jan-2026 04:13:30 Europe/Berlin] === Booking Request Start ===
+[01-Jan-2026 04:13:30 Europe/Berlin] Raw Input: {"booking_type":"walkin","service_type":"sonstiges","booking_date":"2026-01-03","booking_time":"","customer_firstname":"Maxi","customer_lastname":"Müller","customer_company":"","customer_email":"mueller@maxi.deue","customer_phone_country":"+49","customer_phone_mobile":"1795555555","customer_phone_landline":"","customer_street":"Musterweg","customer_house_number":"3","customer_postal_code":"26135","customer_city":"Oldenburg","customer_notes":""}
+[01-Jan-2026 04:13:30 Europe/Berlin] Decoded Data: {"booking_type":"walkin","service_type":"sonstiges","booking_date":"2026-01-03","booking_time":"","customer_firstname":"Maxi","customer_lastname":"M\u00fcller","customer_company":"","customer_email":"mueller@maxi.deue","customer_phone_country":"+49","customer_phone_mobile":"1795555555","customer_phone_landline":"","customer_street":"Musterweg","customer_house_number":"3","customer_postal_code":"26135","customer_city":"Oldenburg","customer_notes":""}
+[01-Jan-2026 04:13:30 Europe/Berlin] Validation passed - preparing HelloCash integration
+[01-Jan-2026 04:13:31 Europe/Berlin] HelloCash User: Neu erstellt - ID: 17
+[01-Jan-2026 04:13:31 Europe/Berlin] Preparing database insert...
+[01-Jan-2026 04:13:31 Europe/Berlin] Insert params: {":booking_type":"walkin",":service_type":"sonstiges",":booking_date":"2026-01-03",":booking_time":null,":customer_notes":"",":customer_firstname":"Maxi",":customer_lastname":"M\u00fcller",":customer_company":"",":customer_email":"mueller@maxi.deue",":customer_phone_country":"+49",":customer_phone_mobile":"1795555555",":customer_phone_landline":null,":hellocash_customer_id":17}
+[01-Jan-2026 04:13:31 Europe/Berlin] Booking ID: 4
+[01-Jan-2026 04:13:31 Europe/Berlin] Booking Email would be sent to: mueller@maxi.deue
+[01-Jan-2026 04:13:31 Europe/Berlin] Subject: Terminbestätigung #4 - PC-Wittfoot UG
+[01-Jan-2026 04:13:31 Europe/Berlin] Message: Sehr geehrte/r Maxi Müller,
+
+vielen Dank für Ihre Terminbuchung bei PC-Wittfoot UG.
+
+Ihre Buchungsnummer: #4
+
+Details:
+- Terminart: Ich komme vorbei
+- Dienstleistung: Sonstiges
+- Datum: 03.01.2026
+- Sie können ab 14:00 Uhr vorbeikommen
+
+
+Bei Fragen erreichen Sie uns unter:
+Telefon: [TELEFONNUMMER]
+E-Mail: info@pc-wittfoot.de
+
+Mit freundlichen Grüßen
+Ihr Team von PC-Wittfoot UG
+

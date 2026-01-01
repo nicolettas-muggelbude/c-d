@@ -1,0 +1,372 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Farbpalette Option B - DARKMODE</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+            background: #0F1419;
+            padding: 20px;
+        }
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: #1A1F26;
+            padding: 40px;
+            border-radius: 8px;
+        }
+        .mode-toggle {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background: #8BC34A;
+            color: white;
+            padding: 12px 24px;
+            border-radius: 20px;
+            cursor: pointer;
+            font-weight: bold;
+            box-shadow: 0 4px 12px rgba(139, 195, 74, 0.3);
+            z-index: 1000;
+        }
+        h1 {
+            color: #E8E8E8;
+            margin-bottom: 10px;
+        }
+        h2 {
+            color: #E8E8E8;
+            margin: 30px 0 20px;
+            border-bottom: 2px solid #2C3E50;
+            padding-bottom: 10px;
+        }
+        .palette {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 20px;
+            margin: 30px 0;
+        }
+        .color-box {
+            text-align: center;
+        }
+        .color-sample {
+            height: 120px;
+            border-radius: 8px;
+            margin-bottom: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: bold;
+            text-shadow: 0 1px 3px rgba(0,0,0,0.3);
+        }
+        .color-name {
+            font-size: 14px;
+            font-weight: bold;
+            margin-bottom: 5px;
+            color: #E8E8E8;
+        }
+        .color-code {
+            font-size: 12px;
+            color: #999;
+            font-family: monospace;
+        }
+
+        /* Darkmode-spezifische Farben */
+        .example-header {
+            background: #1F2937;
+            color: #E8E8E8;
+            padding: 20px 40px;
+            margin: 30px 0;
+            border-radius: 8px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.3);
+            border-top: 2px solid #8BC34A;
+        }
+        .example-header .logo {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        .logo-accent {
+            width: 8px;
+            height: 30px;
+            background: linear-gradient(135deg, #8BC34A 0%, #E67E22 100%);
+            border-radius: 4px;
+        }
+        .example-header nav a {
+            color: #B8B8B8;
+            text-decoration: none;
+            margin-left: 25px;
+            transition: color 0.3s;
+        }
+        .example-header nav a:hover {
+            color: #8BC34A;
+        }
+        .hero {
+            background: linear-gradient(135deg, #1A1F26 0%, #2C3E50 100%);
+            color: white;
+            padding: 60px 40px;
+            margin: 30px 0;
+            border-radius: 12px;
+            position: relative;
+            overflow: hidden;
+            border: 1px solid #2C3E50;
+        }
+        .hero::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            right: 0;
+            width: 200px;
+            height: 200px;
+            background: linear-gradient(135deg, rgba(139, 195, 74, 0.2) 0%, rgba(230, 126, 34, 0.2) 100%);
+            border-radius: 50%;
+            transform: translate(50%, -50%);
+        }
+        .hero h2 {
+            color: #E8E8E8;
+            border: none;
+            margin: 0 0 15px 0;
+            padding: 0;
+            position: relative;
+        }
+        .hero p {
+            position: relative;
+            font-size: 18px;
+            margin-bottom: 25px;
+            color: #B8B8B8;
+        }
+        .example-section {
+            background: #0F1419;
+            padding: 40px;
+            margin: 20px 0;
+            border-radius: 8px;
+            border: 1px solid #2C3E50;
+        }
+        .example-section h3 {
+            color: #E8E8E8;
+            margin-bottom: 15px;
+        }
+        .example-section p {
+            color: #B8B8B8;
+            line-height: 1.6;
+        }
+        .btn-primary {
+            background: #8BC34A;
+            color: #0F1419;
+            padding: 12px 30px;
+            border: none;
+            border-radius: 6px;
+            font-size: 16px;
+            font-weight: bold;
+            cursor: pointer;
+            margin: 10px 10px 10px 0;
+            transition: all 0.3s;
+            box-shadow: 0 2px 8px rgba(139, 195, 74, 0.3);
+        }
+        .btn-primary:hover {
+            background: #9CCC65;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(139, 195, 74, 0.4);
+        }
+        .btn-accent {
+            background: #E67E22;
+            color: white;
+            padding: 12px 30px;
+            border: none;
+            border-radius: 6px;
+            font-size: 16px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s;
+            box-shadow: 0 2px 8px rgba(230, 126, 34, 0.3);
+        }
+        .btn-accent:hover {
+            background: #F39C12;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(230, 126, 34, 0.4);
+        }
+        .btn-outline {
+            background: transparent;
+            color: #E8E8E8;
+            padding: 12px 30px;
+            border: 2px solid #2C3E50;
+            border-radius: 6px;
+            font-size: 16px;
+            font-weight: bold;
+            cursor: pointer;
+            margin-left: 10px;
+            transition: all 0.3s;
+        }
+        .btn-outline:hover {
+            border-color: #8BC34A;
+            color: #8BC34A;
+        }
+        .card {
+            background: #1F2937;
+            padding: 25px;
+            border-radius: 8px;
+            margin: 20px 0;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.3);
+            border-top: 3px solid #2C3E50;
+            transition: all 0.3s;
+        }
+        .card:hover {
+            border-top-color: #8BC34A;
+            box-shadow: 0 4px 12px rgba(139, 195, 74, 0.2);
+            transform: translateY(-2px);
+        }
+        .card h4 {
+            color: #E8E8E8;
+            margin-bottom: 10px;
+        }
+        .card p {
+            color: #B8B8B8;
+            line-height: 1.6;
+        }
+        .accent-badge {
+            display: inline-block;
+            background: #E67E22;
+            color: white;
+            padding: 5px 12px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: bold;
+            margin-left: 10px;
+        }
+        .comparison {
+            margin-top: 50px;
+            padding: 30px;
+            background: #0D1117;
+            border-radius: 8px;
+            border-left: 4px solid #8BC34A;
+        }
+        .comparison h3 {
+            color: #8BC34A;
+            margin-bottom: 15px;
+        }
+        .comparison ul {
+            color: #B8B8B8;
+            line-height: 1.8;
+            margin-left: 20px;
+        }
+        .comparison strong {
+            color: #E8E8E8;
+        }
+    </style>
+</head>
+<body>
+    <div class="mode-toggle">🌙 DARKMODE</div>
+
+    <div class="container">
+        <h1>Option B - Darkmode Version</h1>
+        <p style="color: #999; margin-bottom: 30px;">Neutral mit gezielten Grün/Orange-Akzenten - perfekt für Darkmode!</p>
+
+        <h2>Darkmode Farbpalette</h2>
+        <div class="palette">
+            <div class="color-box">
+                <div class="color-sample" style="background: #0F1419;">Hintergrund</div>
+                <div class="color-name">Dunkel-Basis</div>
+                <div class="color-code">#0F1419</div>
+                <div class="color-code">Haupthintergrund</div>
+            </div>
+            <div class="color-box">
+                <div class="color-sample" style="background: #1A1F26;">Karten</div>
+                <div class="color-name">Dunkelgrau</div>
+                <div class="color-code">#1A1F26</div>
+                <div class="color-code">Content-Boxen</div>
+            </div>
+            <div class="color-box">
+                <div class="color-sample" style="background: #E8E8E8;">Text</div>
+                <div class="color-name">Hellgrau</div>
+                <div class="color-code">#E8E8E8</div>
+                <div class="color-code">Überschriften</div>
+            </div>
+            <div class="color-box">
+                <div class="color-sample" style="background: #B8B8B8;">Fließtext</div>
+                <div class="color-name">Mittelgrau</div>
+                <div class="color-code">#B8B8B8</div>
+                <div class="color-code">Absätze</div>
+            </div>
+            <div class="color-box">
+                <div class="color-sample" style="background: #8BC34A;">Grün</div>
+                <div class="color-name">Logo-Grün</div>
+                <div class="color-code">#8BC34A</div>
+                <div class="color-code">Primäre Aktion</div>
+            </div>
+            <div class="color-box">
+                <div class="color-sample" style="background: #E67E22;">Orange</div>
+                <div class="color-name">Logo-Orange</div>
+                <div class="color-code">#E67E22</div>
+                <div class="color-code">Highlights</div>
+            </div>
+        </div>
+
+        <h2>Beispiel: Header/Navigation</h2>
+        <div class="example-header">
+            <div class="logo">
+                <div class="logo-accent"></div>
+                <strong style="font-size: 20px;">PC-Wittfoot</strong>
+            </div>
+            <nav>
+                <a href="#">Leistungen</a>
+                <a href="#">Shop</a>
+                <a href="#">Über uns</a>
+                <a href="#">Kontakt</a>
+            </nav>
+        </div>
+
+        <h2>Beispiel: Hero-Bereich</h2>
+        <div class="hero">
+            <h2>Ihr IT-Partner in der Region <span class="accent-badge">5★ Google</span></h2>
+            <p>Fachkundige Beratung, schnelle Reparaturen und persönlicher Service – bei einer Tasse Kaffee.</p>
+            <button class="btn-primary">Termin buchen</button>
+            <button class="btn-outline">Leistungen ansehen</button>
+        </div>
+
+        <h2>Beispiel: Content-Bereich</h2>
+        <div class="example-section">
+            <h3>Warum PC-Wittfoot?</h3>
+            <p>Bei uns steht der Mensch im Mittelpunkt. Wir nehmen uns Zeit für Ihre Anliegen und erklären verständlich, was zu tun ist. Unser Team berät Sie kompetent und ehrlich.</p>
+            <button class="btn-primary">Mehr über uns</button>
+            <button class="btn-accent">Kontakt aufnehmen</button>
+        </div>
+
+        <h2>Beispiel: Service-Karten</h2>
+        <div class="card">
+            <h4>Hardware-Reparatur</h4>
+            <p>Unsere Fachwerkstatt repariert fachgerecht Ihre Geräte. Für Tablets und Handys arbeiten wir mit spezialisierten Partnern zusammen.</p>
+        </div>
+        <div class="card">
+            <h4>Refurbished Hardware</h4>
+            <p>Hochwertige, generalüberholte Hardware mit Garantie. Nachhaltig, zuverlässig und preiswert.</p>
+        </div>
+
+        <div class="comparison">
+            <h3>Warum Option B perfekt für Darkmode ist:</h3>
+            <ul>
+                <li><strong>Minimaler Anpassungsaufwand:</strong> Nur Grautöne invertieren, Akzente bleiben gleich</li>
+                <li><strong>Grün & Orange leuchten:</strong> Beide Farben haben maximalen Kontrast auf Dunkel</li>
+                <li><strong>Augenfreundlich:</strong> OLED-optimiert, weniger Blaulicht-Anteil</li>
+                <li><strong>Modern & professionell:</strong> Entspricht aktuellen Design-Trends</li>
+                <li><strong>Energiesparend:</strong> Dunkle Pixel = weniger Stromverbrauch (OLED)</li>
+                <li><strong>Konsistent:</strong> Logo-Farben funktionieren in beiden Modi identisch</li>
+                <li><strong>Barrierefrei:</strong> Hohe Kontraste für bessere Lesbarkeit</li>
+            </ul>
+        </div>
+
+        <div style="margin-top: 30px; padding: 20px; background: #1F2937; border-radius: 8px; border: 1px solid #8BC34A;">
+            <h3 style="color: #8BC34A; margin-bottom: 10px;">💡 Technische Umsetzung:</h3>
+            <p style="color: #B8B8B8; line-height: 1.6;">
+                Mit CSS-Variablen können wir einen einfachen Light/Dark-Toggle einbauen.
+                Der Benutzer kann selbst wählen, oder wir folgen der System-Präferenz (prefers-color-scheme).
+                Die Umschaltung erfolgt ohne Neuladen der Seite - smooth und modern!
+            </p>
+        </div>
+    </div>
+</body>
+</html>

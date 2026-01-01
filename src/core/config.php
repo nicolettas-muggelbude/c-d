@@ -1,0 +1,139 @@
+<?php
+/**
+ * Konfigurationsdatei
+ * PC-Wittfoot
+ *
+ * WICHTIG: Diese Datei NICHT in Git committen!
+ * Enthält sensible Zugangsdaten.
+ */
+
+// Error Reporting (für Entwicklung)
+error_reporting(E_ALL);
+ini_set('display_errors', 1);
+ini_set('log_errors', 1);
+ini_set('error_log', dirname(dirname(__DIR__)) . '/logs/error.log');
+
+// Timezone
+date_default_timezone_set('Europe/Berlin');
+
+// =============================================
+// DATENBANK-KONFIGURATION
+// =============================================
+
+define('DB_HOST', 'localhost');
+define('DB_NAME', 'pc_wittfoot');
+define('DB_USER', 'pc_wittfoot');    // Eigener User
+define('DB_PASS', 'dev123');         // Passwort (ÄNDERN in Produktion!)
+define('DB_CHARSET', 'utf8mb4');
+
+// =============================================
+// PFADE
+// =============================================
+
+define('BASE_PATH', dirname(__DIR__));          // /src
+define('CORE_PATH', BASE_PATH . '/core');
+define('ASSETS_PATH', BASE_PATH . '/assets');
+define('UPLOADS_PATH', BASE_PATH . '/uploads');
+define('CACHE_PATH', BASE_PATH . '/cache');
+
+// URL-Basis (anpassen für Produktion)
+define('BASE_URL', 'http://localhost:8000');
+define('ASSETS_URL', BASE_URL . '/assets');
+define('UPLOADS_URL', BASE_URL . '/uploads');
+
+// =============================================
+// SICHERHEIT
+// =============================================
+
+// Session-Einstellungen
+ini_set('session.cookie_httponly', 1);
+ini_set('session.use_only_cookies', 1);
+ini_set('session.cookie_samesite', 'Lax');
+
+// CSRF-Token Secret
+define('CSRF_SECRET', 'CHANGE_THIS_IN_PRODUCTION_' . md5(BASE_PATH));
+
+// Session-Name
+define('SESSION_NAME', 'pc_wittfoot_session');
+
+// =============================================
+// SHOP-EINSTELLUNGEN
+// =============================================
+
+define('CURRENCY', '€');
+define('CURRENCY_CODE', 'EUR');
+define('TAX_RATE', 0.19);  // 19% MwSt.
+
+// =============================================
+// E-MAIL-KONFIGURATION
+// =============================================
+
+define('MAIL_FROM', 'info@pc-wittfoot.de');
+define('MAIL_FROM_NAME', 'PC-Wittfoot UG');
+define('MAIL_ADMIN', 'admin@pc-wittfoot.de');
+
+// =============================================
+// API-KEYS (für Produktion ausfüllen)
+// =============================================
+
+// Google Places API (für Reviews)
+define('GOOGLE_PLACES_API_KEY', '');
+
+// hellocash API
+define('HELLOCASH_API_KEY', 'eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpYXQiOjE3NjcyMjgyOTkuNzE2OTk3LCJjcmlkIjoiMjIxODM0In0.9RFUF-Fgo32eNmjREIkUY7WW_abdkWQEMbTd6gg9u8Y');
+define('HELLOCASH_API_URL', 'https://api.hellocash.business/api/v1/');
+define('HELLOCASH_LANDLINE_FIELD', 'Festnetz'); // Name des Custom Fields für Festnetznummer
+
+// PayPal
+define('PAYPAL_CLIENT_ID', '');
+define('PAYPAL_SECRET', '');
+define('PAYPAL_MODE', 'sandbox');  // 'sandbox' oder 'live'
+
+// SumUp
+define('SUMUP_APP_ID', '');
+define('SUMUP_APP_SECRET', '');
+
+// =============================================
+// VERSCHIEDENES
+// =============================================
+
+// Debug-Modus (NUR in Entwicklung!)
+define('DEBUG_MODE', true);
+
+// Produkte pro Seite
+define('PRODUCTS_PER_PAGE', 12);
+
+// Blog-Posts pro Seite
+define('POSTS_PER_PAGE', 10);
+
+// Cache-Laufzeiten (in Sekunden)
+define('CACHE_REVIEWS', 86400);      // 24 Stunden
+define('CACHE_PRODUCTS', 3600);      // 1 Stunde
+define('CACHE_PAGES', 7200);         // 2 Stunden
+
+// =============================================
+// AUTO-LOADING
+// =============================================
+
+// Autoload-Funktion für Klassen
+spl_autoload_register(function($class) {
+    $paths = [
+        CORE_PATH . '/' . $class . '.php',
+        BASE_PATH . '/shop/classes/' . $class . '.php',
+        BASE_PATH . '/admin/classes/' . $class . '.php',
+    ];
+
+    foreach ($paths as $path) {
+        if (file_exists($path)) {
+            require_once $path;
+            return;
+        }
+    }
+});
+
+// =============================================
+// CORE-DATEIEN LADEN
+// =============================================
+
+require_once CORE_PATH . '/helpers.php';
+require_once CORE_PATH . '/database.php';
