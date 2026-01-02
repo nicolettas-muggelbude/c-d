@@ -333,7 +333,7 @@ include __DIR__ . '/../templates/header.php';
                     }
                     ?>
                     <?php for ($i = 1; $i <= 5; $i++): ?>
-                        <div class="form-group">
+                        <div class="form-group" style="margin-bottom: 0.75rem;">
                             <label for="image_url_<?= $i ?>">Bild <?= $i ?></label>
                             <input
                                 type="url"

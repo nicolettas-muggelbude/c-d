@@ -552,3 +552,30 @@ Stack trace:
                 VALUES (:booking_id, :email_type, :recipient, :subject, :body, :status, NOW())
 [01-Jan-2026 22:26:33 Europe/Berlin] PHP Deprecated:  number_format(): Passing null to parameter #1 ($num) of type float is deprecated in /home/nicole/projekte/c-d/src/core/helpers.php on line 55
 [01-Jan-2026 22:26:40 Europe/Berlin] PHP Deprecated:  number_format(): Passing null to parameter #1 ($num) of type float is deprecated in /home/nicole/projekte/c-d/src/core/helpers.php on line 55
+[01-Jan-2026 23:12:52 Europe/Berlin] PHP Fatal error:  Uncaught Error: Call to undefined method Database::exec() in Command line code:5
+Stack trace:
+#0 {main}
+  thrown in Command line code on line 5
+[01-Jan-2026 23:16:20 Europe/Berlin] PHP Warning:  Undefined array key "image" in /home/nicole/projekte/c-d/src/admin/products.php on line 154
+[01-Jan-2026 23:16:20 Europe/Berlin] PHP Warning:  Undefined array key "image" in /home/nicole/projekte/c-d/src/admin/products.php on line 154
+[01-Jan-2026 23:16:20 Europe/Berlin] PHP Warning:  Undefined array key "image" in /home/nicole/projekte/c-d/src/admin/products.php on line 154
+[01-Jan-2026 23:16:20 Europe/Berlin] PHP Warning:  Undefined array key "image" in /home/nicole/projekte/c-d/src/admin/products.php on line 154
+[01-Jan-2026 23:16:20 Europe/Berlin] PHP Warning:  Undefined array key "image" in /home/nicole/projekte/c-d/src/admin/products.php on line 154
+[01-Jan-2026 23:16:20 Europe/Berlin] PHP Warning:  Undefined array key "image" in /home/nicole/projekte/c-d/src/admin/products.php on line 154
+[01-Jan-2026 23:16:20 Europe/Berlin] PHP Warning:  Undefined array key "image" in /home/nicole/projekte/c-d/src/admin/products.php on line 154
+[01-Jan-2026 23:16:20 Europe/Berlin] PHP Warning:  Undefined array key "image" in /home/nicole/projekte/c-d/src/admin/products.php on line 154
+[01-Jan-2026 23:16:20 Europe/Berlin] PHP Warning:  Undefined array key "image" in /home/nicole/projekte/c-d/src/admin/products.php on line 154
+[01-Jan-2026 23:16:20 Europe/Berlin] PHP Warning:  Undefined array key "image" in /home/nicole/projekte/c-d/src/admin/products.php on line 154
+[01-Jan-2026 23:16:20 Europe/Berlin] PHP Warning:  Undefined array key "image" in /home/nicole/projekte/c-d/src/admin/products.php on line 154
+[01-Jan-2026 23:18:21 Europe/Berlin] PHP Warning:  Undefined array key "image" in /home/nicole/projekte/c-d/src/admin/product-edit.php on line 252
+[01-Jan-2026 23:52:53 Europe/Berlin] PHP Fatal error:  Uncaught Error: Call to undefined method Database::exec() in Command line code:5
+Stack trace:
+#0 {main}
+  thrown in Command line code on line 5
+[02-Jan-2026 00:31:17 Europe/Berlin] PHP Deprecated:  htmlspecialchars(): Passing null to parameter #1 ($string) of type string is deprecated in /home/nicole/projekte/c-d/src/core/helpers.php on line 13
+[02-Jan-2026 01:32:03 Europe/Berlin] PHP Deprecated:  htmlspecialchars(): Passing null to parameter #1 ($string) of type string is deprecated in /home/nicole/projekte/c-d/src/core/helpers.php on line 13
+[02-Jan-2026 01:35:16 Europe/Berlin] PHP Deprecated:  htmlspecialchars(): Passing null to parameter #1 ($string) of type string is deprecated in /home/nicole/projekte/c-d/src/core/helpers.php on line 13
+[02-Jan-2026 01:35:26 Europe/Berlin] PHP Deprecated:  htmlspecialchars(): Passing null to parameter #1 ($string) of type string is deprecated in /home/nicole/projekte/c-d/src/core/helpers.php on line 13
+[02-Jan-2026 01:37:08 Europe/Berlin] PHP Deprecated:  htmlspecialchars(): Passing null to parameter #1 ($string) of type string is deprecated in /home/nicole/projekte/c-d/src/core/helpers.php on line 13
+[02-Jan-2026 01:41:02 Europe/Berlin] PHP Deprecated:  htmlspecialchars(): Passing null to parameter #1 ($string) of type string is deprecated in /home/nicole/projekte/c-d/src/core/helpers.php on line 13
+[02-Jan-2026 01:43:19 Europe/Berlin] PHP Deprecated:  htmlspecialchars(): Passing null to parameter #1 ($string) of type string is deprecated in /home/nicole/projekte/c-d/src/core/helpers.php on line 13
