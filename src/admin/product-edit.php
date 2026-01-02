@@ -319,7 +319,7 @@ include __DIR__ . '/../templates/header.php';
                 </div>
 
                 <!-- Zusätzliche Bilder -->
-                <div class="form-group">
+                <div class="form-group" style="padding: 1.5rem; border-radius: 8px; border: 2px dashed var(--border-color);">
                     <label style="font-weight: 600; font-size: 1.05rem; margin-bottom: 0.5rem; display: block;">
                         📸 Zusätzliche Produktbilder (URLs)
                     </label>
@@ -332,22 +332,19 @@ include __DIR__ . '/../templates/header.php';
                         $existing_images = json_decode($product['images'], true) ?: [];
                     }
                     ?>
-                    <div style="background: var(--color-background, #f8f9fa); padding: 1.5rem; border-radius: var(--radius, 8px); border: 2px dashed var(--border-color, #dee2e6);">
-                        <?php for ($i = 1; $i <= 5; $i++): ?>
-                            <div style="margin-bottom: 0.75rem;">
-                                <label for="image_url_<?= $i ?>" style="display: block; font-weight: 500; margin-bottom: 0.25rem; color: var(--text-color, #212529);">
-                                    Bild <?= $i ?>:
-                                </label>
-                                <input
-                                    type="url"
-                                    id="image_url_<?= $i ?>"
-                                    name="image_url_<?= $i ?>"
-                                    placeholder="https://beispiel.de/bild<?= $i ?>.jpg"
-                                    value="<?= isset($existing_images[$i-1]) ? e($existing_images[$i-1]) : '' ?>"
-                                    style="background: var(--input-background, white); border: 1px solid var(--input-border, #ced4da); padding: 0.5rem; width: 100%; border-radius: 4px; color: var(--text-color, #212529);">
-                            </div>
-                        <?php endfor; ?>
-                    </div>
+                    <?php for ($i = 1; $i <= 5; $i++): ?>
+                        <div style="margin-bottom: 0.75rem;">
+                            <label for="image_url_<?= $i ?>" style="display: block; font-weight: 500; margin-bottom: 0.25rem;">
+                                Bild <?= $i ?>:
+                            </label>
+                            <input
+                                type="url"
+                                id="image_url_<?= $i ?>"
+                                name="image_url_<?= $i ?>"
+                                placeholder="https://beispiel.de/bild<?= $i ?>.jpg"
+                                value="<?= isset($existing_images[$i-1]) ? e($existing_images[$i-1]) : '' ?>">
+                        </div>
+                    <?php endfor; ?>
                 </div>
 
                 <!-- Artikelzustand & Garantie -->
