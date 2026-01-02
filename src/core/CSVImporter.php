@@ -210,6 +210,34 @@ class CSVImporter {
             }
         }
 
+        // Artikelzustand verarbeiten (Standard: neu)
+        $condition_type = 'neu';
+        if (!empty($data['condition'])) {
+            $csv_condition = strtolower(trim($data['condition']));
+            // Nur gültige Zustände zulassen
+            if (in_array($csv_condition, ['neu', 'refurbished', 'gebraucht'])) {
+                $condition_type = $csv_condition;
+            }
+        }
+
+        // Garantie verarbeiten (Standard: 24 Monate)
+        $warranty_months = 24;
+        if (!empty($data['warranty'])) {
+            $csv_warranty = (int)$data['warranty'];
+            if ($csv_warranty > 0 && $csv_warranty <= 60) {
+                $warranty_months = $csv_warranty;
+            }
+        }
+
+        // Zusätzliche Bilder sammeln (bis zu 5)
+        $images = [];
+        for ($i = 1; $i <= 5; $i++) {
+            if (!empty($data["image$i"])) {
+                $images[] = trim($data["image$i"]);
+            }
+        }
+        $images_json = !empty($images) ? json_encode($images) : null;
+
         // Prüfen ob Produkt bereits existiert
         $existing = $this->db->querySingle(
             "SELECT id FROM products WHERE sku = :sku AND supplier_id = :supplier_id",
@@ -229,6 +257,9 @@ class CSVImporter {
                     price = :price,
                     tax_rate = :tax_rate,
                     category_id = :category_id,
+                    condition_type = :condition_type,
+                    warranty_months = :warranty_months,
+                    images = :images,
                     supplier_stock = :supplier_stock,
                     supplier_name = :supplier_name,
                     free_shipping = :free_shipping,
@@ -242,6 +273,9 @@ class CSVImporter {
                 ':price' => $selling_price,
                 ':tax_rate' => $tax_rate,
                 ':category_id' => $category_id,
+                ':condition_type' => $condition_type,
+                ':warranty_months' => $warranty_months,
+                ':images' => $images_json,
                 ':supplier_stock' => $supplier_stock,
                 ':supplier_name' => $this->supplier['name'],
                 ':free_shipping' => $free_shipping,
@@ -253,11 +287,13 @@ class CSVImporter {
             // Neues Produkt erstellen
             $this->db->insert("
                 INSERT INTO products (
-                    name, sku, ean, slug, description, price, tax_rate, stock, category_id, supplier_id, supplier_name,
-                    supplier_stock, free_shipping, source, is_active, last_csv_sync, created_at
+                    name, sku, ean, slug, description, price, tax_rate, stock, category_id, condition_type,
+                    warranty_months, images, supplier_id, supplier_name, supplier_stock, free_shipping,
+                    source, is_active, last_csv_sync, created_at
                 ) VALUES (
-                    :name, :sku, :ean, :slug, :description, :price, :tax_rate, 0, :category_id, :supplier_id, :supplier_name,
-                    :supplier_stock, :free_shipping, 'csv_import', 0, NOW(), NOW()
+                    :name, :sku, :ean, :slug, :description, :price, :tax_rate, 0, :category_id, :condition_type,
+                    :warranty_months, :images, :supplier_id, :supplier_name, :supplier_stock, :free_shipping,
+                    'csv_import', 0, NOW(), NOW()
                 )
             ", [
                 ':name' => $data['name'],
@@ -268,6 +304,9 @@ class CSVImporter {
                 ':price' => $selling_price,
                 ':tax_rate' => $tax_rate,
                 ':category_id' => $category_id,
+                ':condition_type' => $condition_type,
+                ':warranty_months' => $warranty_months,
+                ':images' => $images_json,
                 ':supplier_id' => $this->supplier['id'],
                 ':supplier_name' => $this->supplier['name'],
                 ':supplier_stock' => $supplier_stock,
