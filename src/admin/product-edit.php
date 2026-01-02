@@ -319,7 +319,7 @@ include __DIR__ . '/../templates/header.php';
                 </div>
 
                 <!-- Zusätzliche Bilder -->
-                <div class="form-group" style="padding: 1.5rem; border-radius: 8px; border: 2px dashed var(--border-color);">
+                <div style="padding: 1.5rem; border-radius: 8px; border: 2px dashed var(--border-color); margin-bottom: var(--space-lg);">
                     <label style="font-weight: 600; font-size: 1.05rem; margin-bottom: 0.5rem; display: block;">
                         📸 Zusätzliche Produktbilder (URLs)
                     </label>
@@ -333,10 +333,8 @@ include __DIR__ . '/../templates/header.php';
                     }
                     ?>
                     <?php for ($i = 1; $i <= 5; $i++): ?>
-                        <div style="margin-bottom: 0.75rem;">
-                            <label for="image_url_<?= $i ?>" style="display: block; font-weight: 500; margin-bottom: 0.25rem;">
-                                Bild <?= $i ?>:
-                            </label>
+                        <div class="form-group">
+                            <label for="image_url_<?= $i ?>">Bild <?= $i ?></label>
                             <input
                                 type="url"
                                 id="image_url_<?= $i ?>"
