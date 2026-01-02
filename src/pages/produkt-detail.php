@@ -34,6 +34,12 @@ if (!empty($product['specifications'])) {
     $specifications = json_decode($product['specifications'], true) ?? [];
 }
 
+// Zusätzliche Bilder dekodieren
+$additional_images = [];
+if (!empty($product['images'])) {
+    $additional_images = json_decode($product['images'], true) ?? [];
+}
+
 // Ähnliche Produkte laden (gleiche Kategorie)
 $similar_products = $db->query("
     SELECT p.*, c.name as category_name
@@ -57,6 +63,106 @@ $current_page = 'shop';
 include __DIR__ . '/../templates/header.php';
 ?>
 
+<style>
+/* Bildergalerie Styles */
+.product-image-gallery {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-md);
+}
+
+.main-image {
+    position: relative;
+    background: var(--color-light);
+    border-radius: var(--radius);
+    overflow: hidden;
+    aspect-ratio: 1 / 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.main-image img {
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+    cursor: pointer;
+}
+
+.image-thumbnails {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(80px, 1fr));
+    gap: var(--space-sm);
+}
+
+.thumbnail {
+    aspect-ratio: 1 / 1;
+    border: 2px solid var(--border-color);
+    border-radius: var(--radius);
+    overflow: hidden;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    background: var(--color-light);
+}
+
+.thumbnail:hover {
+    border-color: var(--color-primary);
+    transform: scale(1.05);
+}
+
+.thumbnail.active {
+    border-color: var(--color-primary);
+    box-shadow: 0 0 0 2px var(--color-primary-light);
+}
+
+.thumbnail img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+/* Trust Badges */
+.trust-badges {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-md);
+    padding: var(--space-lg) 0;
+    border-top: 1px solid var(--border-color);
+    border-bottom: 1px solid var(--border-color);
+    margin: var(--space-lg) 0;
+}
+
+.trust-item {
+    display: flex;
+    align-items: center;
+    gap: var(--space-sm);
+    color: var(--color-success);
+    font-weight: 500;
+}
+
+.trust-icon {
+    font-size: 1.5rem;
+}
+
+/* Badge Größe */
+.badge-large {
+    padding: var(--space-sm) var(--space-md);
+    font-size: 1.1rem;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+    .image-thumbnails {
+        grid-template-columns: repeat(4, 1fr);
+    }
+
+    .trust-badges {
+        flex-direction: column;
+        gap: var(--space-sm);
+    }
+}
+</style>
+
 <section class="section">
     <div class="container">
         <!-- Breadcrumb -->
@@ -73,15 +179,41 @@ include __DIR__ . '/../templates/header.php';
         </nav>
 
         <div class="product-detail-layout">
-            <!-- Produktbild (Platzhalter) -->
-            <div class="product-image">
-                <div class="image-placeholder">
-                    <span class="icon-large">📦</span>
-                    <p class="text-muted">Produktbild folgt</p>
+            <!-- Produktbild-Galerie -->
+            <div class="product-image-gallery">
+                <!-- Hauptbild -->
+                <div class="main-image">
+                    <?php if (!empty($product['image_url'])): ?>
+                        <img id="main-product-image" src="<?= e($product['image_url']) ?>" alt="<?= e($product['name']) ?>">
+                    <?php else: ?>
+                        <div class="image-placeholder">
+                            <span class="icon-large">📦</span>
+                            <p class="text-muted">Kein Bild verfügbar</p>
+                        </div>
+                    <?php endif; ?>
+
+                    <?php if ($product['is_featured']): ?>
+                        <div class="featured-badge">⭐ Empfohlen</div>
+                    <?php endif; ?>
                 </div>
 
-                <?php if ($product['is_featured']): ?>
-                    <div class="featured-badge">⭐ Empfohlen</div>
+                <!-- Thumbnails (wenn zusätzliche Bilder vorhanden) -->
+                <?php if (!empty($product['image_url']) || !empty($additional_images)): ?>
+                    <div class="image-thumbnails">
+                        <!-- Hauptbild als Thumbnail -->
+                        <?php if (!empty($product['image_url'])): ?>
+                            <div class="thumbnail active" data-image="<?= e($product['image_url']) ?>">
+                                <img src="<?= e($product['image_url']) ?>" alt="Bild 1">
+                            </div>
+                        <?php endif; ?>
+
+                        <!-- Zusätzliche Bilder -->
+                        <?php foreach ($additional_images as $index => $img_url): ?>
+                            <div class="thumbnail" data-image="<?= e($img_url) ?>">
+                                <img src="<?= e($img_url) ?>" alt="Bild <?= $index + 2 ?>">
+                            </div>
+                        <?php endforeach; ?>
+                    </div>
                 <?php endif; ?>
             </div>
 
@@ -90,16 +222,47 @@ include __DIR__ . '/../templates/header.php';
                 <h1><?= e($product['name']) ?></h1>
 
                 <div class="product-meta">
-                    <span class="badge <?= $product['condition_type'] === 'neu' ? 'primary' : 'secondary' ?>">
-                        <?= e(ucfirst($product['condition_type'])) ?>
+                    <span class="badge badge-large <?= $product['condition_type'] === 'neu' ? 'primary' : ($product['condition_type'] === 'refurbished' ? 'warning' : 'secondary') ?>">
+                        <?php
+                        $condition_labels = [
+                            'neu' => '✨ Neu',
+                            'refurbished' => '🔧 Refurbished',
+                            'gebraucht' => '📦 Gebraucht'
+                        ];
+                        echo $condition_labels[$product['condition_type']] ?? e(ucfirst($product['condition_type']));
+                        ?>
                     </span>
                     <span class="text-muted">SKU: <?= e($product['sku']) ?></span>
-                    <span class="text-muted">Marke: <strong><?= e($product['brand']) ?></strong></span>
+                    <?php if (!empty($product['brand'])): ?>
+                        <span class="text-muted">Marke: <strong><?= e($product['brand']) ?></strong></span>
+                    <?php endif; ?>
                 </div>
 
                 <div class="product-price">
                     <div class="price-large"><?= format_price($product['price']) ?></div>
-                    <p class="text-muted">inkl. 19% MwSt.</p>
+                    <p class="text-muted">inkl. <?= number_format($product['tax_rate'] ?? 19, 0) ?>% MwSt.</p>
+                </div>
+
+                <!-- Trust-Elemente -->
+                <div class="trust-badges">
+                    <?php if ($product['free_shipping']): ?>
+                        <div class="trust-item">
+                            <span class="trust-icon">📦</span>
+                            <span>Versandkostenfrei</span>
+                        </div>
+                    <?php endif; ?>
+                    <?php if (($product['warranty_months'] ?? 24) > 0): ?>
+                        <div class="trust-item">
+                            <span class="trust-icon">✓</span>
+                            <span><?= $product['warranty_months'] ?? 24 ?> Monate Garantie</span>
+                        </div>
+                    <?php endif; ?>
+                    <?php if ($product['in_showroom']): ?>
+                        <div class="trust-item">
+                            <span class="trust-icon">📍</span>
+                            <span>Abholung in Oldenburg</span>
+                        </div>
+                    <?php endif; ?>
                 </div>
 
                 <!-- Lagerbestand -->
@@ -159,6 +322,7 @@ include __DIR__ . '/../templates/header.php';
                 <?php if (!empty($specifications)): ?>
                     <button class="tab-button" data-tab="specs">Spezifikationen</button>
                 <?php endif; ?>
+                <button class="tab-button" data-tab="delivery">Garantie & Lieferung</button>
             </div>
 
             <div class="tab-content active" id="description">
@@ -187,6 +351,40 @@ include __DIR__ . '/../templates/header.php';
                 </div>
             </div>
             <?php endif; ?>
+
+            <div class="tab-content" id="delivery">
+                <div class="card">
+                    <h3>Garantie</h3>
+                    <p><strong><?= $product['warranty_months'] ?? 24 ?> Monate Herstellergarantie</strong></p>
+                    <p>Auf dieses Produkt erhalten Sie <?= $product['warranty_months'] ?? 24 ?> Monate Garantie ab Kaufdatum. Die Garantie deckt Herstellungsfehler und Materialfehler ab.</p>
+
+                    <h3 style="margin-top: 2rem;">Lieferung</h3>
+                    <ul>
+                        <li><strong>Versand:</strong> <?= $product['free_shipping'] ? 'Kostenlos innerhalb Deutschlands' : 'Versandkosten nach Gewicht' ?></li>
+                        <li><strong>Lieferzeit:</strong> 2-3 Werktage nach Zahlungseingang</li>
+                        <?php if ($product['in_showroom']): ?>
+                            <li><strong>Abholung:</strong> Möglich in unserem Showroom in Oldenburg</li>
+                        <?php endif; ?>
+                    </ul>
+
+                    <h3 style="margin-top: 2rem;">Zustand</h3>
+                    <p>
+                        <?php
+                        switch ($product['condition_type']) {
+                            case 'neu':
+                                echo '<strong>✨ Neu:</strong> Originalverpacktes, fabrikneues Gerät mit voller Herstellergarantie.';
+                                break;
+                            case 'refurbished':
+                                echo '<strong>🔧 Refurbished:</strong> Professionell generalüberholt, technisch einwandfrei, optisch sehr gut. Getestet und gereinigt.';
+                                break;
+                            case 'gebraucht':
+                                echo '<strong>📦 Gebraucht:</strong> Geprüftes Gebrauchtgerät, voll funktionsfähig. Kann optische Gebrauchsspuren aufweisen.';
+                                break;
+                        }
+                        ?>
+                    </p>
+                </div>
+            </div>
         </div>
 
         <!-- Ähnliche Produkte -->
@@ -222,6 +420,22 @@ include __DIR__ . '/../templates/header.php';
 </section>
 
 <script>
+// Bildergalerie: Thumbnail-Klick
+document.querySelectorAll('.thumbnail').forEach(thumb => {
+    thumb.addEventListener('click', function() {
+        const imageUrl = this.dataset.image;
+        const mainImage = document.getElementById('main-product-image');
+
+        if (mainImage && imageUrl) {
+            mainImage.src = imageUrl;
+        }
+
+        // Aktiven Thumbnail markieren
+        document.querySelectorAll('.thumbnail').forEach(t => t.classList.remove('active'));
+        this.classList.add('active');
+    });
+});
+
 // Tab-Switching
 document.querySelectorAll('.tab-button').forEach(button => {
     button.addEventListener('click', () => {
