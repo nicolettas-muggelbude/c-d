@@ -48,6 +48,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         if (!empty($_POST['mapping_stock'])) $column_mapping['stock'] = $_POST['mapping_stock'];
         if (!empty($_POST['mapping_description'])) $column_mapping['description'] = $_POST['mapping_description'];
         if (!empty($_POST['mapping_category'])) $column_mapping['category'] = $_POST['mapping_category'];
+        if (!empty($_POST['mapping_condition'])) $column_mapping['condition'] = $_POST['mapping_condition'];
+        if (!empty($_POST['mapping_warranty'])) $column_mapping['warranty'] = $_POST['mapping_warranty'];
+        // Bilder 1-5
+        for ($i = 1; $i <= 5; $i++) {
+            if (!empty($_POST["mapping_image$i"])) $column_mapping["image$i"] = $_POST["mapping_image$i"];
+        }
 
         // Beschreibungs-Filter (ein String pro Zeile)
         $description_filter = trim($_POST['description_filter'] ?? '');
@@ -273,6 +279,32 @@ include __DIR__ . '/../templates/header.php';
                     <label for="mapping_category">Kategorie (CSV-Spalte)</label>
                     <input type="text" id="mapping_category" name="mapping_category" value="<?= e($column_mapping['category'] ?? '') ?>" placeholder="z.B. 'category' oder 'Kategorie'">
                     <small class="text-muted">Optional: CSV-Spalte mit Kategorie-Namen</small>
+                </div>
+
+                <!-- Zusätzliche Felder: Zustand, Garantie, Bilder -->
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="mapping_condition">Artikelzustand (CSV-Spalte)</label>
+                        <input type="text" id="mapping_condition" name="mapping_condition" value="<?= e($column_mapping['condition'] ?? '') ?>" placeholder="z.B. 'condition' oder 'Zustand'">
+                        <small class="text-muted">Werte: neu, refurbished, gebraucht</small>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="mapping_warranty">Garantie (CSV-Spalte)</label>
+                        <input type="text" id="mapping_warranty" name="mapping_warranty" value="<?= e($column_mapping['warranty'] ?? '') ?>" placeholder="z.B. 'warranty' oder 'Garantie'">
+                        <small class="text-muted">Garantie in Monaten (Standard: 24)</small>
+                    </div>
+                </div>
+
+                <h3 style="margin-top: 1.5rem; margin-bottom: 1rem;">Zusätzliche Bilder (CSV-Spalten)</h3>
+                <p class="text-muted" style="margin-bottom: 1rem;">Bis zu 5 zusätzliche Produktbilder aus CSV-Spalten</p>
+                <div class="form-row">
+                    <?php for ($i = 1; $i <= 5; $i++): ?>
+                        <div class="form-group">
+                            <label for="mapping_image<?= $i ?>">Bild <?= $i ?></label>
+                            <input type="text" id="mapping_image<?= $i ?>" name="mapping_image<?= $i ?>" value="<?= e($column_mapping["image$i"] ?? '') ?>" placeholder="z.B. 'image<?= $i ?>'">
+                        </div>
+                    <?php endfor; ?>
                 </div>
 
                 <h3 style="margin-top: 1.5rem; margin-bottom: 1rem;">Kategorie-Zuordnung</h3>
