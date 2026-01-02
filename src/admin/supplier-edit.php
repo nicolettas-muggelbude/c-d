@@ -44,6 +44,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         if (!empty($_POST['mapping_sku'])) $column_mapping['sku'] = $_POST['mapping_sku'];
         if (!empty($_POST['mapping_ean'])) $column_mapping['ean'] = $_POST['mapping_ean'];
         if (!empty($_POST['mapping_price'])) $column_mapping['price'] = $_POST['mapping_price'];
+        if (!empty($_POST['mapping_tax_rate'])) $column_mapping['tax_rate'] = $_POST['mapping_tax_rate'];
         if (!empty($_POST['mapping_stock'])) $column_mapping['stock'] = $_POST['mapping_stock'];
         if (!empty($_POST['mapping_description'])) $column_mapping['description'] = $_POST['mapping_description'];
         if (!empty($_POST['mapping_category'])) $column_mapping['category'] = $_POST['mapping_category'];
@@ -251,7 +252,9 @@ include __DIR__ . '/../templates/header.php';
                     </div>
 
                     <div class="form-group">
-                        <!-- Platzhalter für Symmetrie -->
+                        <label for="mapping_tax_rate">Steuersatz (CSV-Spalte)</label>
+                        <input type="text" id="mapping_tax_rate" name="mapping_tax_rate" value="<?= e($column_mapping['tax_rate'] ?? '') ?>" placeholder="z.B. 'tax_rate' oder 'MwSt'">
+                        <small class="text-muted">Optional. Wenn leer, wird Standard 19% verwendet. Werte: 19, 7 oder 0</small>
                     </div>
                 </div>
 

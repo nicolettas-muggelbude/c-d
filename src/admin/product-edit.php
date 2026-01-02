@@ -66,6 +66,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && (!isset($_POST['action']) || $_POST
         $ean = sanitize($_POST['ean'] ?? '');
         $description = trim($_POST['description'] ?? '');
         $price = (float)($_POST['price'] ?? 0);
+        $tax_rate = (float)($_POST['tax_rate'] ?? 19.00);
         $stock = (int)($_POST['stock'] ?? 0);
         $category_id = (int)($_POST['category_id'] ?? 0);
         $is_active = isset($_POST['is_active']) ? 1 : 0;
@@ -135,6 +136,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && (!isset($_POST['action']) || $_POST
                         ean = :ean,
                         description = :description,
                         price = :price,
+                        tax_rate = :tax_rate,
                         stock = :stock,
                         image = :image,
                         category_id = :category_id,
@@ -150,6 +152,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && (!isset($_POST['action']) || $_POST
                     ':ean' => $ean ?: null,
                     ':description' => $description,
                     ':price' => $price,
+                    ':tax_rate' => $tax_rate,
                     ':stock' => $stock,
                     ':image' => $image_path,
                     ':category_id' => $category_id ?: null,
@@ -165,10 +168,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && (!isset($_POST['action']) || $_POST
                 // Insert
                 $db->insert("
                     INSERT INTO products (
-                        name, sku, ean, slug, description, price, stock, image, category_id,
+                        name, sku, ean, slug, description, price, tax_rate, stock, image, category_id,
                         is_active, source, in_showroom, sync_with_hellocash, free_shipping, created_at
                     ) VALUES (
-                        :name, :sku, :ean, :slug, :description, :price, :stock, :image, :category_id,
+                        :name, :sku, :ean, :slug, :description, :price, :tax_rate, :stock, :image, :category_id,
                         :is_active, :source, :in_showroom, :sync_with_hellocash, :free_shipping, NOW()
                     )
                 ", [
@@ -178,6 +181,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && (!isset($_POST['action']) || $_POST
                     ':slug' => create_slug($name),
                     ':description' => $description,
                     ':price' => $price,
+                    ':tax_rate' => $tax_rate,
                     ':stock' => $stock,
                     ':image' => $image_path,
                     ':category_id' => $category_id ?: null,
@@ -250,6 +254,15 @@ include __DIR__ . '/../templates/header.php';
                     <div class="form-group">
                         <label for="price">Preis (EUR) *</label>
                         <input type="number" id="price" name="price" step="0.01" min="0" value="<?= $is_edit ? $product['price'] : '' ?>" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="tax_rate">Steuersatz</label>
+                        <select id="tax_rate" name="tax_rate">
+                            <option value="19.00" <?= $is_edit && $product['tax_rate'] == 19.00 ? 'selected' : (!$is_edit ? 'selected' : '') ?>>19% (Standard)</option>
+                            <option value="7.00" <?= $is_edit && $product['tax_rate'] == 7.00 ? 'selected' : '' ?>>7% (ermäßigt)</option>
+                            <option value="0.00" <?= $is_edit && $product['tax_rate'] == 0.00 ? 'selected' : '' ?>>0% (steuerfrei)</option>
+                        </select>
                     </div>
 
                     <div class="form-group">

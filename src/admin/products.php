@@ -234,6 +234,10 @@ include __DIR__ . '/../templates/header.php';
                                 <span class="text-muted">Lagerbestand:</span>
                                 <span><strong><?= $product['stock'] ?></strong> Stück</span>
                             </div>
+                            <div style="display: flex; justify-content: space-between; font-size: 0.9rem;">
+                                <span class="text-muted">Steuersatz:</span>
+                                <span><?= number_format($product['tax_rate'], 0) ?>%</span>
+                            </div>
                             <?php if ($product['free_shipping']): ?>
                                 <div style="margin-top: 0.5rem; font-size: 0.85rem; color: var(--color-success);">
                                     📦 Versandkostenfrei Deutschland

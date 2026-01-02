@@ -200,6 +200,16 @@ class CSVImporter {
         // Versandkosten vom Lieferanten übernehmen
         $free_shipping = (int)($this->supplier['free_shipping'] ?? 0);
 
+        // Steuersatz verarbeiten (Standard: 19%)
+        $tax_rate = 19.00;
+        if (!empty($data['tax_rate'])) {
+            $csv_tax = (float)$data['tax_rate'];
+            // Nur gültige Steuersätze zulassen
+            if (in_array($csv_tax, [0, 7, 19])) {
+                $tax_rate = $csv_tax;
+            }
+        }
+
         // Prüfen ob Produkt bereits existiert
         $existing = $this->db->querySingle(
             "SELECT id FROM products WHERE sku = :sku AND supplier_id = :supplier_id",
@@ -217,6 +227,7 @@ class CSVImporter {
                     ean = :ean,
                     description = :description,
                     price = :price,
+                    tax_rate = :tax_rate,
                     category_id = :category_id,
                     supplier_stock = :supplier_stock,
                     supplier_name = :supplier_name,
@@ -229,6 +240,7 @@ class CSVImporter {
                 ':ean' => $data['ean'] ?? null,
                 ':description' => $data['description'] ?? '',
                 ':price' => $selling_price,
+                ':tax_rate' => $tax_rate,
                 ':category_id' => $category_id,
                 ':supplier_stock' => $supplier_stock,
                 ':supplier_name' => $this->supplier['name'],
@@ -241,10 +253,10 @@ class CSVImporter {
             // Neues Produkt erstellen
             $this->db->insert("
                 INSERT INTO products (
-                    name, sku, ean, slug, description, price, stock, category_id, supplier_id, supplier_name,
+                    name, sku, ean, slug, description, price, tax_rate, stock, category_id, supplier_id, supplier_name,
                     supplier_stock, free_shipping, source, is_active, last_csv_sync, created_at
                 ) VALUES (
-                    :name, :sku, :ean, :slug, :description, :price, 0, :category_id, :supplier_id, :supplier_name,
+                    :name, :sku, :ean, :slug, :description, :price, :tax_rate, 0, :category_id, :supplier_id, :supplier_name,
                     :supplier_stock, :free_shipping, 'csv_import', 0, NOW(), NOW()
                 )
             ", [
@@ -254,6 +266,7 @@ class CSVImporter {
                 ':slug' => create_slug($data['name']),
                 ':description' => $data['description'] ?? '',
                 ':price' => $selling_price,
+                ':tax_rate' => $tax_rate,
                 ':category_id' => $category_id,
                 ':supplier_id' => $this->supplier['id'],
                 ':supplier_name' => $this->supplier['name'],
