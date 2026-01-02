@@ -2616,3 +2616,319 @@ bash -x backup.sh
 - Statistiken im Dashboard
 - CSV-Export für Bestellungen
 
+
+---
+
+## Session 2026-01-02: Detaillierte Produktinformationen & Steuersätze
+
+### Implementierte Features
+
+#### 1. Kategorien-Löschschutz (Gefahrenzone)
+**Status:** ✅ Abgeschlossen
+
+**Implementierung:**
+- Datei: `src/admin/category-edit.php`
+- Löschung nur möglich, wenn:
+  - Keine Produkte in der Kategorie vorhanden
+  - Keine Unterkategorien existieren
+- Visuelle Warnung mit Anzahl der Blocker
+- Delete-Button wird nur bei Erfüllung aller Bedingungen angezeigt
+
+**Code:**
+```php
+// Prüfen ob Kategorie Produkte hat
+$product_count = $db->querySingle(
+    "SELECT COUNT(*) as count FROM products WHERE category_id = :id",
+    [':id' => $category_id]
+);
+// Prüfen ob Unterkategorien existieren
+$sub_count = $db->querySingle(
+    "SELECT COUNT(*) as count FROM categories WHERE parent_id = :id",
+    [':id' => $category_id]
+);
+$can_delete = empty($delete_blockers);
+```
+
+#### 2. Steuersatz-Verwaltung
+**Status:** ✅ Abgeschlossen
+
+**Migration:** `database/migrations/017_product_tax_rate.sql`
+```sql
+ALTER TABLE products
+ADD COLUMN tax_rate DECIMAL(5,2) DEFAULT 19.00 COMMENT 'Steuersatz in Prozent' AFTER price,
+ADD INDEX idx_tax_rate (tax_rate);
+```
+
+**Features:**
+- Standard: 19% (Regelsteuersatz)
+- Optional: 7% (ermäßigt), 0% (steuerfrei)
+- Dropdown in Produktverwaltung (`src/admin/product-edit.php`)
+- CSV-Import-Support mit Validierung (`src/core/CSVImporter.php`)
+- HelloCash-Export mit dynamischen Steuersätzen (`src/pages/kasse.php`)
+
+**CSV-Validierung:**
+```php
+$tax_rate = 19.00;
+if (!empty($data['tax_rate'])) {
+    $csv_tax = (float)$data['tax_rate'];
+    if (in_array($csv_tax, [0, 7, 19])) {
+        $tax_rate = $csv_tax;
+    }
+}
+```
+
+#### 3. Phase 1 - Erweiterte Produktfelder
+**Status:** ✅ Abgeschlossen
+
+**Migration:** `database/migrations/018_product_details.sql`
+```sql
+ALTER TABLE products
+ADD COLUMN warranty_months INT DEFAULT 24 COMMENT 'Garantie in Monaten' AFTER condition_type,
+ADD COLUMN images JSON DEFAULT NULL COMMENT 'Zusätzliche Produktbilder (bis zu 5 URLs)' AFTER image_url;
+```
+
+**Neue Felder:**
+
+1. **Artikelzustand** (`condition_type` - bereits vorhanden):
+   - ✨ Neu
+   - 🔧 Refurbished
+   - 📦 Gebraucht
+   - ENUM-Validierung im CSV-Import
+
+2. **Garantie** (`warranty_months`):
+   - Standard: 24 Monate
+   - Range: 0-60 Monate
+   - Input in `product-edit.php`
+   - CSV-Import mit Validierung
+
+3. **Zusätzliche Bilder** (`images`):
+   - JSON-Array mit bis zu 5 URLs
+   - Input-Felder in `product-edit.php`
+   - CSV-Mapping: `image1` bis `image5`
+   - Anzeige in Produktgalerie
+
+**CSV-Import Erweiterungen:**
+- `src/admin/supplier-edit.php`: Mapping-Felder hinzugefügt
+- `src/core/CSVImporter.php`: Verarbeitung mit Validierung
+- JSON-Encoding für Bilder-Array
+
+#### 4. Phase 2 - Detaillierte Produktansicht
+**Status:** ✅ Abgeschlossen
+
+**Datei:** `src/pages/produkt-detail.php`
+
+**Features:**
+
+1. **Bildergalerie:**
+   - Hauptbild-Anzeige
+   - Thumbnail-Navigation (Hauptbild + bis zu 5 zusätzliche)
+   - JavaScript Click-Handler für Bildwechsel
+   - Responsive Design mit CSS Grid
+
+2. **Trust-Badges:**
+   ```php
+   <?php if ($product['free_shipping']): ?>
+       <div class="trust-item">
+           <span class="trust-icon">📦</span>
+           <span>Versandkostenfrei</span>
+       </div>
+   <?php endif; ?>
+   ```
+   - Versandkostenfrei-Badge
+   - Garantie-Anzeige (dynamisch)
+   - Oldenburg-Verfügbarkeit
+
+3. **Erweiterte Produktinformationen:**
+   - Tab-System für übersichtliche Darstellung
+   - "Garantie & Lieferung" Tab mit Details
+   - Zustandsbeschreibung mit farbigen Badges
+   - Dynamische Steuersatz-Anzeige
+
+4. **Thumbnail-Navigation:**
+   ```javascript
+   document.querySelectorAll('.thumbnail').forEach(thumb => {
+       thumb.addEventListener('click', function() {
+           const imageUrl = this.dataset.image;
+           document.getElementById('main-product-image').src = imageUrl;
+           document.querySelectorAll('.thumbnail').forEach(t => t.classList.remove('active'));
+           this.classList.add('active');
+       });
+   });
+   ```
+
+#### 5. Darkmode-Support für URL-Inputs
+**Status:** ✅ Abgeschlossen
+
+**Problem:**
+- URL-Eingabefelder wurden nicht im CSS gestylt
+- Fehlende Theme-Unterstützung → weiße Schrift auf weißem Grund
+- Zu große Abstände zwischen Feldern
+
+**Lösung:**
+
+1. **CSS erweitert** (`src/assets/css/components.css`):
+   ```css
+   .form-group input[type="text"],
+   .form-group input[type="email"],
+   .form-group input[type="tel"],
+   .form-group input[type="url"],  /* ← NEU */
+   .form-group input[type="password"],
+   .form-group input[type="number"],
+   .form-group input[type="date"],
+   .form-group input[type="time"],
+   .form-group select,
+   .form-group textarea {
+       background: var(--bg-primary);
+       color: var(--text-primary);
+       /* ... */
+   }
+   ```
+
+2. **Abstände optimiert** (`src/admin/product-edit.php`):
+   ```php
+   <div class="form-group" style="margin-bottom: 0.75rem;">
+       <label for="image_url_<?= $i ?>">Bild <?= $i ?></label>
+       <input type="url" id="image_url_<?= $i ?>" name="image_url_<?= $i ?>" />
+   </div>
+   ```
+
+**Resultat:**
+- Korrekte Theme-Farben in Light- und Darkmode
+- Kompaktere, übersichtlichere Darstellung
+- Konsistentes Styling mit anderen Form-Elementen
+
+### Geänderte Dateien
+
+#### Backend
+- `database/migrations/017_product_tax_rate.sql` - Steuersatz-Feld
+- `database/migrations/018_product_details.sql` - Garantie & Bilder
+- `src/core/CSVImporter.php` - Verarbeitung neuer Felder mit Validierung
+- `src/core/Cart.php` - tax_rate zu Produktabfrage hinzugefügt
+
+#### Admin-Interface
+- `src/admin/category-edit.php` - Löschschutz mit Bedingungsprüfung
+- `src/admin/product-edit.php` - Neue Felder (Steuersatz, Zustand, Garantie, 5 Bilder)
+- `src/admin/products.php` - Anzeige neuer Felder in Übersicht
+- `src/admin/supplier-edit.php` - CSV-Mappings erweitert
+
+#### Frontend
+- `src/pages/produkt-detail.php` - Komplett überarbeitet mit Galerie
+- `src/pages/kasse.php` - Dynamische Steuersätze für HelloCash
+- `src/assets/css/components.css` - URL-Input-Support für Darkmode
+
+### Git-Commits
+
+```bash
+54e3842 - Kategorie-Löschschutz implementiert
+2ce0f25 - Steuersatz-Feld hinzugefügt
+a88af57 - Steuersatz in Admin-Interface integriert
+9bc8795 - Steuersatz Migration + HelloCash Export
+b95fb76 - Migration 018: Garantie & Bilder
+ecd5716 - Phase 1: Admin-Interface für neue Felder
+6607a70 - Phase 1: CSV-Import Erweiterung
+a428bc1 - Phase 1: Validierung in CSVImporter
+fd4cf02 - Phase 2: Detaillierte Produktansicht mit Galerie
+df27e35 - Darkmode Fix Versuch 1 (nicht erfolgreich)
+062f559 - Darkmode Fix Versuch 2 (teilweise)
+501f590 - Darkmode Fix: form-group Struktur
+c4e3356 - Fix: URL-Input Darkmode-Support + kompaktere Abstände
+```
+
+### Erkenntnisse & Best Practices
+
+#### CSS-Typing für Inputs
+**Problem:** Vergessen `input[type="url"]` in CSS-Selektoren einzubeziehen
+**Lösung:** Alle Input-Typen explizit auflisten oder `input[type]` verwenden
+**Lesson:** Bei Theme-Support alle verwendeten Input-Typen prüfen
+
+#### Darkmode-Support
+**Strategie:**
+1. CSS-Variablen verwenden: `var(--bg-primary)`, `var(--text-primary)`
+2. Standard-Klassen bevorzugen (z.B. `form-group`)
+3. Inline-Styles nur für strukturelles Layout
+4. Nie Farben inline überschreiben
+
+#### Form-Abstände
+**Kompakte Darstellung:**
+- Standard `form-group` margin-bottom: ~1.5rem
+- Für kompakte Listen: `margin-bottom: 0.75rem` inline überschreiben
+- Alternative: Eigene CSS-Klasse `.form-group-compact`
+
+#### JSON-Datenfelder
+**Images-Array:**
+```php
+// Speichern
+$images_json = !empty($images) ? json_encode($images) : null;
+
+// Laden
+$existing_images = [];
+if (!empty($product['images'])) {
+    $existing_images = json_decode($product['images'], true) ?: [];
+}
+```
+
+**Vorteile:**
+- Flexibel erweiterbar
+- Keine Schema-Änderungen nötig
+- Einfache Validierung
+
+#### CSV-Import Validierung
+**Pattern:**
+```php
+// Standard-Wert definieren
+$field = $default_value;
+
+// CSV-Wert prüfen und nur bei Validität überschreiben
+if (!empty($data['field'])) {
+    $csv_value = process($data['field']);
+    if (is_valid($csv_value)) {
+        $field = $csv_value;
+    }
+}
+```
+
+**Angewendet auf:**
+- Steuersätze: nur 0, 7, 19 erlaubt
+- Zustand: nur neu, refurbished, gebraucht
+- Garantie: nur 0-60 Monate
+
+### Nächste Session
+
+#### Aktualisierte Prioritäten
+
+**Priorität Hoch:**
+- ✅ Detaillierte Produktinformationen (abgeschlossen)
+- Cronjob-Script für CSV-Import erstellen
+- PayPal-Integration (Zahlung abwickeln)
+- CSV-Import testen mit echten Lieferanten-Daten
+
+**Priorität Mittel:**
+- HelloCash-Sync für eigene Artikel (Phase 3)
+- Dropshipping-API-Integration (falls Lieferant API bietet)
+- Bewertungen einbinden (Google Reviews API)
+
+**Priorität Niedrig:**
+- Newsletter-System
+- Statistiken im Dashboard
+- CSV-Export für Bestellungen
+
+#### Optionale Erweiterungen
+
+**Produktdetails:**
+- Video-URLs für Produktvideos
+- Technische Spezifikationen als JSON-Feld
+- 360°-Ansichten für Produkte
+- PDF-Downloads (Datenblätter, Handbücher)
+
+**CSV-Import:**
+- Import-Preview vor Ausführung
+- Mapping-Vorlagen für häufige Formate
+- Fehler-Export als CSV
+- Automatische Kategorie-Erstellung
+
+**Galerie:**
+- Image-Lazy-Loading
+- Lightbox für Vollbildansicht
+- Zoom-Funktion
+- Touch-Swipe für mobile Geräte
+
