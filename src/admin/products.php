@@ -238,6 +238,23 @@ include __DIR__ . '/../templates/header.php';
                                 <span class="text-muted">Steuersatz:</span>
                                 <span><?= number_format($product['tax_rate'], 0) ?>%</span>
                             </div>
+                            <div style="display: flex; justify-content: space-between; font-size: 0.9rem;">
+                                <span class="text-muted">Zustand:</span>
+                                <span>
+                                    <?php
+                                    $condition_labels = [
+                                        'neu' => '✨ Neu',
+                                        'refurbished' => '🔧 Refurbished',
+                                        'gebraucht' => '📦 Gebraucht'
+                                    ];
+                                    echo $condition_labels[$product['condition_type']] ?? $product['condition_type'];
+                                    ?>
+                                </span>
+                            </div>
+                            <div style="display: flex; justify-content: space-between; font-size: 0.9rem;">
+                                <span class="text-muted">Garantie:</span>
+                                <span><?= $product['warranty_months'] ?? 24 ?> Monate</span>
+                            </div>
                             <?php if ($product['free_shipping']): ?>
                                 <div style="margin-top: 0.5rem; font-size: 0.85rem; color: var(--color-success);">
                                     📦 Versandkostenfrei Deutschland
