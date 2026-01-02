@@ -270,7 +270,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                             'name' => $item['name'],
                             'quantity' => $item['quantity'],
                             'price' => $item['price'],
-                            'tax_rate' => 19 // 19% MwSt
+                            'tax_rate' => $item['tax_rate'] ?? 19 // Steuersatz aus Produkt
                         ];
 
                         // EAN hinzufügen falls vorhanden

@@ -26,7 +26,7 @@ class Cart {
 
         // Produkt aus DB laden
         $product = $this->db->querySingle("
-            SELECT id, name, price, stock, slug, ean
+            SELECT id, name, price, tax_rate, stock, slug, ean
             FROM products
             WHERE id = :id AND is_active = 1
         ", [':id' => $product_id]);
@@ -59,6 +59,7 @@ class Cart {
                 'id' => $product['id'],
                 'name' => $product['name'],
                 'price' => floatval($product['price']),
+                'tax_rate' => floatval($product['tax_rate'] ?? 19.00),
                 'quantity' => $quantity,
                 'slug' => $product['slug'],
                 'ean' => $product['ean'] ?? null
