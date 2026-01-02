@@ -75,6 +75,20 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && (!isset($_POST['action']) || $_POST
         $free_shipping = isset($_POST['free_shipping']) ? 1 : 0;
         $source = $is_edit && $product ? $product['source'] : 'manual';
 
+        // Neue Felder: Zustand, Garantie, Bilder
+        $condition_type = sanitize($_POST['condition_type'] ?? 'neu');
+        $warranty_months = (int)($_POST['warranty_months'] ?? 24);
+
+        // Zusätzliche Bilder (bis zu 5)
+        $images = [];
+        for ($i = 1; $i <= 5; $i++) {
+            $img_url = trim($_POST["image_url_$i"] ?? '');
+            if (!empty($img_url)) {
+                $images[] = $img_url;
+            }
+        }
+        $images_json = !empty($images) ? json_encode($images) : null;
+
         // Validierung
         if (empty($name)) {
             $error = 'Name ist erforderlich.';
@@ -139,7 +153,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && (!isset($_POST['action']) || $_POST
                         tax_rate = :tax_rate,
                         stock = :stock,
                         image = :image,
+                        images = :images,
                         category_id = :category_id,
+                        condition_type = :condition_type,
+                        warranty_months = :warranty_months,
                         is_active = :is_active,
                         in_showroom = :in_showroom,
                         sync_with_hellocash = :sync_with_hellocash,
@@ -155,7 +172,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && (!isset($_POST['action']) || $_POST
                     ':tax_rate' => $tax_rate,
                     ':stock' => $stock,
                     ':image' => $image_path,
+                    ':images' => $images_json,
                     ':category_id' => $category_id ?: null,
+                    ':condition_type' => $condition_type,
+                    ':warranty_months' => $warranty_months,
                     ':is_active' => $is_active,
                     ':in_showroom' => $in_showroom,
                     ':sync_with_hellocash' => $sync_with_hellocash,
@@ -168,11 +188,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && (!isset($_POST['action']) || $_POST
                 // Insert
                 $db->insert("
                     INSERT INTO products (
-                        name, sku, ean, slug, description, price, tax_rate, stock, image, category_id,
-                        is_active, source, in_showroom, sync_with_hellocash, free_shipping, created_at
+                        name, sku, ean, slug, description, price, tax_rate, stock, image, images, category_id,
+                        condition_type, warranty_months, is_active, source, in_showroom, sync_with_hellocash, free_shipping, created_at
                     ) VALUES (
-                        :name, :sku, :ean, :slug, :description, :price, :tax_rate, :stock, :image, :category_id,
-                        :is_active, :source, :in_showroom, :sync_with_hellocash, :free_shipping, NOW()
+                        :name, :sku, :ean, :slug, :description, :price, :tax_rate, :stock, :image, :images, :category_id,
+                        :condition_type, :warranty_months, :is_active, :source, :in_showroom, :sync_with_hellocash, :free_shipping, NOW()
                     )
                 ", [
                     ':name' => $name,
@@ -184,7 +204,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && (!isset($_POST['action']) || $_POST
                     ':tax_rate' => $tax_rate,
                     ':stock' => $stock,
                     ':image' => $image_path,
+                    ':images' => $images_json,
                     ':category_id' => $category_id ?: null,
+                    ':condition_type' => $condition_type,
+                    ':warranty_months' => $warranty_months,
                     ':is_active' => $is_active,
                     ':source' => $source,
                     ':in_showroom' => $in_showroom,
@@ -285,7 +308,7 @@ include __DIR__ . '/../templates/header.php';
                 </div>
 
                 <div class="form-group">
-                    <label for="image">Produktbild</label>
+                    <label for="image">Produktbild (Hauptbild)</label>
                     <?php if ($is_edit && $product && !empty($product['image'])): ?>
                         <div style="margin-bottom: 1rem;">
                             <img src="<?= upload($product['image']) ?>" alt="Aktuelles Bild" style="max-width: 200px; border-radius: 4px;">
@@ -293,6 +316,44 @@ include __DIR__ . '/../templates/header.php';
                     <?php endif; ?>
                     <input type="file" id="image" name="image" accept="image/jpeg,image/png,image/webp">
                     <small class="text-muted">JPG, PNG oder WEBP (max. 5MB)</small>
+                </div>
+
+                <!-- Zusätzliche Bilder -->
+                <div class="form-group">
+                    <label>Zusätzliche Produktbilder (URLs)</label>
+                    <small class="text-muted" style="display: block; margin-bottom: 0.5rem;">Bis zu 5 zusätzliche Bilder als URLs eingeben</small>
+                    <?php
+                    $existing_images = [];
+                    if ($is_edit && $product && !empty($product['images'])) {
+                        $existing_images = json_decode($product['images'], true) ?: [];
+                    }
+                    ?>
+                    <?php for ($i = 1; $i <= 5; $i++): ?>
+                        <input
+                            type="url"
+                            name="image_url_<?= $i ?>"
+                            placeholder="Bild <?= $i ?> URL (optional)"
+                            value="<?= isset($existing_images[$i-1]) ? e($existing_images[$i-1]) : '' ?>"
+                            style="margin-bottom: 0.5rem;">
+                    <?php endfor; ?>
+                </div>
+
+                <!-- Artikelzustand & Garantie -->
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="condition_type">Artikelzustand</label>
+                        <select id="condition_type" name="condition_type">
+                            <option value="neu" <?= $is_edit && $product['condition_type'] == 'neu' ? 'selected' : (!$is_edit ? 'selected' : '') ?>>✨ Neu</option>
+                            <option value="refurbished" <?= $is_edit && $product['condition_type'] == 'refurbished' ? 'selected' : '' ?>>🔧 Refurbished</option>
+                            <option value="gebraucht" <?= $is_edit && $product['condition_type'] == 'gebraucht' ? 'selected' : '' ?>>📦 Gebraucht</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="warranty_months">Garantie (Monate)</label>
+                        <input type="number" id="warranty_months" name="warranty_months" min="0" max="60" value="<?= $is_edit ? $product['warranty_months'] : 24 ?>">
+                        <small class="text-muted">Standard: 24 Monate</small>
+                    </div>
                 </div>
 
                 <!-- Erweiterte Einstellungen -->
