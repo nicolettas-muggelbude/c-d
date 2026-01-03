@@ -1,0 +1,2495 @@
+# Session-Log (Chronologisch)
+
+Chronologische Dokumentation aller Entwicklungs-Sessions.
+
+---
+
+## Session 2026-01-01: Terminbuchung & HelloCash Integration
+
+### Erreichte Ziele ✅
+
+#### 1. HelloCash REST-API Integration (komplett)
+- **Kundendaten-Synchronisation**
+  - Vollständige Übertragung: Vorname, Nachname, Firma, E-Mail
+  - Adresse: Straße, Hausnummer, PLZ, Ort
+  - Telefonnummer MIT Ländervorwahl (z.B. "+49 170 1234567")
+  - Ländercode als ISO-Code (z.B. "DE" aus +49)
+  - Festnetznummer in `user_notes` Feld
+- **Duplikat-Vermeidung**
+  - Suche nach existierenden Usern (E-Mail + Telefon)
+  - Nur neue User werden angelegt
+- **Datenbereinigung**
+  - Führende Nullen bei Telefonnummern werden automatisch entfernt
+  - Frontend (JavaScript) + Backend (PHP) Validierung
+
+**Dateien:**
+- `src/core/HelloCashClient.php` - API-Client
+- `src/api/booking.php` - Integration in Buchungs-API
+- `database/add-hellocash-customer-id.sql` - Schema-Erweiterung
+
+#### 2. Terminbuchungs-Formular (4-Schritte-Prozess)
+- **Schritt 1:** Terminart auswählen (Fester Termin / Walk-in)
+- **Schritt 2:** Dienstleistung wählen (8 Optionen als Karten)
+- **Schritt 3:** Datum & Zeit wählen
+  - Kalender mit Validierung (nur erlaubte Tage)
+  - **Dynamische Zeitslots** aus Datenbank-Einstellungen
+  - **Verfügbarkeitsprüfung** - gebuchte Zeiten werden ausgegraut
+  - **Pflichtfeld** - Zeitauswahl muss erfolgen
+- **Schritt 4:** Kontaktdaten & Adresse
+  - Vorname, Nachname, Firma (optional)
+  - E-Mail
+  - Mobilnummer mit Ländervorwahl-Dropdown (+49, +43, +41, etc.)
+  - Festnetz (optional)
+  - **Adresse:** Straße, Hausnummer, PLZ, Ort (NEU!)
+  - Bemerkungen (optional)
+  - Zusammenfassung der Buchung
+
+**Features:**
+- Fortschrittsanzeige (4 Schritte mit Icons)
+- Zurück/Weiter-Navigation
+- Responsive Design (Mobile-First)
+- Echtzeit-Validierung
+- Erfolgsseite mit Buchungsnummer
+
+**Dateien:**
+- `src/pages/termin.php` - Buchungsformular
+- `src/api/booking.php` - Backend-Validierung & Speicherung
+- `src/assets/css/booking.css` - Formular-Styling
+- `database/create-bookings-table.sql` - Datenbank-Schema
+
+#### 3. Intelligente Verfügbarkeitsprüfung
+
+**Problem gelöst:** 3 Termine zur gleichen Zeit waren möglich
+
+**Lösung:**
+- Neue API: `/api/available-slots?date=YYYY-MM-DD`
+- Prüft Datenbank auf existierende Buchungen
+- Zeigt nur verfügbare Zeitslots an
+- Gebuchte Zeiten werden ausgegraut und deaktiviert
+- Verhindert Doppelbuchungen zuverlässig
+
+**Konfigurierbare Einstellungen:**
+```sql
+CREATE TABLE booking_settings (
+    setting_key VARCHAR(50) NOT NULL UNIQUE,
+    setting_value TEXT NOT NULL
+);
+
+-- Aktuelle Werte:
+booking_start_time:        11:00
+booking_end_time:          13:00  (= Slots bis 12:00)
+booking_interval_minutes:  60
+max_bookings_per_slot:     1
+```
+
+**Dateien:**
+- `src/api/available-slots.php` - Verfügbarkeits-API
+- `database/create-booking-settings.sql` - Einstellungen-Tabelle
+
+#### 4. Unterschiedliche Zeiten je Terminart
+
+**Feste Termine ("Fester Termin"):**
+- **Wochentage:** Dienstag bis Freitag
+- **Zeiten:** 11:00 Uhr und 12:00 Uhr
+- **Pflicht:** Zeitauswahl erforderlich
+- **Kapazität:** Max. 1 Buchung pro Zeitslot
+
+**Walk-in ("Ich komme vorbei"):**
+- **Wochentage:** Dienstag bis Freitag + **Samstag** (NEU!)
+- **Zeiten:**
+  - Di-Fr: 14:00-17:00 Uhr
+  - Sa: 12:00-16:00 Uhr
+- **Keine feste Zeitauswahl** nötig
+- **Info:** Kunde wird bei Wartezeiten benachrichtigt
+
+**Validierung:**
+- Frontend: JavaScript-Validierung bei Datumsauswahl
+- Backend: PHP-Validierung abhängig von Terminart
+- API: Korrekte Slot-Generierung je nach Wochentag
+
+#### 5. Formular-Erweiterungen
+
+**Neue Felder in Schritt 4:**
+- Ländervorwahl-Dropdown (separates Feld vor Mobilnummer)
+- Straße + Hausnummer (nebeneinander, flex-Layout)
+- PLZ + Ort (nebeneinander, 1:2 Ratio)
+
+**Validierung:**
+- PLZ: 5 Ziffern
+- Straße/Ort: Min. 2 Zeichen
+- Hausnummer: Pflichtfeld
+- Telefon: Automatische Bereinigung führender Nullen
+
+**Datenbank-Schema:**
+```sql
+ALTER TABLE bookings ADD COLUMN (
+    customer_street VARCHAR(255) NOT NULL,
+    customer_house_number VARCHAR(20) NOT NULL,
+    customer_postal_code VARCHAR(10) NOT NULL,
+    customer_city VARCHAR(100) NOT NULL
+);
+```
+
+### Technische Details
+
+#### API-Endpunkte
+1. **POST /api/booking** - Termin buchen
+   - Validierung aller Felder
+   - HelloCash-Integration
+   - Datenbank-Speicherung
+   - Email-Benachrichtigung (vorbereitet)
+
+2. **GET /api/available-slots?date=YYYY-MM-DD** - Verfügbare Zeiten
+   - Liest Einstellungen aus `booking_settings`
+   - Generiert Zeitslots dynamisch
+   - Prüft existierende Buchungen
+   - Gibt verfügbare Slots zurück
+
+#### Datenbank-Tabellen
+```sql
+-- Terminbuchungen
+bookings (
+    id, booking_type, service_type, booking_date, booking_time,
+    customer_firstname, customer_lastname, customer_company,
+    customer_email, customer_phone_country, customer_phone_mobile,
+    customer_phone_landline, customer_street, customer_house_number,
+    customer_postal_code, customer_city, customer_notes,
+    hellocash_customer_id, status, created_at, updated_at
+)
+
+-- Konfigurierbare Einstellungen
+booking_settings (
+    id, setting_key, setting_value, description, updated_at
+)
+```
+
+#### HelloCash API-Struktur
+```php
+// Kundendaten-Format für HelloCash
+$customerData = [
+    'firstname' => 'Max',
+    'lastname' => 'Mustermann',
+    'email' => 'max@example.com',
+    'phone_country' => '+49',           // Dropdown-Wert
+    'phone_mobile' => '170 1234567',    // Ohne führende 0
+    'phone_landline' => '030 12345678', // Optional
+    'company' => 'Firma GmbH',          // Optional
+    'street' => 'Musterstraße',
+    'house_number' => '42',
+    'postal_code' => '10115',
+    'city' => 'Berlin'
+];
+
+// Wird zu HelloCash gesendet als:
+$payload = [
+    'user_firstname' => 'Max',
+    'user_surname' => 'Mustermann',
+    'user_email' => 'max@example.com',
+    'user_phoneNumber' => '+49 170 1234567',  // MIT Vorwahl
+    'user_country_code' => 'DE',              // ISO-Code
+    'user_company' => 'Firma GmbH',
+    'user_street' => 'Musterstraße',
+    'user_houseNumber' => '42',
+    'user_postalCode' => '10115',
+    'user_city' => 'Berlin',
+    'user_notes' => 'Festnetz: +49 030 12345678'
+];
+```
+
+#### Telefonnummer-Handling
+1. **Frontend:** 
+   - Dropdown für Ländervorwahl (+49, +43, +41, +1, +44)
+   - Separate Eingabe für Mobilnummer
+   - JavaScript entfernt führende Nullen vor Submit
+
+2. **Backend:**
+   - PHP entfernt führende Nullen zusätzlich
+   - Validierung: Mobilnummer Pflicht, Festnetz optional
+   - Speicherung in DB: Ländercode + Nummer getrennt
+
+3. **HelloCash:**
+   - Telefonnummer MIT Ländervorwahl übertragen
+   - Ländercode als ISO-Code (mapping)
+   - Festnetz in `user_notes` Feld
+
+#### 6. Admin-Bereich für Terminverwaltung ✅ (NEU - 2026-01-01)
+
+**Übersicht aller implementierten Admin-Features:**
+
+##### Admin-Dashboard (`/admin`)
+- **Statistik-Karten:**
+  - Bestellungen gesamt / offen
+  - Aktive Produkte
+  - Blog-Beiträge
+  - **Termine gesamt / offen** (NEU!)
+- **Schnellzugriff-Links:**
+  - Blog-Posts verwalten
+  - Produkte verwalten
+  - Bestellungen ansehen
+  - **Termine verwalten** (NEU!)
+  - **Termineinstellungen** (NEU!)
+  - Abmelden
+
+**Datei:** `src/admin/index.php`
+
+##### Termineinstellungen (`/admin/booking-settings`)
+Vollständige Admin-UI zur Konfiguration des Buchungssystems:
+
+**Features:**
+- **Buchungszeiten einstellen:**
+  - Erste verfügbare Zeit (z.B. 11:00)
+  - Letzte verfügbare Zeit (z.B. 13:00)
+  - Zeit-Eingabe mit HTML5 `<input type="time">`
+
+- **Zeitabstand konfigurieren:**
+  - Intervall in Minuten (15-240 Min)
+  - Dropdown mit Empfehlungen (15, 30, 45, 60, 90, 120)
+
+- **Kapazität festlegen:**
+  - Max. Buchungen pro Zeitslot (1-10)
+  - Erlaubt parallele Termine
+
+- **Live-Vorschau:**
+  - Zeigt generierte Zeitslots als Badges
+  - Automatische Berechnung der Slot-Anzahl
+  - Visuelles Feedback zu Einstellungen
+
+**Validierung:**
+- Endzeit muss nach Startzeit liegen
+- Intervall zwischen 15 und 240 Minuten
+- Max. Buchungen zwischen 1 und 10
+- Sofortige Fehler- und Erfolgsmeldungen
+
+**Datei:** `src/admin/booking-settings.php`
+
+##### Terminverwaltung (`/admin/bookings`)
+Vollständige Verwaltung aller Terminbuchungen:
+
+**Filter & Suche:**
+- Suche nach Name oder E-Mail
+- Filter nach Status (Ausstehend, Bestätigt, Abgeschlossen, Storniert)
+- Filter nach Terminart (Fester Termin, Walk-in)
+- Filter nach Datum
+- Zurücksetzen-Button für alle Filter
+
+**Buchungs-Tabelle:**
+- Spalten: ID, Datum, Zeit, Kunde, Dienstleistung, Typ, Status, Aktionen
+- Responsive Design (horizontal scrollbar auf Mobile)
+- Farbcodierte Status-Badges
+- Klickbare Detail-Links
+- Gesamt-Anzahl am Tabellen-Ende
+
+**Status-Badges:**
+- 🟡 Ausstehend (Gelb)
+- 🟢 Bestätigt (Grün)
+- ⚫ Abgeschlossen (Grau)
+- 🔴 Storniert (Rot)
+
+**Datei:** `src/admin/bookings.php`
+
+##### Buchungs-Details (`/admin/booking-detail?id=123`)
+Detailansicht für einzelne Termine mit Status-Verwaltung:
+
+**Anzeige-Bereiche:**
+
+1. **Termindetails:**
+   - Terminart (Badge: Fester Termin / Walk-in)
+   - Dienstleistung
+   - Datum (formatiert mit Wochentag)
+   - Uhrzeit (oder "Walk-in ab 14:00")
+   - Kundenanmerkungen (wenn vorhanden)
+
+2. **Kundendaten:**
+   - Vorname, Nachname, Firma
+   - E-Mail (klickbarer mailto-Link)
+   - Mobilnummer (klickbarer tel-Link)
+   - Festnetz (klickbarer tel-Link, wenn vorhanden)
+   - Vollständige Adresse (Straße, PLZ, Ort)
+   - HelloCash Kunden-ID (wenn vorhanden)
+
+3. **Status ändern:**
+   - Dropdown mit allen Status-Optionen
+   - Aktueller Status vorausgewählt
+   - Speichern-Button
+   - Erfolgsbestätigung nach Update
+
+**Design:**
+- 2-Spalten Grid-Layout (responsive → 1 Spalte auf Mobile)
+- Uppercase-Labels mit Farbcodierung
+- Hervorgehobene Notiz-Box mit Border
+- Zurück-zur-Übersicht-Link
+
+**Datei:** `src/admin/booking-detail.php`
+
+##### Routen-Integration
+Alle neuen Admin-Seiten sind im Router registriert:
+
+```php
+// src/router.php
+case 'admin':
+    // ... existing routes ...
+    elseif ($param === 'booking-settings') {
+        require_admin();
+        require __DIR__ . '/admin/booking-settings.php';
+    } elseif ($param === 'bookings') {
+        require_admin();
+        require __DIR__ . '/admin/bookings.php';
+    } elseif ($param === 'booking-detail') {
+        require_admin();
+        require __DIR__ . '/admin/booking-detail.php';
+    }
+```
+
+#### 7. Email-Benachrichtigungen ✅ (NEU - 2026-01-01)
+
+Vollständiges Email-System bei Terminbuchung implementiert:
+
+##### Funktionsweise
+- Automatischer Versand nach erfolgreicher Buchung
+- Fail-Safe: Buchung wird gespeichert auch wenn Email fehlschlägt
+- Logging aller Email-Vorgänge (error_log)
+- UTF-8 Support für deutsche Umlaute
+
+##### Email an Kunde
+**Betreff:** `Terminbestätigung #123 - PC-Wittfoot UG`
+
+**Inhalt:**
+- Persönliche Anrede mit Vor- und Nachname
+- Buchungsnummer
+- Formatierte Termindetails (Boxed Design mit UTF-8 Linien)
+  - Terminart
+  - Dienstleistung
+  - Datum mit Wochentag (deutsch)
+  - Uhrzeit (oder Walk-in-Hinweis)
+- Kundenanmerkungen (falls vorhanden)
+- **Checkliste** - Was mitbringen:
+  - Gerät (PC/Notebook)
+  - Netzkabel & Zubehör
+  - Wichtige Passwörter
+- Kontaktinformationen (E-Mail, Telefon)
+- Freundlicher Abschluss mit Firmenname
+
+##### Email an Admin
+**Betreff:** `Neue Terminbuchung #123 - Max Mustermann`
+
+**Inhalt:**
+- **TERMINDETAILS** (Großbuchstaben-Header)
+  - Alle Termin-Informationen
+- **KUNDENDATEN**
+  - Vollständiger Name
+  - Firma (falls vorhanden)
+  - E-Mail & Telefonnummern (Mobil + Festnetz)
+  - Vollständige Adresse
+- **KUNDENANMERKUNGEN** (falls vorhanden)
+- **Direktlink** zur Admin-Detailseite
+
+**Header:**
+- Reply-To auf Kunden-Email gesetzt (direkt antworten möglich)
+
+##### Technische Implementation
+```php
+// src/api/booking.php - Funktion sendBookingEmails()
+
+// Email-Header mit UTF-8
+$headers = "From: PC-Wittfoot UG <info@pc-wittfoot.de>\r\n";
+$headers .= "Reply-To: info@pc-wittfoot.de\r\n";
+$headers .= "Content-Type: text/plain; charset=UTF-8\r\n";
+
+// PHP mail() Funktion
+$sent = @mail($to, $subject, $message, $headers);
+
+// Error-Suppression (@) + Logging
+if ($sent) {
+    error_log("Email sent to: $to");
+} else {
+    error_log("Failed to send email to: $to");
+}
+```
+
+##### Konfiguration
+```php
+// src/core/config.php
+define('MAIL_FROM', 'info@pc-wittfoot.de');
+define('MAIL_FROM_NAME', 'PC-Wittfoot UG');
+define('MAIL_ADMIN', 'admin@pc-wittfoot.de');
+```
+
+**Hinweis:** Für Produktiv-Betrieb ggf. SMTP-Konfiguration oder PHPMailer verwenden (aktuell: PHP mail() Funktion).
+
+##### Datenbank-Erweiterung: Adressfelder
+```sql
+-- database/add-address-fields-bookings.sql
+ALTER TABLE bookings
+ADD COLUMN customer_street VARCHAR(255) NULL,
+ADD COLUMN customer_house_number VARCHAR(20) NULL,
+ADD COLUMN customer_postal_code VARCHAR(10) NULL,
+ADD COLUMN customer_city VARCHAR(255) NULL,
+ADD INDEX idx_postal_code (customer_postal_code);
+```
+
+**Status:** Bereit für Produktion, evtl. SMTP für bessere Zustellbarkeit.
+
+### Offene Aufgaben (TODO)
+
+#### Kurz- bis Mittelfristig
+- [ ] **Doppelbuchungs-Handling verfeinern**
+  - Race Condition bei gleichzeitigen Buchungen verhindern
+  - Optimistic Locking oder Database-Level Constraints
+
+#### Langfristig (Nice-to-Have)
+- [ ] Termin-Erinnerungen (24h vorher)
+- [ ] Kunden-Login für Buchungshistorie
+- [ ] iCal-Export für Terminkalender
+- [ ] SMS-Benachrichtigungen (optional)
+- [ ] Statistiken (Buchungen pro Monat, beliebteste Dienste)
+
+### Testing
+
+#### Terminbuchung testen
+```bash
+# PHP-Server starten (im src-Verzeichnis)
+cd /home/nicole/projekte/c-d/src
+php -S localhost:8000 server.php
+
+# Im Browser öffnen:
+# http://localhost:8000/termin
+
+# Testdaten:
+# - Fester Termin: Di-Fr, 11:00 oder 12:00
+# - Walk-in: Di-Fr oder Sa
+# - Alle Felder ausfüllen (inkl. Adresse)
+
+# Nach erfolgreicher Buchung:
+# - Email-Logs prüfen (error_log)
+# - Admin-Bereich öffnen: http://localhost:8000/admin
+# - Terminübersicht öffnen: http://localhost:8000/admin/bookings
+# - Details anzeigen: http://localhost:8000/admin/booking-detail?id=1
+# - Einstellungen ändern: http://localhost:8000/admin/booking-settings
+```
+
+#### Verfügbarkeits-API testen
+```bash
+# Verfügbare Slots für einen Tag abfragen
+curl "http://localhost:8000/api/available-slots?date=2026-01-07"
+
+# Response:
+{
+  "success": true,
+  "date": "2026-01-07",
+  "slots": [
+    {"time": "11:00", "available": true, "booked": 0, "max": 1},
+    {"time": "12:00", "available": false, "booked": 1, "max": 1}
+  ]
+}
+```
+
+#### HelloCash-Integration testen
+```bash
+# User-Daten in HelloCash prüfen
+php tests/check-hellocash-user.php 12
+
+# Neuen User anlegen (Test)
+php tests/test-booking.php
+```
+
+### Konfiguration
+
+#### Terminzeiten ändern
+```sql
+-- Zeitbereich ändern (z.B. 10:00-14:00)
+UPDATE booking_settings 
+SET setting_value = '10:00' 
+WHERE setting_key = 'booking_start_time';
+
+UPDATE booking_settings 
+SET setting_value = '15:00' 
+WHERE setting_key = 'booking_end_time';
+
+-- Intervall ändern (z.B. 30 Minuten)
+UPDATE booking_settings 
+SET setting_value = '30' 
+WHERE setting_key = 'booking_interval_minutes';
+
+-- Max. Buchungen pro Slot (z.B. 2 parallel)
+UPDATE booking_settings 
+SET setting_value = '2' 
+WHERE setting_key = 'max_bookings_per_slot';
+```
+
+#### HelloCash API-Credentials
+```php
+// src/core/config.php
+define('HELLOCASH_API_KEY', 'Bearer eyJ0eXAi...');
+define('HELLOCASH_API_URL', 'https://api.hellocash.business/api/v1/');
+```
+
+### Projektstand nach Session
+
+#### Abgeschlossen ✅
+- ✅ Terminbuchungs-Formular (4 Schritte, responsive)
+- ✅ HelloCash REST-API vollständig integriert
+- ✅ Verfügbarkeitsprüfung mit Doppelbuchungs-Schutz
+- ✅ Konfigurierbare Terminzeiten (Datenbank)
+- ✅ Unterschiedliche Zeiten für fixed/walkin
+- ✅ Adressfelder hinzugefügt und validiert
+- ✅ Telefonnummer-Handling perfektioniert
+- ✅ Admin-UI für Termineinstellungen (NEU!)
+- ✅ Admin-Bereich für Terminverwaltung (NEU!)
+- ✅ Email-Benachrichtigungen (NEU!)
+
+## Session 2026-01-01 (Fortsetzung): HelloCash-Kundensuche & Dark Mode
+
+### Erreichte Ziele ✅
+
+#### 1. HelloCash-Kundensuche in Admin-Kalender
+**Problem:** Neue Termine mussten manuell eingegeben werden, obwohl Kundendaten bereits in HelloCash existieren.
+
+**Lösung:**
+- **API-Endpoint:** `/api/hellocash-search`
+  - Suche nach Name, Email oder Telefonnummer
+  - Gibt bis zu 10 Ergebnisse zurück
+  - Auto-Complete Dropdown in Modal-Formularen
+- **Neue Methode:** `HelloCashClient::getAllUsers($limit = 1000)`
+  - Ermöglicht Namenssuche über alle User
+- **Integration:**
+  - Kalenderansicht (`/admin/booking-calendar`)
+  - Wochenansicht (`/admin/booking-week`)
+  - Automatisches Ausfüllen beim Klick auf Ergebnis
+- **Features:**
+  - Live-Suche mit min. 2 Zeichen
+  - Enter-Taste unterstützt
+  - Dropdown schließt bei Klick außerhalb
+  - Zeigt Name, Email und Telefon im Dropdown
+
+**Dateien:**
+- `src/api/hellocash-search.php` - Search API
+- `src/core/HelloCashClient.php` - getAllUsers() Methode
+- `src/admin/booking-calendar-v2.php` - Integration
+- `src/admin/booking-week.php` - Integration
+
+#### 2. Multi-Stunden-Zeiträume in Wochenansicht
+**Problem:** Termine konnten nur 1 Stunde lang sein.
+
+**Lösung:**
+- **Datenbank:** `booking_end_time` Spalte hinzugefügt
+- **Backend-Berechnung:**
+  - Automatisch +1 Stunde wenn keine Endzeit
+  - Speichert Start-/End-Stunde und Dauer
+- **Visuelle Darstellung:**
+  - Absolute Positionierung über mehrere Stunden
+  - Dynamische Höhe: `(Dauer * 60px) - 1px`
+  - Zeitanzeige: "11:00 - 14:00"
+- **Modal-Formular:**
+  - "Von (Uhrzeit)" und "Bis (Uhrzeit)" Felder
+  - Optionale Endzeit-Angabe
+
+**Dateien:**
+- `database/add-booking-end-time.sql` - Schema-Update
+- `src/admin/booking-week.php` - Implementierung
+
+#### 3. Admin-Bereich Erweiterungen
+**Neue Features:**
+- **Admin-Notizen-Feld** (`admin_notes`)
+  - Interne Notizen, nicht für Kunden sichtbar
+  - In allen Termin-Formularen verfügbar
+- **Verschiedene Terminarten:**
+  - `fixed` - Reguläre Termine mit Zeit
+  - `walkin` - Walk-in ohne feste Zeit
+  - `internal` - Interne Notizen (nur Admin)
+  - `blocked` - Gesperrte Zeiträume
+- **Modal-basierte Bearbeitung:**
+  - Schnelles Bearbeiten ohne Seitenwechsel
+  - AJAX-basierte Speicherung
+  - Formular passt sich Terminart an
+- **Kalenderansicht als Standard:**
+  - Dashboard verlinkt auf `/admin/booking-calendar`
+  - Übersichtlichere Darstellung
+
+**Dateien:**
+- `database/add-admin-notes-and-blocking.sql` - Schema
+- `src/admin/booking-calendar-v2.php` - Neue Version
+- `src/admin/booking-week.php` - Wochenansicht
+- `src/admin/index.php` - Dashboard-Update
+
+#### 4. Globaler Dark Mode
+**Problem:** Dark Mode war bisher nur lokal in einzelnen Seiten implementiert.
+
+**Lösung:**
+- **Globales System nutzen:**
+  - `data-theme="dark"` Attribut am HTML-Element
+  - Toggle im Header für gesamte Anwendung
+  - localStorage-Speicherung
+- **Admin-spezifische Styles:**
+  - Kalender-Grid & Zellen
+  - Wochen-Grid & Zeitslots
+  - Modal-Dialoge & Formulare
+  - Dropdown-Suchergebnisse
+  - Footer-Styling
+- **Konsolidierung:**
+  - Alle Dark Mode Styles in `/assets/css/components.css`
+  - Lokale Implementierungen entfernt
+  - Konsistentes Design über alle Seiten
+
+**Dateien:**
+- `src/assets/css/components.css` - Admin Dark Mode Styles
+- `src/admin/booking-calendar-v2.php` - Lokale Styles entfernt
+- `src/admin/booking-week.php` - Lokale Styles entfernt
+
+#### 5. Bugfixes & Verbesserungen
+- ✅ **Admin-Login:** Passwort-Hash korrigiert (admin123)
+- ✅ **Database-Methoden:** `execute()` → `update()` korrigiert
+- ✅ **PHP 8.1+ Kompatibilität:** `strftime()` → `DateTime` ersetzt
+- ✅ **Column-Namen:** `status` → `order_status` korrigiert
+- ✅ **Dark Mode Footer:** Footer wird jetzt korrekt dunkel dargestellt
+
+**Dateien:**
+- `database/create-admin-user.sql` - Password-Hash
+- `src/admin/booking-settings.php` - Method-Namen
+- `src/admin/booking-calendar-v2.php` - strftime ersetzt
+- `src/admin/index.php` - Column-Namen
+
+### Technische Details
+
+#### HelloCash-Suche API
+```php
+// Request
+POST /api/hellocash-search
+{
+    "action": "search",
+    "query": "mustermann"  // oder Email/Telefon
+}
+
+// Response
+{
+    "success": true,
+    "results": [
+        {
+            "user_id": 123,
+            "firstname": "Max",
+            "lastname": "Mustermann",
+            "company": "Firma GmbH",
+            "email": "max@example.com",
+            "phone": "+49 170 1234567",
+            "display_name": "Max Mustermann (Firma GmbH)"
+        }
+    ],
+    "count": 1
+}
+```
+
+#### Multi-Stunden-Zeiträume
+```php
+// Datenbank
+booking_time: '11:00'
+booking_end_time: '14:00'
+
+// Berechnung
+$startHour = 11;
+$endHour = 14;
+$duration = 3; // Stunden
+$heightPixels = (3 * 60) - 1; // = 179px
+
+// CSS
+<div style="height: 179px; position: absolute; top: 1px;">
+    <strong>Max M.</strong>
+    <div>11:00 - 14:00</div>
+</div>
+```
+
+#### Dark Mode Integration
+```css
+/* Globale Dark Mode Styles */
+[data-theme="dark"] .calendar-grid {
+    background-color: #404040;
+    border-color: #404040;
+}
+
+[data-theme="dark"] .calendar-day {
+    background-color: #2d2d2d;
+    color: #e0e0e0;
+}
+
+[data-theme="dark"] footer {
+    background: #1a1a1a;
+    color: #b0b0b0;
+}
+```
+
+### Projektstand nach Session
+
+#### Admin-Features komplett ✅
+- ✅ Dashboard mit Statistiken
+- ✅ Termineinstellungen konfigurierbar
+- ✅ Terminübersicht mit Filter & Suche
+- ✅ Termin-Details mit Status-Verwaltung
+- ✅ Kalenderansicht (Monat)
+- ✅ Wochenansicht mit Stundenraster
+- ✅ Modal-basierte Termin-Bearbeitung
+- ✅ HelloCash-Kundensuche
+- ✅ Multi-Stunden-Zeiträume
+- ✅ Admin-Notizen & Terminarten
+- ✅ Dark Mode global integriert
+
+#### Nächste Session
+- Blog-System vervollständigen
+- PayPal-Integration
+- Bewertungen einbinden
+
+## Session 2026-01-01 (Fortsetzung): Template-basiertes Email-System mit Erinnerungen
+
+### Erreichte Ziele ✅
+
+#### 1. Datenbank-basierte Email-Templates
+**Problem:** Email-Texte waren hardcodiert im PHP-Code, keine Möglichkeit zur Anpassung durch Admin.
+
+**Lösung:**
+- **Email-Templates Tabelle:**
+  - 3 Template-Typen: `confirmation`, `reminder_24h`, `reminder_1h`
+  - Felder: subject, body, placeholders, is_active
+  - Vollständig editierbar über Admin-UI
+- **Email-Signatur Tabelle:**
+  - Globale Signatur für alle Emails
+  - Wird automatisch an alle Nachrichten angehängt
+- **Email-Log Tabelle:**
+  - Audit-Trail aller versendeten Emails
+  - Status-Tracking (sent/failed/pending)
+  - Duplikat-Vermeidung durch Prüfung
+
+**Dateien:**
+- `database/create-email-templates.sql` - Schema mit Defaults
+
+#### 2. EmailService-Klasse
+**Zentrale Service-Klasse** für alle Email-Vorgänge:
+
+**Features:**
+- `sendBookingEmail($bookingId, $templateType)` - Haupt-Methode
+- `getTemplate($type)` - Lädt Template aus DB
+- `getSignature()` - Lädt Signatur aus DB
+- `replacePlaceholders($text, $booking)` - Ersetzt Platzhalter
+- `sendMail($to, $subject, $body)` - Versendet Email
+- `logEmail(...)` - Loggt Versand-Vorgänge
+- `isEmailAlreadySent(...)` - Prüft Duplikate
+- `getBookingsForReminder24h()` - Findet Termine für 24h-Reminder
+- `getBookingsForReminder1h()` - Findet Termine für 1h-Reminder
+
+**Platzhalter-System:**
+```php
+{customer_firstname}       → "Max"
+{customer_lastname}        → "Mustermann"
+{booking_id}              → "123"
+{booking_date_formatted}  → "Dienstag, 07. Januar 2026"
+{booking_time_formatted}  → "11:00 Uhr" oder "Walk-in ab 14:00 Uhr"
+{service_type_label}      → "PC-Reparatur"
+{booking_type_label}      → "Fester Termin"
+{customer_notes_section}  → "Ihre Anmerkungen:\n..."
+```
+
+**Datei:** `src/core/EmailService.php`
+
+#### 3. Admin-UI für Email-Template-Verwaltung
+**Vollständige Verwaltung** aller Email-Templates:
+
+**Features:**
+- **Template-Liste:** Alle Templates mit Status (aktiv/inaktiv)
+- **Template bearbeiten:**
+  - Subject und Body editierbar (Textarea)
+  - Verfügbare Platzhalter werden angezeigt
+  - Speichern-Button mit Bestätigung
+- **Signatur bearbeiten:**
+  - Globale Signatur für alle Emails
+  - Wird automatisch angehängt
+- **Toggle aktiv/inaktiv:**
+  - Templates können deaktiviert werden
+  - Inaktive Templates werden nicht versendet
+
+**Standard-Templates:**
+1. **Buchungsbestätigung (confirmation):**
+   - Betreff: "Ihre Terminbuchung #{booking_id} - PC-Wittfoot UG"
+   - Inhalt mit Box-Design (UTF-8 Linien)
+   - Termindetails formatiert
+   - Was mitbringen-Checkliste
+
+2. **24-Stunden-Erinnerung (reminder_24h):**
+   - Betreff: "Erinnerung: Ihr Termin morgen um {booking_time_formatted}"
+   - Freundliche Erinnerung
+   - Alle Termindetails nochmal
+
+3. **1-Stunden-Erinnerung (reminder_1h):**
+   - Betreff: "Ihr Termin in 1 Stunde - PC-Wittfoot UG"
+   - Kurze Erinnerung
+   - Wichtigste Infos (Adresse, Zeit)
+
+**Datei:** `src/admin/email-templates.php`
+
+#### 4. Automatische Erinnerungs-Emails via Cron-Jobs
+**Problem:** Kunden vergessen ihre Termine.
+
+**Lösung - 24-Stunden-Erinnerung:**
+- **Cron-Job:** Läuft täglich um 10:00 Uhr
+- **Zielgruppe:** Termine am nächsten Tag
+- **Filter:**
+  - `booking_date = DATE_ADD(CURDATE(), INTERVAL 1 DAY)`
+  - Status: pending oder confirmed
+  - Nur fixed und walkin Termine
+  - Nicht bereits versendet (Email-Log-Check)
+
+**Lösung - 1-Stunden-Erinnerung:**
+- **Cron-Job:** Läuft stündlich
+- **Zielgruppe:** Termine in 50-70 Minuten
+- **Filter:**
+  - `booking_date = CURDATE()`
+  - `booking_time` zwischen NOW()+50min und NOW()+70min
+  - Nur fixed Termine (haben feste Zeit)
+  - Status: pending oder confirmed
+  - Nicht bereits versendet
+
+**Features beider Jobs:**
+- CLI-only Check (Sicherheit)
+- Zählt gesendete/fehlgeschlagene Emails
+- Logging: Datum, Zeit, Statistik
+- Exit-Code für Monitoring (0 = OK, 1 = Fehler)
+
+**Dateien:**
+- `src/cron/send-reminder-24h.php` - 24h-Job
+- `src/cron/send-reminder-1h.php` - 1h-Job
+
+**Crontab-Beispiel:**
+```bash
+# 24h-Erinnerungen täglich um 10:00 Uhr
+0 10 * * * /usr/bin/php /pfad/zu/src/cron/send-reminder-24h.php
+
+# 1h-Erinnerungen jede Stunde
+0 * * * * /usr/bin/php /pfad/zu/src/cron/send-reminder-1h.php
+```
+
+#### 5. Email-Versand bei Admin-Buchung
+**Problem:** Wenn Admin einen Termin für Kunden erstellt, erhält dieser keine Bestätigung.
+
+**Lösung:**
+- Integration in `src/admin/booking-calendar-v2.php`
+- Prüfung nach INSERT:
+  - Buchung erfolgreich erstellt?
+  - Email-Adresse vorhanden?
+  - Kundenrelevanter Termin? (fixed/walkin, nicht internal/blocked)
+- Automatischer Versand der confirmation-Email
+- Fail-Safe: Fehler beim Email-Versand stoppt Buchung nicht
+
+**Code:**
+```php
+// Email-Bestätigung senden (nur bei Kundenterminen mit Email)
+if ($bookingId && !empty($customerEmail) && in_array($bookingType, ['fixed', 'walkin'])) {
+    $emailService = new EmailService();
+    $emailService->sendBookingEmail($bookingId, 'confirmation');
+}
+```
+
+**Gilt für:**
+- Kalenderansicht (`/admin/booking-calendar`)
+- Wochenansicht (`/admin/booking-week`)
+
+**Datei:** `src/admin/booking-calendar-v2.php`
+
+#### 6. Migration: Alte Email-Funktion entfernt
+**Vorher:**
+- 158 Zeilen hardcodierte Email-Funktion `sendBookingEmails()`
+- Separate Email für Kunde und Admin
+- Nicht wiederverwendbar, nicht konfigurierbar
+
+**Nachher:**
+- Ersetzt durch `EmailService::sendBookingEmail()`
+- Wiederverwendbar in gesamter Anwendung
+- Admin-editierbar, Template-basiert
+- Umfangreiches Logging
+
+**Datei:** `src/api/booking.php` (158 Zeilen entfernt, 3 Zeilen hinzugefügt)
+
+### Technische Details
+
+#### Duplikat-Vermeidung
+```php
+// Prüft ob Email bereits versendet wurde
+private function isEmailAlreadySent($bookingId, $emailType) {
+    $result = $this->db->querySingle(
+        "SELECT COUNT(*) as count FROM email_log
+         WHERE booking_id = :booking_id
+         AND email_type = :email_type
+         AND status = 'sent'",
+        [':booking_id' => $bookingId, ':email_type' => $emailType]
+    );
+    return ($result['count'] ?? 0) > 0;
+}
+```
+
+**Vorteil:** Auch bei mehrfachem Aufruf wird Email nur 1x versendet.
+
+#### Datum-Formatierung (deutsch)
+```php
+// Wochentage
+$weekdays = ['Sonntag', 'Montag', 'Dienstag', 'Mittwoch',
+             'Donnerstag', 'Freitag', 'Samstag'];
+
+// Monate
+$months = ['', 'Januar', 'Februar', 'März', 'April', 'Mai', 'Juni',
+           'Juli', 'August', 'September', 'Oktober', 'November', 'Dezember'];
+
+// Formatierung
+$dateFormatted = $weekdays[(int)$date->format('w')] . ', ' .
+                $date->format('d') . '. ' .
+                $months[(int)$date->format('n')] . ' ' .
+                $date->format('Y');
+// Ergebnis: "Dienstag, 07. Januar 2026"
+```
+
+#### Email-Versand mit UTF-8
+```php
+private function sendMail($to, $subject, $body) {
+    $headers = "From: " . MAIL_FROM_NAME . " <" . MAIL_FROM . ">\r\n";
+    $headers .= "Reply-To: " . MAIL_FROM . "\r\n";
+    $headers .= "Content-Type: text/plain; charset=UTF-8\r\n";
+
+    $sent = @mail($to, $subject, $body, $headers);
+
+    // Logging
+    if ($sent) {
+        error_log("EmailService: Email sent to $to");
+    } else {
+        error_log("EmailService: Failed to send email to $to");
+    }
+
+    return $sent;
+}
+```
+
+**Hinweis:** PHP mail() Funktion - für Produktion ggf. SMTP/PHPMailer verwenden.
+
+#### SQL-Query für 1h-Erinnerungen
+```sql
+SELECT id FROM bookings
+WHERE booking_date = CURDATE()
+AND booking_time IS NOT NULL
+AND booking_time BETWEEN
+    DATE_FORMAT(DATE_ADD(NOW(), INTERVAL 50 MINUTE), '%H:%i:00')
+    AND DATE_FORMAT(DATE_ADD(NOW(), INTERVAL 70 MINUTE), '%H:%i:00')
+AND booking_type = 'fixed'
+AND status IN ('pending', 'confirmed')
+AND id NOT IN (
+    SELECT booking_id FROM email_log
+    WHERE email_type = 'reminder_1h' AND status = 'sent'
+)
+```
+
+**Zeitfenster:** 50-70 Minuten → Cron-Job läuft stündlich, trifft damit alle Termine.
+
+### Dateistruktur (Neu)
+
+```
+src/
+├── core/
+│   └── EmailService.php          # Email-Service-Klasse (NEU)
+├── admin/
+│   └── email-templates.php       # Template-Verwaltung (NEU)
+├── cron/
+│   ├── send-reminder-24h.php     # 24h-Reminder Job (NEU)
+│   └── send-reminder-1h.php      # 1h-Reminder Job (NEU)
+└── api/
+    └── booking.php               # Email-Integration (AKTUALISIERT)
+
+database/
+└── create-email-templates.sql    # Schema + Defaults (NEU)
+```
+
+### Projektstand nach Session
+
+#### Komplett implementiert ✅
+- ✅ Datenbank-Schema für Email-System
+- ✅ EmailService-Klasse mit allen Features
+- ✅ Admin-UI für Template-Verwaltung
+- ✅ Platzhalter-System mit deutscher Formatierung
+- ✅ 24h-Erinnerungs-Cron-Job
+- ✅ 1h-Erinnerungs-Cron-Job
+- ✅ Email-Versand bei Admin-Buchung
+- ✅ Email-Versand bei Kunden-Buchung
+- ✅ Duplikat-Vermeidung
+- ✅ Umfangreiches Logging
+
+#### Bereit für Produktion
+- **Funktionsumfang:** Vollständig
+- **Testing:** Durchgeführt
+- **Integration:** Abgeschlossen
+- **Dokumentation:** Vollständig
+
+#### Mögliche Erweiterungen (Optional)
+- SMTP-Integration für bessere Zustellbarkeit
+- HTML-Email-Templates (derzeit: Plain Text)
+- CC/BCC-Funktion
+- Attachment-Support
+- Email-Versand-Statistiken im Dashboard
+
+#### Router-Integration
+Neue Route hinzugefügt:
+```php
+// src/router.php
+elseif ($param === 'email-templates') {
+    require_admin();
+    require __DIR__ . '/admin/email-templates.php';
+}
+```
+
+**Zugriff:** `/admin/email-templates`
+
+## Session 2026-01-01 (Fortsetzung): PHPMailer SMTP-Integration
+
+### Erreichte Ziele ✅
+
+#### 1. PHPMailer Installation
+**Problem:** PHP mail() Funktion ist unzuverlässig, landet oft im Spam, keine SMTP-Unterstützung.
+
+**Lösung:**
+- PHPMailer v7.0.1 via Composer installiert
+- Composer lokal heruntergeladen (`composer.phar`) für Entwicklung
+- Vendor-Ordner kann via FTP auf Produktiv-Server deployed werden
+
+**Dateien:**
+- `composer.json` - Composer-Konfiguration
+- `composer.lock` - Dependency Lock-File
+- `vendor/` - PHPMailer & Dependencies
+
+#### 2. SMTP-Konfiguration
+**Datenbank-basierte Konfiguration** für flexible Admin-Verwaltung:
+
+**Tabelle `smtp_settings`:**
+```sql
+- smtp_enabled (BOOLEAN) - SMTP aktiviert oder PHP mail()
+- smtp_host (VARCHAR) - SMTP Server (z.B. smtp.gmail.com)
+- smtp_port (INT) - Port (587 = TLS, 465 = SSL)
+- smtp_encryption (ENUM) - tls, ssl, oder none
+- smtp_username (VARCHAR) - SMTP Benutzername
+- smtp_password (VARCHAR) - SMTP Passwort
+- smtp_debug (INT) - Debug-Level (0-2)
+- updated_at (TIMESTAMP) - Letzte Änderung
+```
+
+**Standard-Werte:**
+- SMTP deaktiviert (verwendet PHP mail())
+- Vorkonfiguriert für Gmail (smtp.gmail.com:587, TLS)
+- Debug aus für Produktion
+
+**Dateien:**
+- `database/create-smtp-settings.sql` - Schema
+- `src/core/config.php` - Composer Autoload & Fallback-Konstanten
+
+#### 3. EmailService mit PHPMailer
+**Komplett überarbeiteter Email-Service:**
+
+**Features:**
+- Automatische Wahl zwischen SMTP und PHP mail()
+- Liest Konfiguration aus Datenbank (nicht hardcoded!)
+- Besseres Error-Handling mit Try-Catch
+- Detailliertes Logging (zeigt SMTP-Server an)
+- UTF-8 Support
+- Debug-Ausgabe konfigurierbar
+
+**Code-Änderungen:**
+```php
+// Vorher: Hardcoded mail() Funktion
+$sent = @mail($to, $subject, $body, $headers);
+
+// Nachher: PHPMailer mit DB-Konfiguration
+$mail = new \PHPMailer\PHPMailer\PHPMailer(true);
+$smtp = $this->db->querySingle("SELECT * FROM smtp_settings WHERE id = 1");
+
+if ($smtp && $smtp['smtp_enabled']) {
+    $mail->isSMTP();
+    $mail->Host = $smtp['smtp_host'];
+    // ... weitere SMTP-Einstellungen
+} else {
+    $mail->isMail();  // Fallback zu PHP mail()
+}
+```
+
+**Vorteile:**
+- ✅ Bessere Zustellbarkeit (weniger Spam)
+- ✅ Verschlüsselte Verbindung (TLS/SSL)
+- ✅ Authentifizierung mit SMTP-Credentials
+- ✅ Detaillierte Error-Messages
+- ✅ Flexibel: SMTP per Klick ein/ausschalten
+
+**Datei:** `src/core/EmailService.php`
+
+#### 4. Admin-UI für SMTP-Verwaltung
+**Vollständige Verwaltungsoberfläche** (`/admin/smtp-settings`):
+
+**Features:**
+- ✅ **SMTP aktivieren/deaktivieren** - Checkbox zum Umschalten
+- ✅ **Server-Konfiguration:**
+  - SMTP Host (z.B. smtp.gmail.com, smtp.office365.com)
+  - Port (Standard: 587 für TLS, 465 für SSL)
+  - Verschlüsselung (TLS/SSL/Keine)
+- ✅ **Authentifizierung:**
+  - Benutzername
+  - Passwort (nur ändern wenn neues eingegeben)
+- ✅ **Debug-Level:**
+  - Aus (Produktion)
+  - Nur Fehler
+  - Verbose (Entwicklung)
+- ✅ **Aktuelle Konfiguration** - Übersicht der gespeicherten Einstellungen
+- ✅ **Info-Box** mit Hinweisen für Gmail, Office365, etc.
+
+**Design:**
+- Responsive Formular mit Validierung
+- Form-Row Layout für Port/Verschlüsselung
+- Passwort-Feld: Placeholder-Text erklärt Verhalten
+- Übersichtliche Tabelle mit aktueller Config
+
+**Datei:** `src/admin/smtp-settings.php`
+
+#### 5. Test-Email Funktion
+**Dedizierte Test-Seite** (`/admin/smtp-test`):
+
+**Features:**
+- ✅ Test-Email an beliebige Adresse senden
+- ✅ Zeigt aktuelle SMTP-Methode an (SMTP oder PHP mail())
+- ✅ Bei SMTP: Zeigt Server, Port, Verschlüsselung
+- ✅ **Debug-Ausgabe** - Komplette SMTP-Kommunikation sichtbar
+- ✅ Erfolgs-/Fehlermeldungen
+- ✅ Hinweise für Gmail, Office365, Spam-Ordner
+
+**Debug-Ausgabe:**
+```
+SMTP -> FROM SERVER: 220 smtp.gmail.com ESMTP ready
+SMTP -> FROM SERVER: 250-smtp.gmail.com at your service
+...
+```
+
+**Test-Email Inhalt:**
+- Versanddatum/Zeit
+- Verwendete Methode (SMTP/PHP mail())
+- SMTP-Server Details (falls SMTP)
+- Bestätigungstext
+
+**Datei:** `src/admin/smtp-test.php`
+
+#### 6. Dashboard-Integration
+**Neue Links im Admin-Dashboard:**
+
+```php
+✉️ Email-Templates verwalten  → /admin/email-templates
+🔧 SMTP-Einstellungen         → /admin/smtp-settings
+```
+
+Zugriff: Dashboard → "🔧 SMTP-Einstellungen" → "🧪 Test-Email senden"
+
+#### 7. Router-Erweiterung
+**Neue Routen:**
+```php
+/admin/smtp-settings  → SMTP-Konfiguration
+/admin/smtp-test      → Test-Email senden
+```
+
+**Datei:** `src/router.php`
+
+### Technische Details
+
+#### Composer Autoload
+```php
+// src/core/config.php
+require_once dirname(dirname(__DIR__)) . '/vendor/autoload.php';
+```
+
+Lädt PHPMailer und alle anderen Composer-Packages automatisch.
+
+#### PHPMailer Konfiguration
+```php
+// SMTP aktiviert
+$mail->isSMTP();
+$mail->Host = 'smtp.gmail.com';
+$mail->Port = 587;
+$mail->SMTPSecure = 'tls';
+$mail->SMTPAuth = true;
+$mail->Username = 'email@gmail.com';
+$mail->Password = 'app-password';
+
+// PHP mail() Fallback
+$mail->isMail();
+```
+
+#### Gmail-Konfiguration
+Für Gmail-Versand erforderlich:
+1. 2-Faktor-Authentifizierung aktivieren
+2. App-Passwort generieren (nicht normales Passwort!)
+3. SMTP-Einstellungen:
+   - Host: `smtp.gmail.com`
+   - Port: `587`
+   - Verschlüsselung: `TLS`
+   - Benutzername: Deine Gmail-Adresse
+   - Passwort: App-Passwort (16-stellig)
+
+#### Office365-Konfiguration
+1. SMTP-Einstellungen:
+   - Host: `smtp.office365.com`
+   - Port: `587`
+   - Verschlüsselung: `TLS`
+   - Benutzername: Deine Office365-Email
+   - Passwort: Office365-Passwort
+
+### Dateistruktur (Neu)
+
+```
+/
+├── composer.json              # Composer-Konfiguration (NEU)
+├── composer.phar              # Composer Binary (NEU)
+├── vendor/                    # Dependencies (NEU)
+│   └── phpmailer/phpmailer/
+├── database/
+│   └── create-smtp-settings.sql (NEU)
+├── src/
+│   ├── core/
+│   │   ├── config.php         # Composer Autoload hinzugefügt
+│   │   └── EmailService.php   # PHPMailer-Integration
+│   └── admin/
+│       ├── index.php          # Dashboard-Link hinzugefügt
+│       ├── smtp-settings.php  # SMTP-Verwaltung (NEU)
+│       └── smtp-test.php      # Test-Email (NEU)
+```
+
+### Projektstand nach Session
+
+#### Komplett implementiert ✅
+- ✅ PHPMailer v7.0.1 installiert
+- ✅ Datenbank-basierte SMTP-Konfiguration
+- ✅ EmailService auf PHPMailer migriert
+- ✅ Admin-UI für SMTP-Verwaltung
+- ✅ Test-Email Funktion mit Debug-Ausgabe
+- ✅ Dashboard-Integration
+- ✅ Kompatibilität mit Gmail, Office365, eigenen SMTP-Servern
+
+#### Bereit für Produktion
+- **Email-Versand:** Flexibel (SMTP oder PHP mail())
+- **Konfiguration:** Admin-editierbar über UI
+- **Testing:** Integrierte Test-Funktion
+- **Logging:** Detaillierte Error-Messages
+- **Sicherheit:** Passwörter in Datenbank (verschlüsselt empfohlen)
+
+#### Deployment-Hinweise
+1. **Composer Dependencies:** `vendor/` Ordner via FTP hochladen
+2. **Datenbank:** `create-smtp-settings.sql` importieren
+3. **SMTP-Einstellungen:** Im Admin-Bereich konfigurieren
+4. **Test:** Test-Email senden vor Produktiv-Betrieb
+
+#### Verbesserungsmöglichkeiten (Optional)
+- Passwort-Verschlüsselung in Datenbank
+- Multiple SMTP-Profile (z.B. für verschiedene Email-Typen)
+- Email-Queue für bessere Performance
+- Statistiken: Erfolgreiche/Fehlgeschlagene Emails
+- HTML-Email Support (derzeit: Plain Text)
+
+## Session 2026-01-01 (Fortsetzung): Deployment-System mit Wartungsmodus
+
+### Erreichte Ziele ✅
+
+#### 1. Wartungsmodus-System
+**Problem:** Bei Updates muss die Website offline genommen werden können, ohne dass User Fehler sehen.
+
+**Lösung - Datei-basiertes System:**
+- Einfacher File-Check: Wenn `src/MAINTENANCE` existiert → Wartungsseite anzeigen
+- Keine Datenbank-Änderung erforderlich
+- Schnell aktivierbar (per FTP/SSH oder Admin-UI)
+
+**Features:**
+- ✅ **Admin-Bypass:** Eingeloggte Admins können weiter arbeiten
+- ✅ **Admin-Warnung:** Orange Sticky-Banner zeigt Wartungsmodus an
+- ✅ **Custom Message:** Nachricht aus MAINTENANCE-Datei (erste Zeile)
+- ✅ **Geschätzte Endzeit:** Optional in zweiter Zeile
+- ✅ **Schöne Wartungsseite:**
+  - Gradient-Hintergrund (Lila)
+  - Animiertes Werkzeug-Icon (Pulse)
+  - Spinner-Animation
+  - Kontaktinformationen
+  - 503 HTTP Status mit Retry-After Header
+
+**Technische Implementation:**
+```php
+// src/core/maintenance.php
+if (file_exists($maintenanceFile)) {
+    // Admin kann trotzdem zugreifen
+    if (isset($_SESSION['is_admin']) && $_SESSION['is_admin'] === true) {
+        define('MAINTENANCE_ADMIN_BYPASS', true);
+        return;
+    }
+
+    // Normale User sehen Wartungsseite
+    showMaintenancePage($maintenanceFile);
+    exit;
+}
+```
+
+**MAINTENANCE-Datei Format:**
+```
+Wir führen gerade ein Update durch.
+Heute um 18:00 Uhr
+```
+
+**Integration in Router:**
+```php
+// src/router.php
+start_session_safe();
+
+// Wartungsmodus-Check (vor allen Routen!)
+require_once __DIR__ . '/core/maintenance.php';
+
+// ... rest of routing
+```
+
+**Admin-Warnung im Header:**
+```php
+// src/templates/header.php
+<?php if (defined('MAINTENANCE_ADMIN_BYPASS') && MAINTENANCE_ADMIN_BYPASS): ?>
+    <div style="background: #ff9800; color: white; padding: 1rem;
+                text-align: center; font-weight: bold; position: sticky;
+                top: 0; z-index: 10000;">
+        ⚠️ WARTUNGSMODUS AKTIV - Sie sind als Admin eingeloggt...
+    </div>
+<?php endif; ?>
+```
+
+**Datei:** `src/core/maintenance.php`
+
+#### 2. Health-Check Endpoint
+**Problem:** Nach Deployment muss Systemstatus überprüfbar sein.
+
+**Lösung - Umfassender Health-Check API:**
+
+**Endpoint:** `GET /api/health-check`
+
+**Prüfungen:**
+1. ✅ **Datenbank-Verbindung:**
+   - SELECT 1 Query
+   - Erfolg/Fehler mit Fehlermeldung
+
+2. ✅ **EmailService:**
+   - Klasse ladbar?
+   - Instanziierbar?
+
+3. ✅ **Composer Vendor:**
+   - autoload.php vorhanden?
+   - PHPMailer verfügbar?
+
+4. ✅ **Logs-Verzeichnis:**
+   - Existiert?
+   - Beschreibbar?
+
+5. ✅ **Uploads-Verzeichnis:**
+   - Existiert?
+   - Beschreibbar?
+
+6. ✅ **Speicherplatz:**
+   - Freier Speicher in GB
+   - Prozent verfügbar
+   - Warnung bei <10%
+
+7. ✅ **PHP-Version:**
+   - Aktuelle Version anzeigen
+
+8. ✅ **Wartungsmodus-Status:**
+   - Aktiv/Inaktiv
+   - Warnung wenn aktiv
+
+**Response-Format:**
+```json
+{
+    "status": "ok",  // oder "warning", "error"
+    "timestamp": "2026-01-01 16:04:10",
+    "version": "1.0.0",
+    "checks": {
+        "database": {
+            "status": "ok",
+            "message": "Datenbankverbindung erfolgreich"
+        },
+        "disk_space": {
+            "status": "ok",
+            "message": "Speicherplatz ausreichend: 93.23%",
+            "free_gb": 938.64,
+            "total_gb": 1006.85
+        },
+        "maintenance_mode": {
+            "status": "ok",
+            "message": "Wartungsmodus ist inaktiv",
+            "enabled": false
+        }
+        // ... weitere Checks
+    }
+}
+```
+
+**HTTP Status Codes:**
+- `200 OK` - Alle Checks erfolgreich oder nur Warnungen
+- `503 Service Unavailable` - Kritische Fehler (z.B. DB down)
+
+**Verwendung im Deployment:**
+```bash
+# Health-Check aufrufen
+curl https://pc-wittfoot.de/api/health-check
+
+# Mit jq für bessere Lesbarkeit
+curl -s https://pc-wittfoot.de/api/health-check | jq
+```
+
+**Datei:** `src/api/health-check.php`
+
+**Router-Integration:**
+```php
+// src/router.php
+case 'api':
+    header('Content-Type: application/json; charset=UTF-8');
+
+    switch ($param) {
+        // ... existing routes
+        case 'health-check':
+            require __DIR__ . '/api/health-check.php';
+            break;
+    }
+```
+
+#### 3. Admin-UI für Wartungsmodus
+**Problem:** Wartungsmodus sollte nicht per FTP/SSH aktiviert werden müssen.
+
+**Lösung - Vollständige Verwaltungsoberfläche:**
+
+**URL:** `/admin/maintenance`
+
+**Features:**
+- ✅ **Status-Übersicht:**
+  - Großer Status-Indicator (🔧 AKTIV / ✅ ONLINE)
+  - Farbcodiert (Orange/Grün)
+  - Zeigt aktuelle Nachricht und Endzeit
+
+- ✅ **Wartungsmodus aktivieren:**
+  - Custom Nachricht eingeben (Textarea)
+  - Voraussichtliches Ende (optional, Text-Input)
+  - Bestätigungs-Dialog
+  - Erstellt `src/MAINTENANCE` Datei
+
+- ✅ **Wartungsmodus deaktivieren:**
+  - Button mit Bestätigungs-Dialog
+  - Löscht `src/MAINTENANCE` Datei
+
+- ✅ **Nachricht bearbeiten:**
+  - Während Wartungsmodus aktiv
+  - Live-Update ohne Deaktivierung
+
+- ✅ **Info-Bereiche:**
+  - Was passiert beim Aktivieren?
+  - Health-Check Endpoint Info
+  - Empfohlener Deployment-Workflow
+
+**Design:**
+- Responsive Cards-Layout
+- Status-Badges mit Icons
+- Info-Boxen mit Hinweisen
+- Preview-Box für aktuelle Nachricht
+- Form-Validierung
+
+**Workflow:**
+1. Admin öffnet `/admin/maintenance`
+2. Klickt "🔧 Wartungsmodus aktivieren"
+3. Gibt Nachricht ein (z.B. "Wir führen gerade ein Update durch.")
+4. Optional: Gibt geschätzte Endzeit ein (z.B. "Heute um 18:00 Uhr")
+5. Bestätigt → Website ist offline für User
+6. Admin kann weiter arbeiten (sieht orange Warnung)
+7. Nach Deployment: "✅ Wartungsmodus deaktivieren"
+
+**Dateiberechtigungen:**
+- `src/` Verzeichnis muss beschreibbar sein
+- Fehlermeldung falls MAINTENANCE nicht erstellt/gelöscht werden kann
+
+**Datei:** `src/admin/maintenance.php`
+
+**Router-Integration:**
+```php
+// src/router.php
+case 'admin':
+    // ... existing routes
+    elseif ($param === 'maintenance') {
+        require_admin();
+        require __DIR__ . '/admin/maintenance.php';
+    }
+```
+
+**Dashboard-Link:**
+```php
+// src/admin/index.php
+<a href="<?= BASE_URL ?>/admin/maintenance" class="btn btn-outline btn-block">
+    🛠️ Wartungsmodus
+</a>
+```
+
+#### 4. Deployment-Script (deploy.sh)
+**Problem:** Manuelles Deployment via FTP ist fehleranfällig und zeitaufwändig.
+
+**Lösung - Automatisiertes Deployment-Script:**
+
+**Verwendung:**
+```bash
+./deploy.sh
+```
+
+**Features:**
+1. ✅ **FTP-Verbindung prüfen**
+   - Validiert Zugangsdaten
+   - Prüft lftp-Installation
+
+2. ✅ **Backup erstellen**
+   - Automatisch vor jedem Deployment
+   - Dateien + Datenbank
+   - Komprimiert als .tar.gz
+
+3. ✅ **Wartungsmodus aktivieren**
+   - Uploaded MAINTENANCE-Datei per FTP
+   - Custom Nachricht mit Zeitstempel
+
+4. ✅ **Dateien hochladen**
+   - Mirror-Mode (nur geänderte Dateien)
+   - Excludes: .git, node_modules, .env, MAINTENANCE
+   - Parallele Uploads (5 Connections)
+
+5. ✅ **Health-Check durchführen**
+   - 3 Versuche bei Fehler
+   - Zeigt Status-Details
+   - Bei Fehler: Frage ob trotzdem online gehen
+
+6. ✅ **Wartungsmodus deaktivieren**
+   - Nur wenn Health-Check erfolgreich
+   - Optional: Manuelles Override bei Fehler
+
+**Workflow:**
+```
+Bestätigung → FTP-Check → Backup → Wartung AN
+  → Upload → Health-Check → Wartung AUS → Fertig
+```
+
+**Konfiguration (anpassen!):**
+```bash
+# FTP-Zugangsdaten
+FTP_HOST="ftp.example.com"
+FTP_USER="username"
+FTP_PASS="password"
+FTP_REMOTE_DIR="/public_html"
+
+# Website-URL
+SITE_URL="https://pc-wittfoot.de"
+HEALTH_CHECK_URL="$SITE_URL/api/health-check"
+
+# Backup-Aufbewahrung
+BACKUP_RETENTION_DAYS=30
+```
+
+**Logging:**
+- Farbcodierte Ausgabe (INFO/SUCCESS/WARNING/ERROR)
+- Alle Schritte werden geloggt
+- Backup-Pfad wird angezeigt
+
+**Error-Handling:**
+- Bei FTP-Fehler → Abbruch vor Wartungsmodus
+- Bei Upload-Fehler → Wartungsmodus bleibt aktiv
+- Bei Health-Check-Fehler → Nachfrage ob trotzdem online
+- Backup-Fehler stoppt Deployment nicht (Warnung)
+
+**Datei:** `deploy.sh`
+
+**Ausführbar machen:**
+```bash
+chmod +x deploy.sh
+```
+
+**Abhängigkeiten:**
+```bash
+# lftp für FTP-Upload
+sudo apt-get install lftp
+
+# curl für Health-Check
+sudo apt-get install curl
+
+# python3 für JSON-Formatierung (optional)
+sudo apt-get install python3
+```
+
+#### 5. Backup-Script (backup.sh)
+**Problem:** Regelmäßige Backups sind essentiell, sollten aber automatisiert sein.
+
+**Lösung - Flexibles Backup-Script:**
+
+**Verwendung:**
+```bash
+./backup.sh                 # Vollständiges Backup
+./backup.sh --files-only    # Nur Dateien
+./backup.sh --db-only       # Nur Datenbank
+./backup.sh --list          # Backups auflisten
+```
+
+**Features:**
+1. ✅ **Dateien sichern:**
+   - Kompletter `src/` Ordner
+   - .env, composer.json, composer.lock
+   - .htaccess
+   - Erstellt backup_info.txt mit Metadaten
+
+2. ✅ **Datenbank sichern:**
+   - mysqldump aller Tabellen
+   - Komplett mit Struktur und Daten
+   - Erstellt database_info.txt
+
+3. ✅ **Backup komprimieren:**
+   - tar.gz Format
+   - Zeitstempel im Dateinamen
+   - Temp-Verzeichnis wird aufgeräumt
+
+4. ✅ **Alte Backups löschen:**
+   - Automatisch Backups >30 Tage
+   - Konfigurierbar
+
+5. ✅ **Remote-Upload (optional):**
+   - FTP-Upload auf Remote-Server
+   - Konfigurierbar ein/ausschalten
+
+6. ✅ **Backup-Übersicht:**
+   - Liste aller Backups
+   - Datum, Zeit, Größe
+   - Sortiert nach Datum
+
+**Backup-Format:**
+```
+backups/
+├── backup_20260101_160808.tar.gz  (112K)
+├── backup_20260101_160746.tar.gz  (112K)
+└── backup_20250101_143022.tar.gz  (108K)
+```
+
+**Backup-Inhalt:**
+```
+backup_20260101_160808.tar.gz
+├── files/
+│   ├── src/
+│   ├── composer.json
+│   ├── composer.lock
+│   ├── .htaccess
+│   └── backup_info.txt
+└── database/
+    ├── pc_wittfoot_20260101_160808.sql
+    └── database_info.txt
+```
+
+**Konfiguration:**
+```bash
+# Datenbank-Zugangsdaten
+DB_HOST="localhost"
+DB_USER="pc_wittfoot"
+DB_PASS="dev123"
+DB_NAME="pc_wittfoot"
+
+# Backup-Aufbewahrung
+BACKUP_RETENTION_DAYS=30
+
+# Remote-Upload (optional)
+REMOTE_BACKUP_ENABLED=false
+REMOTE_FTP_HOST=""
+REMOTE_FTP_USER=""
+REMOTE_FTP_PASS=""
+```
+
+**Logging:**
+- Farbcodierte Ausgabe
+- Zeigt Backup-Größe
+- Listet gelöschte alte Backups
+- Zusammenfassung am Ende
+
+**Automatisierung via Cron:**
+```bash
+# Täglich um 3:00 Uhr
+0 3 * * * /pfad/zu/backup.sh
+
+# Wöchentlich Sonntags um 4:00 Uhr
+0 4 * * 0 /pfad/zu/backup.sh
+```
+
+**Datei:** `backup.sh`
+
+**Ausführbar machen:**
+```bash
+chmod +x backup.sh
+```
+
+**Abhängigkeiten:**
+```bash
+# mysqldump für Datenbank-Backup
+sudo apt-get install mysql-client
+
+# lftp für Remote-Upload (optional)
+sudo apt-get install lftp
+```
+
+**Backup wiederherstellen:**
+```bash
+# Backup entpacken
+tar -xzf backups/backup_20260101_160808.tar.gz
+
+# Dateien zurückspielen
+cp -r files/src/* /pfad/zu/src/
+
+# Datenbank importieren
+mysql -u pc_wittfoot -p pc_wittfoot < database/pc_wittfoot_*.sql
+```
+
+### Deployment-Workflow (Empfohlen)
+
+#### Manuelles Deployment
+```bash
+# 1. Änderungen testen lokal
+php -S localhost:8000 server.php
+
+# 2. Backup erstellen
+./backup.sh
+
+# 3. Wartungsmodus aktivieren (via Admin-UI oder Script)
+touch src/MAINTENANCE
+
+# 4. Dateien per FTP hochladen
+# ... manuell oder via FileZilla
+
+# 5. Health-Check prüfen
+curl https://pc-wittfoot.de/api/health-check
+
+# 6. Wartungsmodus deaktivieren
+rm src/MAINTENANCE
+```
+
+#### Automatisches Deployment
+```bash
+# Alles in einem Schritt
+./deploy.sh
+
+# Das Script führt alle Schritte automatisch aus:
+# ✅ Backup
+# ✅ Wartungsmodus AN
+# ✅ Upload
+# ✅ Health-Check
+# ✅ Wartungsmodus AUS
+```
+
+#### Deployment mit Datenbank-Migration
+```bash
+# 1. Deploy wie gewohnt
+./deploy.sh
+
+# 2. Via FTP: SQL-Datei hochladen nach /tmp
+
+# 3. Via phpMyAdmin oder SSH:
+mysql -u pc_wittfoot -p pc_wittfoot < /tmp/migration.sql
+
+# 4. Health-Check prüfen
+curl https://pc-wittfoot.de/api/health-check
+
+# 5. Falls Fehler: Wartungsmodus manuell deaktivieren
+# Via Admin-UI: /admin/maintenance
+```
+
+### Technische Details
+
+#### Wartungsmodus-Check (Performance)
+```php
+// Sehr schnell - nur File-Check
+if (file_exists($maintenanceFile)) {
+    // Kein DB-Query nötig!
+}
+
+// Pro Request: ~0.001s Overhead
+```
+
+#### Health-Check Performance
+- Führt ~8 Checks durch
+- Response-Time: ~50-200ms
+- Cached: Nein (immer aktuell)
+- Geeignet für Monitoring-Tools
+
+#### Backup-Größen (Beispiel)
+```
+Dateien (src/):              ~2 MB
+Datenbank (SQL-Dump):       ~100 KB
+Komprimiert (tar.gz):       ~500 KB
+```
+
+**Mit Bildern/Uploads:**
+```
+Dateien + Uploads:           ~50 MB
+Komprimiert:                 ~20 MB
+```
+
+#### FTP-Upload via lftp
+```bash
+# Vorteile gegenüber Standard-FTP:
+- Mirror-Mode (nur geänderte Dateien)
+- Parallele Verbindungen (schneller)
+- Resume bei Abbruch
+- SSL/TLS Support
+- Scripting-fähig
+```
+
+### Dateistruktur (Deployment-System)
+
+```
+/
+├── deploy.sh                      # Deployment-Script (NEU)
+├── backup.sh                      # Backup-Script (NEU)
+├── backups/                       # Backup-Verzeichnis (NEU)
+│   └── backup_*.tar.gz
+├── src/
+│   ├── MAINTENANCE                # Wartungsmodus-Trigger
+│   ├── core/
+│   │   └── maintenance.php        # Wartungsmodus-Handler (NEU)
+│   ├── templates/
+│   │   └── header.php             # Admin-Warnung (AKTUALISIERT)
+│   ├── admin/
+│   │   └── maintenance.php        # Admin-UI (NEU)
+│   ├── api/
+│   │   └── health-check.php       # Health-Check (NEU)
+│   └── router.php                 # Maintenance-Check (AKTUALISIERT)
+```
+
+### .gitignore Anpassungen
+
+```bash
+# Deployment-System
+/backups/                  # Backups nicht committen
+/src/MAINTENANCE           # Wartungsmodus-Datei nicht committen
+
+# Bereits vorhanden
+/vendor/
+composer.phar
+/logs/*.log
+.vscode/
+.idea/
+```
+
+**Datei:** `.gitignore`
+
+### Projektstand nach Session
+
+#### Komplett implementiert ✅
+- ✅ Wartungsmodus-System (datei-basiert)
+- ✅ Health-Check Endpoint (8 Prüfungen)
+- ✅ Admin-UI für Wartungsmodus
+- ✅ Deployment-Script (deploy.sh)
+- ✅ Backup-Script (backup.sh)
+- ✅ Admin-Warnung im Header
+- ✅ Router-Integration
+- ✅ Dashboard-Integration
+- ✅ .gitignore aktualisiert
+
+#### Bereit für Produktion
+- **Wartungsmodus:** Jederzeit aktivierbar
+- **Deployment:** Voll automatisiert
+- **Backups:** Automatisch vor jedem Deployment
+- **Monitoring:** Health-Check für Systemstatus
+- **Admin-Bypass:** Admins können während Wartung arbeiten
+
+#### Deployment-Komplexität nach Änderungsart
+
+| Änderungsart | Komplexität | Zeit | Vorgehen |
+|-------------|-------------|------|----------|
+| Content (Text, Bilder) | Einfach | 5-15 Min | Direkt per FTP, kein Backup nötig |
+| CSS/JS | Einfach | 5-15 Min | FTP-Upload, Browser-Cache leeren |
+| PHP-Code | Mittel | 30-60 Min | `./deploy.sh` verwenden |
+| Datenbank-Schema | Komplex | 1-2 Std | Deploy + manuelle SQL-Migration |
+| Neue Features | Komplex | Variabel | Staging → Test → Deploy |
+
+#### Best Practices
+
+**Vor Deployment:**
+- ✅ Lokale Tests durchführen
+- ✅ Git commit & push
+- ✅ Backup-Strategie prüfen
+
+**Während Deployment:**
+- ✅ Wartungsmodus aktivieren
+- ✅ Automatisches Backup läuft
+- ✅ Health-Check nach Upload
+
+**Nach Deployment:**
+- ✅ Website testen (alle Hauptfunktionen)
+- ✅ Health-Check prüfen
+- ✅ Error-Logs checken
+- ✅ Backup verifizieren
+
+**Bei Problemen:**
+- ✅ Wartungsmodus bleibt aktiv
+- ✅ Fehler beheben
+- ✅ Erneut deployen
+- ✅ Oder: Backup zurückspielen
+
+#### Monitoring & Wartung
+
+**Health-Check URL:**
+```
+https://pc-wittfoot.de/api/health-check
+```
+
+**Monitoring-Integration:**
+- UptimeRobot: HTTP-Monitor auf Health-Check
+- Statuscake: JSON-Response parsen
+- Cronjob: Täglicher Check + Email bei Fehler
+
+**Backup-Strategie:**
+```bash
+# Täglich automatisches Backup
+0 3 * * * /pfad/zu/backup.sh
+
+# Vor jedem Deployment (automatisch in deploy.sh)
+./deploy.sh  # erstellt automatisch Backup
+
+# Manuelle Backups bei großen Änderungen
+./backup.sh
+```
+
+**Backup-Aufbewahrung:**
+- Täglich: 30 Tage
+- Vor Deployments: Unbegrenzt (manuell löschen)
+- Kritische Versionen: Separat archivieren
+
+#### Troubleshooting
+
+**Problem: Wartungsmodus aktiviert sich nicht**
+```bash
+# Prüfen ob Datei erstellt wurde
+ls -la src/MAINTENANCE
+
+# Prüfen ob Router maintenance.php lädt
+grep "maintenance.php" src/router.php
+
+# Manuell aktivieren
+echo "Wartungsarbeiten" > src/MAINTENANCE
+```
+
+**Problem: Health-Check schlägt fehl**
+```bash
+# Direkt im Browser öffnen
+https://pc-wittfoot.de/api/health-check
+
+# Welcher Check failed?
+curl -s https://pc-wittfoot.de/api/health-check | jq '.checks'
+
+# Logs prüfen
+tail -f logs/error.log
+```
+
+**Problem: Deployment-Script kann nicht hochladen**
+```bash
+# FTP-Zugangsdaten testen
+lftp -u username,password ftp.example.com -e "ls; bye"
+
+# Rechte prüfen
+lftp -u username,password ftp.example.com
+cd /public_html
+mkdir test
+# Falls Fehler → Keine Schreibrechte
+```
+
+**Problem: Backup schlägt fehl**
+```bash
+# Datenbank-Zugangsdaten testen
+mysql -u pc_wittfoot -pdev123 -e "SELECT 1"
+
+# Backup-Verzeichnis beschreibbar?
+ls -la backups/
+
+# Manuell ausführen mit Debug
+bash -x backup.sh
+```
+
+## Session 2026-01-01: Shop-System, Produktverwaltung & CSV-Import
+
+### Implementierte Features
+
+#### 1. Shop-System: HelloCash Integration für Bestellungen
+**Status:** ✅ Abgeschlossen
+
+**Funktionsweise:**
+- Kundendaten werden automatisch in HelloCash angelegt (findOrCreateUser)
+- Bei Bestellung wird HelloCash-Rechnung erstellt (digital, mit Link)
+- Rechnung wird per E-Mail an Kunde versendet
+- Admin erhält Bestellbenachrichtigung
+
+**Dateien:**
+- `src/pages/kasse.php` - HelloCash-Integration beim Checkout
+- `src/core/HelloCashClient.php` - createInvoice() Methode
+- `src/core/EmailService.php` - Template-System für Shop-E-Mails
+
+**Database:**
+- Migration 006: `hellocash_invoice_id`, `hellocash_invoice_number`
+- Migration 007: `hellocash_invoice_link`
+- Migration 008: E-Mail-Templates (order_confirmation, order_notification)
+- Migration 009: `delivery_method` ENUM ('billing', 'pickup', 'shipping')
+- Migration 010: Entfernung 'cash' Zahlungsart
+
+**E-Mail-Templates:**
+- Bestellbestätigung (Kunde) mit Rechnung-Link
+- Bestellbenachrichtigung (Admin)
+- Konfigurierbar im Admin-Bereich
+- Platzhalter: {customer_firstname}, {order_number}, {order_items}, {invoice_link_section}, etc.
+
+#### 2. Bestellungen-Verwaltung
+**Status:** ✅ Abgeschlossen
+
+**Admin-Seiten:**
+- `/admin/orders` - Übersicht mit Grid-Layout, Filtern (Status, Suche)
+- `/admin/order/{id}` - Detailansicht mit Status-Änderung, Kundendaten, Positionen
+
+**Features:**
+- Responsive Grid-Layout (1/2/3 Spalten)
+- Filter: Status (Neu, In Bearbeitung, Versandt, etc.)
+- Suchfunktion (Bestellnummer, Name, E-Mail)
+- Status-Badges mit Emojis
+- Kompakte Sidebar-Cards mit `height: fit-content`
+- Grid mit `align-items: start` für korrekte Footer-Position
+- HelloCash-Rechnung-Link Integration
+
+**Layout-Optimierungen:**
+- Sidebar-Cards kompakt gestaltet
+- Bestellinformationen von Tabelle zu div-Layout
+- Status-Card minimal mit direktem Dropdown
+
+#### 3. Produktverwaltung - Phase 1
+**Status:** ✅ Abgeschlossen
+
+**Database:**
+- Migration 011: Erweiterte Felder für Produktverwaltung
+  - `source` ENUM('csv_import', 'hellocash', 'manual')
+  - `supplier_id`, `supplier_name`, `supplier_stock`
+  - `in_showroom` (Verfügbar in Oldenburg)
+  - `sync_with_hellocash`, `last_csv_sync`
+
+**Admin-Seiten:**
+- `/admin/products` - Übersicht mit Grid-Layout
+- `/admin/product-edit` - Erstellen/Bearbeiten
+
+**Features:**
+- Filter: Quelle (Manuell/CSV/HelloCash), Status, Lagerbestand
+- Bild-Upload mit Validierung (JPG, PNG, WEBP)
+- Checkbox: "Verfügbar in Oldenburg" (statt "Ausstellung")
+- Checkbox: "Mit HelloCash synchronisieren"
+- Status-Badges: Aktiv, Oldenburg, Ausverkauft, Niedriger Bestand
+- **Schutz:** Produkte mit Bestellungen können nicht gelöscht werden
+- **Bulk-Delete:** Alle inaktiven/ausverkauften Produkte ohne Bestellungen löschen
+
+**Reorganisierungs-Funktion:**
+- Warnung-Box zeigt Anzahl löschbarer Produkte
+- Bestätigungs-Dialog
+- Löscht automatisch Produktbilder
+
+#### 4. CSV-Import-System - Phase 2
+**Status:** ✅ Kern-Funktionalität abgeschlossen, Cronjob ausstehend
+
+**Database:**
+- Migration 012: `suppliers` und `product_import_logs` Tabellen
+- Foreign Key: `products.supplier_id` → `suppliers.id`
+
+**Core-Komponenten:**
+- `src/core/CSVImporter.php` - Flexibler Parser mit Spalten-Mapping
+  - Unterstützt verschiedene Delimiter (Komma, Semikolon, Tab)
+  - Encoding-Konvertierung (UTF-8, ISO-8859-1, Windows-1252)
+  - Automatische Preis-Kalkulation mit Aufschlag
+  - Import-Statistiken (neu/aktualisiert/übersprungen/Fehler)
+
+**Admin-Seiten:**
+- `/admin/suppliers` - Lieferanten-Übersicht mit Statistiken
+- `/admin/supplier-edit` - Lieferant erstellen/bearbeiten
+- `/admin/csv-import` - Import durchführen mit Historie
+
+**Lieferanten-Konfiguration:**
+- Name, Beschreibung
+- CSV-URL oder lokaler Pfad
+- CSV-Delimiter und Encoding
+- Spalten-Mapping (Name, SKU, Preis, Lagerbestand, Beschreibung)
+- Preis-Aufschlag in %
+- Aktiv/Inaktiv Status
+
+**Import-Workflow:**
+1. CSV-Datei herunterladen (falls URL) oder lokal laden
+2. Zeilen parsen mit konfiguriertem Mapping
+3. Neue Produkte: Anlegen mit `source='csv_import'`, inaktiv
+4. Bestehende Produkte: Aktualisieren (gleiche SKU + supplier_id)
+5. Verkaufspreis = Lieferanten-Preis × (1 + Aufschlag/100)
+6. Statistiken und Fehler-Log erstellen
+
+**Import-Logs:**
+- Status: running, completed, failed
+- Statistiken: imported_count, updated_count, skipped_count, error_count
+- Details: JSON mit Fehlermeldungen
+- Dauer in Sekunden
+
+**Dashboard-Integration:**
+- Link "📦 Lieferanten & CSV-Import"
+
+#### 5. Produkttypen-Konzept
+**Hybrid-Ansatz für verschiedene Produktquellen:**
+
+**1. CSV-Import (Dropshipping):**
+- Stündlicher Import aus Lieferanten-CSV
+- Bei Verkauf: Dynamisch zu HelloCash (Kategorie "Online-Shop")
+- Kein Lagerbestand in HelloCash
+
+**2. Ausstellungs-Artikel (Lieferanten vor Ort):**
+- In HelloCash (Kategorie "Showroom")
+- `in_showroom = 1`
+- Mit Lagerbestand
+
+**3. HelloCash-Artikel (eigene Ware):**
+- Manuell ausgewählte HelloCash-Artikel für Shop
+- Im Shop anzeigbar
+
+### Offene Punkte
+
+#### Cronjob-Script für CSV-Import
+**Status:** ⏳ Ausstehend
+
+**Anforderung:**
+- Stündlicher automatischer Import
+- Script: `/scripts/cron-csv-import.php`
+- Durchläuft alle aktiven Lieferanten
+- Ruft CSVImporter auf
+
+**Alternativen ohne Cronjob:**
+- Webhook-basierter Trigger
+- Manueller Import über Admin-Interface
+
+### Nächste Session
+
+#### Priorität Hoch
+- Cronjob-Script für CSV-Import erstellen
+- PayPal-Integration (Zahlung abwickeln)
+- CSV-Import testen mit echten Lieferanten-Daten
+
+#### Priorität Mittel
+- HelloCash-Sync für eigene Artikel (Phase 3)
+- Dropshipping-API-Integration (falls Lieferant API bietet)
+- Bewertungen einbinden (Google Reviews API)
+
+#### Priorität Niedrig
+- Newsletter-System
+- Statistiken im Dashboard
+- CSV-Export für Bestellungen
+
+
+---
+
+## Session 2026-01-02: Detaillierte Produktinformationen & Steuersätze
+
+### Implementierte Features
+
+#### 1. Kategorien-Löschschutz (Gefahrenzone)
+**Status:** ✅ Abgeschlossen
+
+**Implementierung:**
+- Datei: `src/admin/category-edit.php`
+- Löschung nur möglich, wenn:
+  - Keine Produkte in der Kategorie vorhanden
+  - Keine Unterkategorien existieren
+- Visuelle Warnung mit Anzahl der Blocker
+- Delete-Button wird nur bei Erfüllung aller Bedingungen angezeigt
+
+**Code:**
+```php
+// Prüfen ob Kategorie Produkte hat
+$product_count = $db->querySingle(
+    "SELECT COUNT(*) as count FROM products WHERE category_id = :id",
+    [':id' => $category_id]
+);
+// Prüfen ob Unterkategorien existieren
+$sub_count = $db->querySingle(
+    "SELECT COUNT(*) as count FROM categories WHERE parent_id = :id",
+    [':id' => $category_id]
+);
+$can_delete = empty($delete_blockers);
+```
+
+#### 2. Steuersatz-Verwaltung
+**Status:** ✅ Abgeschlossen
+
+**Migration:** `database/migrations/017_product_tax_rate.sql`
+```sql
+ALTER TABLE products
+ADD COLUMN tax_rate DECIMAL(5,2) DEFAULT 19.00 COMMENT 'Steuersatz in Prozent' AFTER price,
+ADD INDEX idx_tax_rate (tax_rate);
+```
+
+**Features:**
+- Standard: 19% (Regelsteuersatz)
+- Optional: 7% (ermäßigt), 0% (steuerfrei)
+- Dropdown in Produktverwaltung (`src/admin/product-edit.php`)
+- CSV-Import-Support mit Validierung (`src/core/CSVImporter.php`)
+- HelloCash-Export mit dynamischen Steuersätzen (`src/pages/kasse.php`)
+
+**CSV-Validierung:**
+```php
+$tax_rate = 19.00;
+if (!empty($data['tax_rate'])) {
+    $csv_tax = (float)$data['tax_rate'];
+    if (in_array($csv_tax, [0, 7, 19])) {
+        $tax_rate = $csv_tax;
+    }
+}
+```
+
+#### 3. Phase 1 - Erweiterte Produktfelder
+**Status:** ✅ Abgeschlossen
+
+**Migration:** `database/migrations/018_product_details.sql`
+```sql
+ALTER TABLE products
+ADD COLUMN warranty_months INT DEFAULT 24 COMMENT 'Garantie in Monaten' AFTER condition_type,
+ADD COLUMN images JSON DEFAULT NULL COMMENT 'Zusätzliche Produktbilder (bis zu 5 URLs)' AFTER image_url;
+```
+
+**Neue Felder:**
+
+1. **Artikelzustand** (`condition_type` - bereits vorhanden):
+   - ✨ Neu
+   - 🔧 Refurbished
+   - 📦 Gebraucht
+   - ENUM-Validierung im CSV-Import
+
+2. **Garantie** (`warranty_months`):
+   - Standard: 24 Monate
+   - Range: 0-60 Monate
+   - Input in `product-edit.php`
+   - CSV-Import mit Validierung
+
+3. **Zusätzliche Bilder** (`images`):
+   - JSON-Array mit bis zu 5 URLs
+   - Input-Felder in `product-edit.php`
+   - CSV-Mapping: `image1` bis `image5`
+   - Anzeige in Produktgalerie
+
+**CSV-Import Erweiterungen:**
+- `src/admin/supplier-edit.php`: Mapping-Felder hinzugefügt
+- `src/core/CSVImporter.php`: Verarbeitung mit Validierung
+- JSON-Encoding für Bilder-Array
+
+#### 4. Phase 2 - Detaillierte Produktansicht
+**Status:** ✅ Abgeschlossen
+
+**Datei:** `src/pages/produkt-detail.php`
+
+**Features:**
+
+1. **Bildergalerie:**
+   - Hauptbild-Anzeige
+   - Thumbnail-Navigation (Hauptbild + bis zu 5 zusätzliche)
+   - JavaScript Click-Handler für Bildwechsel
+   - Responsive Design mit CSS Grid
+
+2. **Trust-Badges:**
+   ```php
+   <?php if ($product['free_shipping']): ?>
+       <div class="trust-item">
+           <span class="trust-icon">📦</span>
+           <span>Versandkostenfrei</span>
+       </div>
+   <?php endif; ?>
+   ```
+   - Versandkostenfrei-Badge
+   - Garantie-Anzeige (dynamisch)
+   - Oldenburg-Verfügbarkeit
+
+3. **Erweiterte Produktinformationen:**
+   - Tab-System für übersichtliche Darstellung
+   - "Garantie & Lieferung" Tab mit Details
+   - Zustandsbeschreibung mit farbigen Badges
+   - Dynamische Steuersatz-Anzeige
+
+4. **Thumbnail-Navigation:**
+   ```javascript
+   document.querySelectorAll('.thumbnail').forEach(thumb => {
+       thumb.addEventListener('click', function() {
+           const imageUrl = this.dataset.image;
+           document.getElementById('main-product-image').src = imageUrl;
+           document.querySelectorAll('.thumbnail').forEach(t => t.classList.remove('active'));
+           this.classList.add('active');
+       });
+   });
+   ```
+
+#### 5. Darkmode-Support für URL-Inputs
+**Status:** ✅ Abgeschlossen
+
+**Problem:**
+- URL-Eingabefelder wurden nicht im CSS gestylt
+- Fehlende Theme-Unterstützung → weiße Schrift auf weißem Grund
+- Zu große Abstände zwischen Feldern
+
+**Lösung:**
+
+1. **CSS erweitert** (`src/assets/css/components.css`):
+   ```css
+   .form-group input[type="text"],
+   .form-group input[type="email"],
+   .form-group input[type="tel"],
+   .form-group input[type="url"],  /* ← NEU */
+   .form-group input[type="password"],
+   .form-group input[type="number"],
+   .form-group input[type="date"],
+   .form-group input[type="time"],
+   .form-group select,
+   .form-group textarea {
+       background: var(--bg-primary);
+       color: var(--text-primary);
+       /* ... */
+   }
+   ```
+
+2. **Abstände optimiert** (`src/admin/product-edit.php`):
+   ```php
+   <div class="form-group" style="margin-bottom: 0.75rem;">
+       <label for="image_url_<?= $i ?>">Bild <?= $i ?></label>
+       <input type="url" id="image_url_<?= $i ?>" name="image_url_<?= $i ?>" />
+   </div>
+   ```
+
+**Resultat:**
+- Korrekte Theme-Farben in Light- und Darkmode
+- Kompaktere, übersichtlichere Darstellung
+- Konsistentes Styling mit anderen Form-Elementen
+
+### Geänderte Dateien
+
+#### Backend
+- `database/migrations/017_product_tax_rate.sql` - Steuersatz-Feld
+- `database/migrations/018_product_details.sql` - Garantie & Bilder
+- `src/core/CSVImporter.php` - Verarbeitung neuer Felder mit Validierung
+- `src/core/Cart.php` - tax_rate zu Produktabfrage hinzugefügt
+
+#### Admin-Interface
+- `src/admin/category-edit.php` - Löschschutz mit Bedingungsprüfung
+- `src/admin/product-edit.php` - Neue Felder (Steuersatz, Zustand, Garantie, 5 Bilder)
+- `src/admin/products.php` - Anzeige neuer Felder in Übersicht
+- `src/admin/supplier-edit.php` - CSV-Mappings erweitert
+
+#### Frontend
+- `src/pages/produkt-detail.php` - Komplett überarbeitet mit Galerie
+- `src/pages/kasse.php` - Dynamische Steuersätze für HelloCash
+- `src/assets/css/components.css` - URL-Input-Support für Darkmode
+
+### Git-Commits
+
+```bash
+54e3842 - Kategorie-Löschschutz implementiert
+2ce0f25 - Steuersatz-Feld hinzugefügt
+a88af57 - Steuersatz in Admin-Interface integriert
+9bc8795 - Steuersatz Migration + HelloCash Export
+b95fb76 - Migration 018: Garantie & Bilder
+ecd5716 - Phase 1: Admin-Interface für neue Felder
+6607a70 - Phase 1: CSV-Import Erweiterung
+a428bc1 - Phase 1: Validierung in CSVImporter
+fd4cf02 - Phase 2: Detaillierte Produktansicht mit Galerie
+df27e35 - Darkmode Fix Versuch 1 (nicht erfolgreich)
+062f559 - Darkmode Fix Versuch 2 (teilweise)
+501f590 - Darkmode Fix: form-group Struktur
+c4e3356 - Fix: URL-Input Darkmode-Support + kompaktere Abstände
+```
+
+### Erkenntnisse & Best Practices
+
+#### CSS-Typing für Inputs
+**Problem:** Vergessen `input[type="url"]` in CSS-Selektoren einzubeziehen
+**Lösung:** Alle Input-Typen explizit auflisten oder `input[type]` verwenden
+**Lesson:** Bei Theme-Support alle verwendeten Input-Typen prüfen
+
+#### Darkmode-Support
+**Strategie:**
+1. CSS-Variablen verwenden: `var(--bg-primary)`, `var(--text-primary)`
+2. Standard-Klassen bevorzugen (z.B. `form-group`)
+3. Inline-Styles nur für strukturelles Layout
+4. Nie Farben inline überschreiben
+
+#### Form-Abstände
+**Kompakte Darstellung:**
+- Standard `form-group` margin-bottom: ~1.5rem
+- Für kompakte Listen: `margin-bottom: 0.75rem` inline überschreiben
+- Alternative: Eigene CSS-Klasse `.form-group-compact`
+
+#### JSON-Datenfelder
+**Images-Array:**
+```php
+// Speichern
+$images_json = !empty($images) ? json_encode($images) : null;
+
+// Laden
+$existing_images = [];
+if (!empty($product['images'])) {
+    $existing_images = json_decode($product['images'], true) ?: [];
+}
+```
+
+**Vorteile:**
+- Flexibel erweiterbar
+- Keine Schema-Änderungen nötig
+- Einfache Validierung
+
+#### CSV-Import Validierung
+**Pattern:**
+```php
+// Standard-Wert definieren
+$field = $default_value;
+
+// CSV-Wert prüfen und nur bei Validität überschreiben
+if (!empty($data['field'])) {
+    $csv_value = process($data['field']);
+    if (is_valid($csv_value)) {
+        $field = $csv_value;
+    }
+}
+```
+
+**Angewendet auf:**
+- Steuersätze: nur 0, 7, 19 erlaubt
+- Zustand: nur neu, refurbished, gebraucht
+- Garantie: nur 0-60 Monate
+
+### Nächste Session
+
+#### Aktualisierte Prioritäten
+
+**Priorität Hoch:**
+- ✅ Detaillierte Produktinformationen (abgeschlossen)
+- Cronjob-Script für CSV-Import erstellen
+- PayPal-Integration (Zahlung abwickeln)
+- CSV-Import testen mit echten Lieferanten-Daten
+
+**Priorität Mittel:**
+- HelloCash-Sync für eigene Artikel (Phase 3)
+- Dropshipping-API-Integration (falls Lieferant API bietet)
+- Bewertungen einbinden (Google Reviews API)
+
+**Priorität Niedrig:**
+- Newsletter-System
+- Statistiken im Dashboard
+- CSV-Export für Bestellungen
+
+#### Optionale Erweiterungen
+
+**Produktdetails:**
+- Video-URLs für Produktvideos
+- Technische Spezifikationen als JSON-Feld
+- 360°-Ansichten für Produkte
+- PDF-Downloads (Datenblätter, Handbücher)
+
+**CSV-Import:**
+- Import-Preview vor Ausführung
+- Mapping-Vorlagen für häufige Formate
+- Fehler-Export als CSV
+- Automatische Kategorie-Erstellung
+
+**Galerie:**
+- Image-Lazy-Loading
+- Lightbox für Vollbildansicht
+- Zoom-Funktion
+- Touch-Swipe für mobile Geräte
+
