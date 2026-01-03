@@ -258,28 +258,48 @@
 
 ---
 
-## 🚀 Phase 3: Deployment vorbereiten
+## 🚀 Phase 3: Deployment vorbereiten (SSH/Git)
 
-- [ ] **Server-Vorbereitung**
-  - [ ] FTP-Zugang testen
-  - [ ] Datenbank anlegen (PostgreSQL/MySQL)
-  - [ ] PHP 8.2 aktivieren
+- [ ] **Server-Vorbereitung via SSH**
+  - [ ] SSH-Zugang testen: `ssh username@server-address`
+  - [ ] Git auf Server verfügbar prüfen: `git --version`
+  - [ ] Composer auf Server verfügbar prüfen: `composer --version`
+  - [ ] Web-Root identifizieren (z.B. `~/public_html`, `/var/www/html`)
+  - [ ] Datenbank anlegen (MySQL)
+  - [ ] Datenbank-User mit Rechten anlegen
+  - [ ] PHP 8.2 aktivieren (falls nicht Standard)
   - [ ] SSL-Zertifikat (Let's Encrypt oder Shared SSL)
-  - [ ] Dateirechte prüfen (Sessions, Logs, Uploads)
 
-- [ ] **Config anpassen**
-  - [ ] `config.production.php` mit echten Daten füllen
-  - [ ] DB: Host, Name, User, Passwort
-  - [ ] SMTP: Host, Port, User, Passwort
-  - [ ] HelloCash: API-Key (Produktiv-Umgebung!)
-  - [ ] BASE_URL auf echte Domain setzen
+- [ ] **Repository auf Server clonen**
+  - [ ] SSH-Key für GitHub/GitLab hinterlegen (optional, aber empfohlen)
+  - [ ] Repository clonen: `git clone <repo-url> .`
+  - [ ] Production Branch auschecken: `git checkout production`
+  - [ ] Composer Dependencies installieren: `composer install --no-dev`
 
-- [ ] **Deployment-Anleitung erstellen**
-  - [ ] Welche Dateien hochladen?
-  - [ ] Welche Ordner-Struktur?
-  - [ ] Datenbank-Migration (SQL-Dumps)
-  - [ ] Config umbenennen (`config.production.php` → `config.php`)
-  - [ ] Dateirechte setzen
+- [ ] **Config auf Server erstellen**
+  - [ ] `config.production.php` auf Server kopieren zu `config.php`
+  - [ ] `config.php` mit echten Daten füllen:
+    - [ ] DB: Host, Name, User, Passwort
+    - [ ] SMTP: Host, Port, User, Passwort
+    - [ ] HelloCash: API-Key (Produktiv-Umgebung!)
+    - [ ] BASE_URL auf echte Domain setzen
+  - [ ] `.env` Datei erstellen (falls genutzt)
+
+- [ ] **Berechtigungen setzen**
+  - [ ] `chmod -R 755 .` (alle Dateien)
+  - [ ] `chmod -R 777 logs/` (Log-Verzeichnis beschreibbar)
+  - [ ] `chmod -R 777 uploads/` (Upload-Verzeichnis beschreibbar)
+  - [ ] `chmod 644 config.php` (Config lesbar, nicht ausführbar)
+
+- [ ] **Datenbank-Setup**
+  - [ ] Schema importieren: `mysql -u user -p dbname < database/schema.sql`
+  - [ ] Test-Daten importieren (optional): `mysql -u user -p dbname < database/test-data.sql`
+  - [ ] Datenbank-Verbindung testen
+
+- [ ] **Deployment-Script erstellen (optional)**
+  - [ ] `deploy-ssh.sh` Script lokal erstellen
+  - [ ] SSH-Credentials konfigurieren
+  - [ ] Testen mit Dry-Run
 
 - [ ] **SEO & Meta**
   - [ ] Meta-Tags: Title, Description für alle Seiten

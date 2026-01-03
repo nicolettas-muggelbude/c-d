@@ -64,34 +64,76 @@
 - Schriftzug "wittfoot" in Grau mit grünem "wi"
 - Farben: Orange, Hellgrün, Dunkelgrau
 
-## Server-Spezifikationen (Reseller-PlanB)
+## Server-Spezifikationen (Professional Web Hosting)
+
+### Hosting-Plan
+- **Tarif:** Professional Web (Shared Hosting)
+- **Monatliche Kosten:** 19,99 €
+- **Vertragslaufzeit:** 1 Monat (flexibel)
+- **Einrichtungsgebühr:** 0,00 €
 
 ### Verfügbare Ressourcen
-- **Webspace:** 350 GB SSD
-- **Traffic:** Unbegrenzt
-- **MySQL-Datenbanken:** 400 (mehr als ausreichend!)
-- **PHP:** Versionen 5.6, 7.0-7.4, 8.0-8.2 verfügbar
-  - **Empfehlung:** PHP 8.2 verwenden! ✅
-  - **Status:** Aktive Sicherheitsupdates bis Dez. 2025
-- **Perl:** Version 5.20
-- **MySQL:** Version 5.7 (ausreichend für Projekt)
-- **PHP Memory Limit:** 156 MB ✅ (gut für Bildverarbeitung & Shop)
-- **Max Execution Time:** 60 Sekunden ✅ (Standard, ausreichend)
-- **SSL:** Shared SSL verfügbar
-- **E-Mail:** 10.000 POP3/IMAP Accounts
-- **SLA:** 99,9% Verfügbarkeit
+- **Webspace:** 300 GB
+- **Traffic:** Flatrate (unbegrenzt)
+- **MySQL-Datenbanken:** 500 Datenbanken ✅
+- **Domains inklusive:** 5
+- **Zusatzdomains:** Unbegrenzt
+- **Subdomains:** Unlimited
+- **Mailbox Speicherplatz:** 300 GB
+- **FTP-Zugänge:** 50
+- **Cronjobs:** 100 ✅ (für CSV-Import, Email-Erinnerungen, Backups)
+- **SSL:** Let's Encrypt / Shared SSL verfügbar
 
-### Einschränkungen
-- ❌ **Kein SSH** - keine Shell-Befehle auf Server
-- ❌ **Kein SFTP** - nur FTP verfügbar
-- ❌ **MySQL extern:** Nein - nur interne Verbindung
-- ❌ **Kein Composer** direkt auf Server
+### Wichtige Features
+- ✅ **SSH-Zugang vorhanden!** 🎉
+  - Git-basiertes Deployment möglich
+  - CLI-Tools nutzbar (php, mysql, composer)
+  - Automatisierte Deployment-Scripts
+  - Direkte Datenbank-Migration via SSH
+- ✅ **Cronjobs:** 100 verfügbar für Automatisierung
+- ✅ **Website Builder:** Verfügbar (wird aber nicht genutzt)
+- ✅ **Kundenlimit pro CPU:** 10 (Shared Hosting)
+
+### PHP & Datenbank
+- **PHP:** Version 8.0+ verfügbar
+  - **Empfehlung:** PHP 8.2 verwenden ✅
+  - Aktive Sicherheitsupdates
+- **MySQL:** Version verfügbar (ausreichend für Projekt)
+- **PHP Memory Limit:** Shared Hosting Standard (ausreichend)
+- **Max Execution Time:** Standard (ausreichend)
+
+### Deployment-Möglichkeiten mit SSH
+**Mit SSH-Zugang können wir:**
+1. **Git-basiertes Deployment**
+   ```bash
+   # Auf Server via SSH
+   git clone <repo-url>
+   git pull  # Für Updates
+   ```
+
+2. **Composer nutzen**
+   ```bash
+   composer install --no-dev --optimize-autoloader
+   ```
+
+3. **Automatisierte Deployment-Scripts**
+   - SSH-basierte Deployment-Automation
+   - Wartungsmodus per Script aktivieren/deaktivieren
+   - Datenbank-Migrationen direkt ausführen
+
+4. **Cronjobs einrichten** (100 verfügbar!)
+   - CSV-Import automatisieren
+   - Email-Erinnerungen
+   - Automatische Backups
+   - Cache-Bereinigung
 
 ### Konsequenzen für Entwicklung
-- Entwicklung & Build lokal
-- Deployment via FTP
-- PHP-Framework muss ohne CLI auskommen
-- Keine Server-seitigen Cronjobs möglich (nur wenn Hoster Cronjobs anbietet)
+- ✅ Entwicklung & Build lokal
+- ✅ **Deployment via SSH/Git** (bevorzugt) oder FTP
+- ✅ **CLI-Tools verfügbar** (php, mysql, git, composer)
+- ✅ **Server-seitige Cronjobs möglich** (100 Slots)
+- ✅ Schnellere Updates durch `git pull`
+- ⚠️ Shared Hosting Einschränkungen (keine Root-Rechte, Ressourcen-Limits)
 
 ## Technische Architektur-Entscheidungen
 

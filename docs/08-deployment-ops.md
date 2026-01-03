@@ -1,13 +1,145 @@
 # Deployment & Operations
 
 ## Inhaltsverzeichnis
-- Deployment-System
+- **Git-basiertes Deployment (SSH)** - BEVORZUGT ✅
 - Wartungsmodus
-- Update-Workflow
-- Dateistruktur
-- Git-basierte Deployments
+- Update-Workflow mit Git
+- Alternative: FTP-basiertes Deployment (Fallback)
 - Cronjobs
 - Backup-Strategie
+- Health-Check & Monitoring
+
+---
+
+## 🚀 Git-basiertes Deployment via SSH (BEVORZUGT)
+
+**Server:** Professional Web Hosting mit SSH-Zugang ✅
+
+### Erstmaliges Server-Setup
+
+```bash
+# 1. Via SSH auf Server einloggen
+ssh username@server-address
+
+# 2. In Web-Root navigieren
+cd /pfad/zum/webroot  # z.B. /var/www/html oder ~/public_html
+
+# 3. Repository clonen
+git clone https://github.com/username/pc-wittfoot.git .
+# ODER via SSH-Key
+git clone git@github.com:username/pc-wittfoot.git .
+
+# 4. Production Branch auschecken
+git checkout production
+
+# 5. Composer Dependencies installieren
+composer install --no-dev --optimize-autoloader
+
+# 6. Berechtigungen setzen
+chmod -R 755 .
+chmod -R 777 logs/
+chmod -R 777 uploads/
+chmod 644 .env
+
+# 7. Datenbank importieren
+mysql -u db_user -p db_name < database/schema.sql
+
+# 8. Config-Datei anpassen
+cp config.production.php config.php
+nano config.php  # DB-Credentials, API-Keys eintragen
+```
+
+### Standard-Deployment-Workflow
+
+```bash
+# 1. Via SSH einloggen
+ssh username@server-address
+
+# 2. Zum Projekt-Verzeichnis
+cd /pfad/zum/webroot
+
+# 3. Wartungsmodus aktivieren
+touch MAINTENANCE
+echo "Update läuft - gleich zurück!" > MAINTENANCE
+
+# 4. Aktuelle Änderungen pullen
+git pull origin production
+
+# 5. Composer Dependencies aktualisieren (falls nötig)
+composer install --no-dev --optimize-autoloader
+
+# 6. Datenbank-Migration ausführen (falls nötig)
+mysql -u db_user -p db_name < database/migration_xxx.sql
+
+# 7. Cache leeren (falls implementiert)
+# php artisan cache:clear  # Laravel
+# rm -rf cache/*           # Custom
+
+# 8. Wartungsmodus deaktivieren
+rm MAINTENANCE
+
+# 9. Health-Check prüfen
+curl https://pc-wittfoot.de/api/health-check
+```
+
+### Automatisiertes Deployment-Script (deploy-ssh.sh)
+
+```bash
+#!/bin/bash
+# deploy-ssh.sh - Automatisches Deployment via SSH
+
+# Konfiguration
+SERVER_HOST="server-address"
+SERVER_USER="username"
+SERVER_PATH="/pfad/zum/webroot"
+BRANCH="production"
+
+echo "🚀 Starting deployment to $SERVER_HOST..."
+
+# SSH-Befehl ausführen
+ssh $SERVER_USER@$SERVER_HOST << 'ENDSSH'
+    cd SERVER_PATH
+
+    echo "📦 Pulling latest changes..."
+    git pull origin BRANCH
+
+    echo "📚 Installing dependencies..."
+    composer install --no-dev --optimize-autoloader
+
+    echo "🔧 Setting permissions..."
+    chmod -R 755 .
+    chmod -R 777 logs/ uploads/
+
+    echo "✅ Deployment complete!"
+ENDSSH
+
+echo "🏥 Running health check..."
+curl -s https://pc-wittfoot.de/api/health-check | python3 -m json.tool
+
+echo "✅ Deployment finished!"
+```
+
+### Vorteile Git-Deployment
+- ✅ **Schnell:** Nur geänderte Dateien werden übertragen
+- ✅ **Sicher:** Versionskontrolle, einfaches Rollback
+- ✅ **Automatisierbar:** Scripts, CI/CD möglich
+- ✅ **Nachvollziehbar:** Git-History zeigt alle Änderungen
+- ✅ **Keine FTP-Tools nötig:** Alles über SSH
+
+### Rollback bei Problemen
+
+```bash
+# Letzten Commit rückgängig machen
+git reset --hard HEAD~1
+
+# Zu spezifischem Commit zurück
+git reset --hard <commit-hash>
+
+# Oder: Zu letztem funktionierenden Tag
+git checkout <tag-name>
+```
+
+---
 
 ## Session 2026-01-01 (Fortsetzung): Deployment-System mit Wartungsmodus
 
