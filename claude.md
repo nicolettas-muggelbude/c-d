@@ -75,7 +75,7 @@
 
 ---
 
-## 🎯 Aktueller Stand (2026-01-02)
+## 🎯 Aktueller Stand (2026-01-04)
 
 ### ✅ Abgeschlossen
 
@@ -85,8 +85,14 @@
 - Design-System
 
 **Phase 2: Entwicklung** (laufend)
-- ✅ Terminbuchungs-System
+- ✅ Terminbuchungs-System (vollständig)
+  - Flatpickr Datepicker mit ausgegrauten ausgebuchten Tagen
+  - API-Endpoint für vollständig ausgebuchte Tage
+  - Server-seitige Doppelbuchungs-Prüfung
+  - Verfügbare Slots Anzeige (X von Y frei)
+  - Wochentag-Validierung (Di-Fr für fixed, Di-Sa für walkin)
 - ✅ HelloCash Integration (Kunden, Kassenanbindung)
+  - Korrigierte Duplikaterkennung (nur bei Vorname UND Email identisch)
 - ✅ Email-System mit PHPMailer
 - ✅ Deployment-System mit Wartungsmodus
 - ✅ Shop-System mit CSV-Import
@@ -96,6 +102,7 @@
 
 ### 🚧 In Arbeit
 
+- Terminmodul: Umfassende Tests (Workflow, Email, HelloCash)
 - PayPal-Integration (Zahlung abwickeln)
 - Cronjob-Script für CSV-Import
 
@@ -121,7 +128,7 @@
 
 **Backend:**
 - PHP 8.2+ (ohne Framework)
-- PostgreSQL (Datenbank)
+- MySQL (Datenbank)
 - Native Sessions (filesystembasiert)
 
 **Frontend:**
@@ -169,15 +176,71 @@
 
 ## 🚀 Nächste Session: Prioritäten
 
-1. **PayPal-Integration fertigstellen** (Zahlungsabwicklung)
-2. **Cronjob für CSV-Import** (Automatisierung)
-3. **CSV-Import testen** (mit echten Lieferanten-Daten)
-4. **Produktions-Deployment** (Live-Gang vorbereiten)
+1. **Terminmodul testen** (Kompletter Workflow, Email-Versand, HelloCash-Integration)
+2. **Blog-System überarbeiten** (Übersicht, Post-Detail, Admin-Verwaltung)
+3. **Production Branch erstellen** (Shop ausblenden, nur Terminbuchung live)
+4. **PayPal-Integration fertigstellen** (Zahlungsabwicklung)
+5. **Cronjob für CSV-Import** (Automatisierung)
 
 ---
 
 ## 📞 Kontakt & Support
 
 - **Projekt:** PC-Wittfoot UG Online-Shop & Terminbuchung
-- **Dokumentation:** Stand 2026-01-02
+- **Dokumentation:** Stand 2026-01-04
 - **Backup:** `docs/claude-backup-full.md` (85KB, 2934 Zeilen)
+
+---
+
+## 📅 Session-Log 2026-01-04
+
+### Terminbuchungs-System: Flatpickr & Verfügbarkeits-Validierung
+
+**Aufgabenstellung:**
+- Doppelbuchungen verhindern (zwei Buchungen auf gleichen Slot waren möglich)
+- HelloCash: Duplikate bei gleicher Adresse, aber unterschiedlichen Namen/Emails vermeiden
+- UX verbessern: Kunde soll VORHER sehen, welche Tage ausgebucht sind
+
+**Implementierte Lösungen:**
+
+1. **API-Endpoint für ausgebuchte Tage** (`src/api/fully-booked-dates.php`)
+   - Berechnet slots_per_day × max_bookings_per_slot
+   - Gibt alle vollständig ausgebuchten Tage zurück
+   - Route in `router.php` registriert
+
+2. **Flatpickr Datepicker Integration**
+   - Ersetzt HTML5 `<input type="date">` durch Flatpickr
+   - Lokale CSS-Datei (CSP-konform, kein CDN-Blocking)
+   - Custom Styling in PC-Wittfoot Grün (#8BC34A)
+   - Deaktiviert ungültige Wochentage (Mo/So/Sa bei fixed, Mo/So bei walkin)
+   - Deaktiviert vollständig ausgebuchte Tage
+   - UX-Verbesserungen: Kalender-Icon, klarer Placeholder-Text, cursor: pointer
+
+3. **Server-seitige Doppelbuchungs-Prüfung** (`src/api/booking.php`)
+   - Prüft vor INSERT ob Slot noch verfügbar
+   - Verwendet TIME_FORMAT() für korrekte Zeit-Vergleiche
+   - HTTP 409 Conflict bei ausgebuchtem Slot
+
+4. **HelloCash Duplikaterkennung korrigiert** (`src/core/HelloCashClient.php`)
+   - Alt: Skip bei Email ODER Telefon
+   - Neu: Skip nur bei Vorname UND Email identisch
+   - Erlaubt unterschiedliche Personen im selben Haushalt
+
+5. **Verfügbare Slots Anzeige** (`src/api/available-slots.php`)
+   - Zeigt "X von Y frei" für jeden Zeitslot
+   - TIME_FORMAT() Fix für korrekte Buchungszählung
+
+**Technische Details:**
+- Flatpickr v4.6.13 von cdnjs.cloudflare.com
+- CSS lokal gespeichert in `src/assets/css/flatpickr.min.css`
+- Deutsche Lokalisierung (l10n/de.js)
+- Custom CSS für Corporate Design Integration
+
+**Debugging-Erkenntnisse:**
+- CSP blockierte externe Stylesheets → Lösung: lokale CSS-Datei
+- HTML5 date input: keine Möglichkeit Tage zu deaktivieren
+- Flatpickr: type="text" statt type="date" erforderlich
+- Router: neue API-Endpoints müssen explizit registriert werden
+
+**Git-Commit:**
+- Alle Debug-Logs noch aktiv (für kommende Tests)

@@ -93,18 +93,18 @@ try {
     }
 
     // Gebuchte Slots zählen
-    $sql = "SELECT booking_time, COUNT(*) as count
+    $sql = "SELECT TIME_FORMAT(booking_time, '%H:%i') as time_slot, COUNT(*) as count
             FROM bookings
             WHERE booking_date = :date
             AND booking_type = 'fixed'
             AND status != 'cancelled'
-            GROUP BY booking_time";
+            GROUP BY time_slot";
 
     $bookedSlots = [];
     $result = $db->query($sql, [':date' => $date]);
 
     foreach ($result as $row) {
-        $bookedSlots[$row['booking_time']] = (int)$row['count'];
+        $bookedSlots[$row['time_slot']] = (int)$row['count'];
     }
 
     // Verfügbare Slots filtern

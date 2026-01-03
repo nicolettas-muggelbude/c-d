@@ -143,7 +143,46 @@ if (!empty($errors)) {
     exit;
 }
 
-error_log('Validation passed - preparing HelloCash integration');
+error_log('Validation passed - checking availability');
+
+// Doppelbuchung verhindern (nur bei festen Terminen)
+if ($data['booking_type'] === 'fixed') {
+    $db = Database::getInstance();
+
+    // Einstellungen laden
+    $settingRow = $db->querySingle("SELECT setting_value FROM booking_settings WHERE setting_key = 'max_bookings_per_slot'");
+    $maxBookingsPerSlot = (int)($settingRow['setting_value'] ?? 1);
+
+    // Aktuelle Buchungen für diesen Slot zählen
+    $sql = "SELECT COUNT(*) as count
+            FROM bookings
+            WHERE booking_date = :date
+            AND TIME_FORMAT(booking_time, '%H:%i') = :time
+            AND booking_type = 'fixed'
+            AND status != 'cancelled'";
+
+    $result = $db->querySingle($sql, [
+        ':date' => $data['booking_date'],
+        ':time' => $data['booking_time']
+    ]);
+
+    $currentBookings = (int)($result['count'] ?? 0);
+
+    if ($currentBookings >= $maxBookingsPerSlot) {
+        error_log("Booking rejected - slot full ({$currentBookings}/{$maxBookingsPerSlot})");
+        http_response_code(409); // Conflict
+        echo json_encode([
+            'success' => false,
+            'error' => 'Dieser Zeitslot ist leider bereits ausgebucht. Bitte wählen Sie einen anderen Termin.',
+            'error_code' => 'SLOT_FULL'
+        ]);
+        exit;
+    }
+
+    error_log("Slot available ({$currentBookings}/{$maxBookingsPerSlot})");
+}
+
+error_log('Availability check passed - preparing HelloCash integration');
 
 // HelloCash API Integration
 $hellocashUserId = null;

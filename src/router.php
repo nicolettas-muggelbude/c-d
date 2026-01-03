@@ -234,6 +234,10 @@ switch ($page) {
                 require __DIR__ . '/api/available-slots.php';
                 break;
 
+            case 'fully-booked-dates':
+                require __DIR__ . '/api/fully-booked-dates.php';
+                break;
+
             case 'hellocash-search':
                 require __DIR__ . '/api/hellocash-search.php';
                 break;

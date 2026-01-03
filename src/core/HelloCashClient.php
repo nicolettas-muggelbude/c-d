@@ -365,32 +365,32 @@ class HelloCashClient {
             ];
         }
 
-        // 1. Zuerst nach E-Mail suchen
+        // User nur als Duplikat erkennen wenn VORNAME UND EMAIL zusammen übereinstimmen
+        // Unterschiedliche Personen an gleicher Adresse sollen separate HelloCash-Einträge erhalten
         if (!empty($customerData['email'])) {
             $user = $this->findUserByEmail($customerData['email']);
 
             if ($user) {
-                return [
-                    'user_id' => $user['user_id'] ?? null,
-                    'is_new' => false,
-                    'error' => null
-                ];
+                // Vorname vergleichen (case-insensitive)
+                $existingFirstname = strtolower(trim($user['user_firstname'] ?? ''));
+                $newFirstname = strtolower(trim($customerData['firstname'] ?? ''));
+
+                // Nur wenn BEIDE übereinstimmen, existierenden User verwenden
+                if ($existingFirstname === $newFirstname) {
+                    return [
+                        'user_id' => $user['user_id'] ?? null,
+                        'is_new' => false,
+                        'error' => null
+                    ];
+                }
+
+                // Sonst: Email stimmt überein, aber anderer Vorname -> neuen User erstellen
+                error_log("HelloCash: Gleiche Email, anderer Vorname - erstelle neuen User (Email: {$customerData['email']}, Alt: $existingFirstname, Neu: $newFirstname)");
             }
         }
 
-        // 2. Nach Telefonnummer suchen (MIT Ländervorwahl)
-        if (!empty($customerData['phone_mobile']) && !empty($customerData['phone_country'])) {
-            $phoneWithCountry = $customerData['phone_country'] . ' ' . $customerData['phone_mobile'];
-            $user = $this->findUserByPhone($phoneWithCountry);
-
-            if ($user) {
-                return [
-                    'user_id' => $user['user_id'] ?? null,
-                    'is_new' => false,
-                    'error' => null
-                ];
-            }
-        }
+        // KEIN Check mehr auf Telefonnummer alleine
+        // Unterschiedliche Personen im selben Haushalt dürfen unterschiedliche HelloCash-Einträge haben
 
         // 3. Neuen User erstellen
         // Ländervorwahl (+49) zu ISO-Code (DE) konvertieren

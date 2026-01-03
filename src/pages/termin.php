@@ -7,7 +7,9 @@
 $page_title = 'Termin buchen | PC-Wittfoot UG';
 $page_description = 'Buchen Sie einen Termin bei PC-Wittfoot. Feste Termine oder spontane Besuche - wir sind für Sie da.';
 $current_page = 'termin';
-$extra_css = ['css/booking.css'];
+$extra_css = ['css/booking.css', 'css/flatpickr.min.css'];
+
+// Kein externes CSS mehr nötig
 
 include __DIR__ . '/../templates/header.php';
 ?>
@@ -156,13 +158,19 @@ include __DIR__ . '/../templates/header.php';
 
                 <div class="form-group">
                     <label for="booking_date">Datum wählen</label>
-                    <input type="date"
-                           id="booking_date"
-                           name="booking_date"
-                           class="form-control"
-                           required
-                           min="<?= date('Y-m-d', strtotime('+1 day')) ?>">
-                    <small class="form-help">Termine sind möglich: Dienstag bis Freitag</small>
+                    <div style="position: relative;">
+                        <input type="text"
+                               id="booking_date"
+                               name="booking_date"
+                               class="form-control"
+                               placeholder="📅 Klicken Sie hier, um einen Termin zu wählen"
+                               required
+                               readonly
+                               style="cursor: pointer; padding-right: 2.5rem;">
+                        <span style="position: absolute; right: 0.75rem; top: 50%; transform: translateY(-50%); pointer-events: none; font-size: 1.25rem;">📅</span>
+                    </div>
+                    <small class="form-help" id="date-help">Ausgebuchte Tage sind im Kalender ausgegraut</small>
+                    <div id="date-warning" class="alert alert-error" style="display: none; margin-top: 0.5rem;"></div>
                 </div>
 
                 <!-- Zeit-Auswahl (nur für feste Termine) -->
@@ -341,15 +349,93 @@ include __DIR__ . '/../templates/header.php';
     </div>
 </section>
 
+<!-- Flatpickr JS (CSS wird im Header geladen) -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/flatpickr/4.6.13/flatpickr.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/flatpickr/4.6.13/l10n/de.js"></script>
+
+<!-- Flatpickr Custom Styling (PC-Wittfoot Grün) -->
+<style>
+/* Ausgewähltes Datum - PC-Wittfoot Grün */
+.flatpickr-day.selected,
+.flatpickr-day.startRange,
+.flatpickr-day.endRange,
+.flatpickr-day.selected.inRange,
+.flatpickr-day.startRange.inRange,
+.flatpickr-day.endRange.inRange,
+.flatpickr-day.selected:focus,
+.flatpickr-day.startRange:focus,
+.flatpickr-day.endRange:focus,
+.flatpickr-day.selected:hover,
+.flatpickr-day.startRange:hover,
+.flatpickr-day.endRange:hover,
+.flatpickr-day.selected.prevMonthDay,
+.flatpickr-day.startRange.prevMonthDay,
+.flatpickr-day.endRange.prevMonthDay,
+.flatpickr-day.selected.nextMonthDay,
+.flatpickr-day.startRange.nextMonthDay,
+.flatpickr-day.endRange.nextMonthDay {
+    background: #8BC34A !important;
+    border-color: #8BC34A !important;
+}
+
+/* Heutiger Tag - helleres Grün */
+.flatpickr-day.today {
+    border-color: #8BC34A !important;
+}
+
+.flatpickr-day.today:hover,
+.flatpickr-day.today:focus {
+    border-color: #8BC34A !important;
+    background: #C5E1A5 !important;
+    color: #2C3E50 !important;
+}
+
+/* Hover-Effekt für verfügbare Tage */
+.flatpickr-day:hover:not(.flatpickr-disabled):not(.selected) {
+    background: #C5E1A5 !important;
+    border-color: #8BC34A !important;
+}
+</style>
+
 <script>
+console.log('=== Booking Script Started ===');
+
 // Globale Variablen
 let currentStep = 1;
+let fullyBookedDates = [];
 let formData = {
     booking_type: '',
     service_type: '',
     booking_date: '',
     booking_time: ''
 };
+
+console.log('Variables initialized');
+
+// Ausgebuchte Tage laden
+async function loadFullyBookedDates() {
+    console.log('loadFullyBookedDates() called');
+    try {
+        const response = await fetch('<?= BASE_URL ?>/api/fully-booked-dates?weeks=8');
+        console.log('API response:', response);
+        const result = await response.json();
+        console.log('API result:', result);
+
+        if (result.success) {
+            fullyBookedDates = result.fully_booked_dates || [];
+            console.log('Fully booked dates loaded:', fullyBookedDates);
+        }
+    } catch (error) {
+        console.error('Fehler beim Laden der ausgebuchten Tage:', error);
+    }
+}
+
+// Beim Laden der Seite ausgebuchte Tage laden
+console.log('Registering DOMContentLoaded listener...');
+document.addEventListener('DOMContentLoaded', function() {
+    console.log('DOMContentLoaded fired!');
+    loadFullyBookedDates();
+});
 
 // Schritt-Navigation
 function nextStep(step) {
@@ -385,7 +471,40 @@ function nextStep(step) {
 }
 
 function prevStep(step) {
-    nextStep(step);
+    // Beim Zurückgehen KEINE Validierung - Nutzer soll immer zurück können
+
+    // Radio-Buttons im Zielschritt deaktivieren, damit sie erneut klickbar sind
+    if (step === 1) {
+        // Terminart-Auswahl zurücksetzen
+        document.querySelectorAll('input[name="booking_type"]').forEach(radio => {
+            radio.checked = false;
+        });
+    } else if (step === 2) {
+        // Dienstleistungs-Auswahl zurücksetzen
+        document.querySelectorAll('input[name="service_type"]').forEach(radio => {
+            radio.checked = false;
+        });
+    }
+
+    // Schritt wechseln
+    document.querySelectorAll('.booking-step').forEach(el => el.classList.remove('active'));
+    document.querySelectorAll('.progress-step').forEach(el => el.classList.remove('active', 'completed'));
+
+    document.querySelector(`.booking-step[data-step="${step}"]`).classList.add('active');
+    for (let i = 1; i < step; i++) {
+        document.querySelector(`.progress-step[data-step="${i}"]`).classList.add('completed');
+    }
+    document.querySelector(`.progress-step[data-step="${step}"]`).classList.add('active');
+
+    currentStep = step;
+
+    // Spezielle Aktionen pro Schritt
+    if (step === 3) {
+        setupStep3();
+    }
+
+    // Scroll to top
+    window.scrollTo({ top: 0, behavior: 'smooth' });
 }
 
 // Schritt-Validierung
@@ -434,9 +553,74 @@ function setupStep3() {
         ? 'Wann möchten Sie kommen?'
         : 'An welchem Tag möchten Sie vorbeikommen?';
 
-    if (isFixed) {
+    // Datum-Validierung hinzufügen
+    setupDateValidation();
+
+    if (isFixed && formData.booking_date) {
         loadTimeSlots();
     }
+}
+
+// Flatpickr Datepicker initialisieren
+let flatpickrInstance = null;
+
+function setupDateValidation() {
+    console.log('setupDateValidation() called - initializing Flatpickr');
+
+    const dateInput = document.getElementById('booking_date');
+    const bookingType = formData.booking_type;
+
+    // Falls bereits initialisiert, destroy und neu initialisieren
+    if (flatpickrInstance) {
+        flatpickrInstance.destroy();
+    }
+
+    // Wochentage die deaktiviert werden sollen
+    let disabledDays = [];
+    if (bookingType === 'fixed') {
+        // Feste Termine: nur Di-Fr (2-5) erlaubt -> Mo, Sa, So deaktivieren
+        disabledDays = [0, 1, 6]; // Sonntag, Montag, Samstag
+    } else if (bookingType === 'walkin') {
+        // Walk-in: Di-Sa (2-6) erlaubt -> So, Mo deaktivieren
+        disabledDays = [0, 1]; // Sonntag, Montag
+    }
+
+    console.log('Disabled weekdays:', disabledDays);
+    console.log('Fully booked dates:', fullyBookedDates);
+
+    // Flatpickr initialisieren
+    flatpickrInstance = flatpickr(dateInput, {
+        locale: 'de',
+        dateFormat: 'Y-m-d',
+        minDate: 'today',
+
+        // Tage deaktivieren
+        disable: [
+            // Wochentage deaktivieren
+            function(date) {
+                return disabledDays.includes(date.getDay());
+            },
+            // Ausgebuchte Tage deaktivieren
+            ...fullyBookedDates
+        ],
+
+        // Bei Auswahl
+        onChange: function(selectedDates, dateStr, instance) {
+            console.log('Flatpickr: Date selected:', dateStr);
+            formData.booking_date = dateStr;
+
+            // Zeitslots laden für feste Termine
+            if (bookingType === 'fixed') {
+                loadTimeSlots();
+            }
+        },
+
+        onReady: function(selectedDates, dateStr, instance) {
+            console.log('Flatpickr ready!', instance);
+        }
+    });
+
+    console.log('Flatpickr instance created:', flatpickrInstance);
 }
 
 // Zeitslots laden (dynamisch von API)
@@ -472,14 +656,22 @@ async function loadTimeSlots() {
             const button = document.createElement('button');
             button.type = 'button';
             button.className = 'time-slot-btn';
-            button.textContent = slot.time;
+
+            // Verfügbarkeitsinfo anzeigen
+            const availableCount = slot.max - slot.booked;
+            const availabilityText = availableCount > 0
+                ? ` (${availableCount} von ${slot.max} frei)`
+                : ' (ausgebucht)';
+
+            button.innerHTML = `<span class="time">${slot.time}</span><small class="availability">${availabilityText}</small>`;
 
             if (!slot.available) {
                 button.classList.add('disabled');
                 button.disabled = true;
-                button.title = 'Bereits gebucht';
+                button.title = 'Bereits ausgebucht';
             } else {
                 button.onclick = () => selectTimeSlot(slot.time, button);
+                button.title = `Noch ${availableCount} ${availableCount === 1 ? 'Platz' : 'Plätze'} verfügbar`;
             }
 
             timeSlotsContainer.appendChild(button);
@@ -572,7 +764,14 @@ document.getElementById('booking-form').addEventListener('submit', async functio
 
             window.scrollTo({ top: 0, behavior: 'smooth' });
         } else {
-            alert('Fehler bei der Buchung: ' + (result.error || 'Unbekannter Fehler'));
+            // Spezielle Behandlung für ausgebuchte Slots
+            if (result.error_code === 'SLOT_FULL') {
+                alert(result.error + '\n\nWir leiten Sie zurück zur Zeitauswahl.');
+                // Zurück zu Schritt 3 für neue Zeitauswahl
+                nextStep(3);
+            } else {
+                alert('Fehler bei der Buchung: ' + (result.error || 'Unbekannter Fehler'));
+            }
         }
     } catch (error) {
         alert('Fehler bei der Buchung. Bitte versuchen Sie es später erneut.');
@@ -580,35 +779,37 @@ document.getElementById('booking-form').addEventListener('submit', async functio
     }
 });
 
-// Datum-Validierung: Di-Fr für fixed, Di-Sa für walkin
-document.getElementById('booking_date').addEventListener('change', function() {
-    const date = new Date(this.value + 'T00:00:00');
-    const day = date.getDay();
-    const bookingType = formData.booking_type;
-
-    // 0 = Sonntag, 1 = Montag, 2 = Dienstag, ..., 6 = Samstag
-    if (bookingType === 'fixed') {
-        // Feste Termine: nur Di-Fr (2-5)
-        if (day === 0 || day === 6 || day === 1) {
-            alert('Feste Termine sind nur Dienstag bis Freitag möglich.');
-            this.value = '';
-            return;
-        }
-    } else if (bookingType === 'walkin') {
-        // Walk-in: Di-Sa (2-6)
-        if (day === 0 || day === 1) {
-            alert('Walk-in Termine sind nur Dienstag bis Samstag möglich.');
-            this.value = '';
-            return;
-        }
-    }
-
-    // Zeitslots neu laden für das gewählte Datum
-    formData.booking_date = this.value;
-    if (currentStep === 3) {
-        loadTimeSlots();
-    }
-});
 </script>
+
+<style>
+/* Datum-Validierung */
+input.invalid {
+    border-color: #f44336 !important;
+    background-color: rgba(244, 67, 54, 0.05);
+}
+
+.alert-error {
+    background-color: #ffebee;
+    border: 1px solid #f44336;
+    color: #c62828;
+    padding: 0.75rem;
+    border-radius: 4px;
+    font-size: 0.9rem;
+}
+
+@media (prefers-color-scheme: dark) {
+    .alert-error {
+        background-color: rgba(244, 67, 54, 0.15);
+        border-color: #f44336;
+        color: #ff8a80;
+    }
+}
+
+html[data-theme="dark"] .alert-error {
+    background-color: rgba(244, 67, 54, 0.15);
+    border-color: #f44336;
+    color: #ff8a80;
+}
+</style>
 
 <?php include __DIR__ . '/../templates/footer.php'; ?>
