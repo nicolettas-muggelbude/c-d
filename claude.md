@@ -212,6 +212,7 @@
    - Ersetzt HTML5 `<input type="date">` durch Flatpickr
    - Lokale CSS-Datei (CSP-konform, kein CDN-Blocking)
    - Custom Styling in PC-Wittfoot Grün (#8BC34A)
+   - Vollständiger Darkmode-Support (automatisch + manuell)
    - Deaktiviert ungültige Wochentage (Mo/So/Sa bei fixed, Mo/So bei walkin)
    - Deaktiviert vollständig ausgebuchte Tage
    - UX-Verbesserungen: Kalender-Icon, klarer Placeholder-Text, cursor: pointer
