@@ -95,9 +95,10 @@
 - ✅ **Kundenlimit pro CPU:** 10 (Shared Hosting)
 
 ### PHP & Datenbank
-- **PHP:** Version 8.0+ verfügbar
-  - **Empfehlung:** PHP 8.2 verwenden ✅
-  - Aktive Sicherheitsupdates
+- **PHP:** Versionen bis PHP 8.5 verfügbar
+  - **Empfehlung:** PHP 8.3 oder 8.2 verwenden ✅
+  - PHP 8.5 möglich, aber sehr aktuell (ggf. Kompatibilitätsprüfung)
+  - Aktive Sicherheitsupdates für 8.2 und 8.3
 - **MySQL:** Version verfügbar (ausreichend für Projekt)
 - **PHP Memory Limit:** Shared Hosting Standard (ausreichend)
 - **Max Execution Time:** Standard (ausreichend)
