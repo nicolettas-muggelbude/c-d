@@ -126,19 +126,85 @@ class EmailService {
             $notesSection = "Ihre Anmerkungen:\n" . $booking['customer_notes'] . "\n";
         }
 
+        // Optionale Felder
+        $customerCompany = !empty($booking['customer_company']) ? $booking['customer_company'] : '-';
+        $customerPhoneLandline = !empty($booking['customer_phone_landline']) ?
+            $booking['customer_phone_country'] . ' ' . $booking['customer_phone_landline'] : '-';
+
+        // Admin-Link
+        $adminBookingLink = BASE_URL . '/admin/booking-detail?id=' . $booking['id'];
+
         // Platzhalter-Map
         $placeholders = [
             '{customer_firstname}' => $booking['customer_firstname'],
             '{customer_lastname}' => $booking['customer_lastname'],
+            '{customer_email}' => $booking['customer_email'],
+            '{customer_company}' => $customerCompany,
+            '{customer_phone_country}' => $booking['customer_phone_country'],
+            '{customer_phone_mobile}' => $booking['customer_phone_mobile'],
+            '{customer_phone_landline}' => $customerPhoneLandline,
+            '{customer_street}' => $booking['customer_street'],
+            '{customer_house_number}' => $booking['customer_house_number'],
+            '{customer_postal_code}' => $booking['customer_postal_code'],
+            '{customer_city}' => $booking['customer_city'],
             '{booking_id}' => $booking['id'],
             '{booking_date_formatted}' => $dateFormatted,
             '{booking_time_formatted}' => $timeFormatted,
             '{service_type_label}' => $serviceLabels[$booking['service_type']] ?? $booking['service_type'],
             '{booking_type_label}' => $bookingTypeLabels[$booking['booking_type']] ?? $booking['booking_type'],
-            '{customer_notes_section}' => $notesSection
+            '{customer_notes_section}' => $notesSection,
+            '{admin_booking_link}' => $adminBookingLink
         ];
 
         return str_replace(array_keys($placeholders), array_values($placeholders), $text);
+    }
+
+    /**
+     * Admin-Benachrichtigung über neue Buchung senden
+     *
+     * @param int $bookingId Buchungs-ID
+     * @return bool Erfolg
+     */
+    public function sendBookingNotification($bookingId) {
+        // Buchungsdaten laden
+        $booking = $this->db->querySingle("SELECT * FROM bookings WHERE id = :id", [':id' => $bookingId]);
+
+        if (!$booking) {
+            error_log("EmailService: Booking $bookingId not found");
+            return false;
+        }
+
+        // Prüfen ob Email bereits versendet wurde
+        if ($this->isEmailAlreadySent($bookingId, 'booking_notification')) {
+            error_log("EmailService: booking_notification already sent for booking $bookingId");
+            return false;
+        }
+
+        // Template laden
+        $template = $this->getTemplate('booking_notification');
+
+        if (!$template || !$template['is_active']) {
+            error_log("EmailService: Template booking_notification not found or inactive");
+            return false;
+        }
+
+        // Signatur laden
+        $signature = $this->getSignature();
+
+        // Platzhalter ersetzen
+        $subject = $this->replacePlaceholders($template['subject'], $booking);
+        $body = $this->replacePlaceholders($template['body'], $booking);
+
+        // Signatur anhängen
+        $fullBody = $body . "\n\n" . $signature;
+
+        // Email an Admin versenden
+        $success = $this->sendMail(MAIL_ADMIN, $subject, $fullBody);
+
+        // Log-Eintrag erstellen
+        $this->logEmail($bookingId, 'booking_notification', MAIL_ADMIN, $subject, $fullBody, $success);
+
+        return $success;
     }
 
     /**

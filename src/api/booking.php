@@ -259,9 +259,12 @@ try {
             'message' => 'Termin erfolgreich gebucht'
         ]);
 
-        // Email-Bestätigung senden (asynchron)
+        // Email-Bestätigung an Kunden senden
         $emailService = new EmailService();
         $emailService->sendBookingEmail($bookingId, 'confirmation');
+
+        // Admin-Benachrichtigung senden
+        $emailService->sendBookingNotification($bookingId);
 
     } else {
         throw new Exception('Fehler beim Speichern in der Datenbank');
