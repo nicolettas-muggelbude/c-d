@@ -136,6 +136,89 @@
 - ✅ Schnellere Updates durch `git pull`
 - ⚠️ Shared Hosting Einschränkungen (keine Root-Rechte, Ressourcen-Limits)
 
+---
+
+## Production Server-Details (artfiles.de)
+
+### Server-Pfade
+```bash
+# Wichtigste Pfade für Deployment
+Homeverzeichnis:      /home/www/doc/28552/
+Web-Root:             /home/www/doc/28552/  # (vermutlich + subdomain)
+PHP-CLI:              /usr/local/bin/php
+Perl:                 /usr/bin/perl
+MySQL-Tools:          /usr/bin/
+Sendmail:             /usr/sbin/sendmail
+```
+
+### Webserver-Informationen
+```
+Webserver:            www116.c.artfiles.de
+Webserver-IP (IPv6):  2a00:1f78:cd:4:0:0:0:180
+Webserver-IP (IPv4):  212.53.215.101
+Webserver-Software:   Apache HTTPD 2.4.x
+Zeitzone:             CET (UTC+0100)
+```
+
+### Datenbank-Server
+```
+Datenbankserver:      sql116.c.artfiles.de
+Datenbank-Software:   MariaDB 10.11.14
+MySQL-Tools:          /usr/bin/ (mysql, mysqldump, etc.)
+```
+
+### Verfügbare Software-Versionen
+
+**PHP:**
+- Verfügbare Versionen: 7.4, 8.0, 8.1, 8.2, 8.3, 8.4, 8.5
+- **Empfehlung für Projekt:** PHP 8.3 ✅
+- CLI-Pfad: `/usr/local/bin/php`
+
+**Python:**
+- Version: 3.11.2
+- Für Deployment-Scripts nutzbar
+
+**Perl:**
+- Version: 5.36.0
+- Pfad: `/usr/bin/perl`
+
+**Bildverarbeitung:**
+- ImageMagick: 6.9.11-60 (in `/usr/bin/`)
+- GraphicsMagick: Verfügbar (in `/usr/bin/`)
+- Nutzbar für Thumbnails, Bildoptimierung
+
+**Email:**
+- Sendmail: `/usr/sbin/sendmail`
+- PHPMailer kann Sendmail oder SMTP nutzen
+
+### SSH-Verbindung
+```bash
+# SSH-Login (Zugangsdaten separat)
+ssh username@www116.c.artfiles.de
+
+# Alternativer Hostname (falls vorhanden)
+ssh username@artfiles.de -p 22
+```
+
+### Deployment-Pfade für Git
+```bash
+# Nach SSH-Login:
+cd /home/www/doc/28552/
+
+# Repository hier clonen
+git clone <repo-url> .
+
+# Oder in Subdomain/Subdirectory:
+# cd /home/www/doc/28552/subdomain/
+```
+
+### Wichtige Hinweise
+- ⚠️ **Homeverzeichnis-Pfad merken:** `/home/www/doc/28552/`
+- ✅ MariaDB 10.11.14 ist kompatibel mit MySQL 5.7+ Code
+- ✅ Apache 2.4.x unterstützt `.htaccess` vollständig
+- ✅ ImageMagick verfügbar für Produktbilder/Thumbnails
+- ✅ Python 3.11 verfügbar für Deployment-Scripts
+
 ## Technische Architektur-Entscheidungen
 
 ### Bewertungssystem
