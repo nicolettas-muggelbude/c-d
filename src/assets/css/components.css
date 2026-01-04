@@ -555,10 +555,12 @@ nav a.active {
 @media (max-width: 991px) {
     .header-content {
         gap: 8px !important; /* Kleinerer Abstand zwischen Icon-Buttons */
+        justify-content: flex-start !important; /* Logo links, Buttons rechts mit gap */
     }
 
     .hamburger {
         display: flex;
+        margin-left: auto; /* Buttons nach rechts schieben */
     }
 
     nav {
