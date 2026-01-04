@@ -267,7 +267,7 @@ include __DIR__ . '/../templates/header.php';
                                     <div class="booking-item"
                                          style="background-color: <?= $bgColor ?>;"
                                          onclick="openEditModal(<?= $booking['id'] ?>)">
-                                        <?php if ($booking['booking_type'] === 'fixed' && $booking['booking_time']): ?>
+                                        <?php if (($booking['booking_type'] === 'fixed' || $booking['booking_type'] === 'walkin') && $booking['booking_time']): ?>
                                             <strong><?= substr($booking['booking_time'], 0, 5) ?></strong>
                                         <?php endif; ?>
                                         <?php if ($booking['booking_type'] === 'blocked'): ?>
