@@ -113,10 +113,3 @@
     gap: var(--space-md);
     flex-wrap: wrap;
 }
-
-/* Mobile: Kleinere Button-Abstände */
-@media (max-width: 768px) {
-    .btn-group {
-        gap: var(--space-sm);
-    }
-}
