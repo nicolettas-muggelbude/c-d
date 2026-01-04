@@ -852,3 +852,170 @@ $serviceLabels = [
 - `src/admin/booking-calendar-v2.php` (Zeilen 169-178, 270-912)
 
 **Status:** ✅ Vollständig implementiert und getestet
+
+---
+
+### Feature: Samstags-Öffnungszeiten für Walk-ins
+
+**Hintergrund:**
+- Samstag hat abweichende Öffnungszeiten: 12:00-16:00 Uhr (statt 14:00-17:00)
+- Keine festen Termine am Samstag (nur Walk-ins)
+- Slot-Zuweisung muss angepasst werden (4 Slots statt 3)
+
+**Implementierung:**
+
+1. **Slot-Zuweisung mit Wochentag-Erkennung** (`src/api/booking.php`)
+   - Samstag-Erkennung: `$date->format('N') == 6`
+   - Samstag-Slots: 12:00, 13:00, 14:00, 15:00 (4 Stunden)
+   - Di-Fr-Slots: 14:00, 15:00, 16:00 (3 Stunden)
+   - Rotation: `$slots[$walkinCount % 4]` bzw. `% 3`
+
+2. **Email-Formatierung** (`src/core/EmailService.php`)
+   - Zeitspanne: "12:00-16:00" für Samstag, "14:00-17:00" für Di-Fr
+   - Empfohlene Ankunftszeit wird korrekt angezeigt
+   - Flexibilitäts-Hinweis passt sich an Wochentag an
+
+3. **Wochenansicht** (`src/admin/booking-week.php`)
+   - Walk-in-Block: 236px Höhe für Samstag (4h), 176px für Di-Fr (3h)
+   - Startposition: Slot 12 für Samstag, Slot 14 für Di-Fr
+   - Label: "12:00-16:00 Uhr" bzw. "14:00-17:00 Uhr"
+
+4. **Monatsansicht** (`src/admin/booking-calendar-v2.php`)
+   - Popup zeigt korrekte Zeitspanne basierend auf Wochentag
+   - JavaScript: `const isSaturday = date.getDay() === 6`
+   - Dynamische Zeitspannen-Anzeige
+
+**Technische Details:**
+```php
+// Samstag erkennen
+$date = new DateTime($data['booking_date']);
+$isSaturday = $date->format('N') == 6;
+
+if ($isSaturday) {
+    // Samstag: 12:00, 13:00, 14:00, 15:00 (4 Slots)
+    $slots = ['12:00:00', '13:00:00', '14:00:00', '15:00:00'];
+    $assignedSlot = $slots[$walkinCount % 4];
+} else {
+    // Di-Fr: 14:00, 15:00, 16:00 (3 Slots)
+    $slots = ['14:00:00', '15:00:00', '16:00:00'];
+    $assignedSlot = $slots[$walkinCount % 3];
+}
+```
+
+**Dateien:**
+- `src/api/booking.php` (Zeilen 222-251)
+- `src/core/EmailService.php` (Zeilen 135-149, 157-165)
+- `src/admin/booking-week.php` (Walk-in Block Rendering)
+- `src/admin/booking-calendar-v2.php` (Popup-Logik)
+
+**Git-Commit:** `3f221d4`
+
+**Status:** ✅ Vollständig implementiert und getestet
+
+---
+
+### Feature: Darkmode-Support für Walk-in Popup
+
+**Problem:**
+- Walk-in Popup in Monatsansicht wurde immer im Lightmode angezeigt
+- Falsche Darkmode-Erkennung: `classList.contains('dark-mode')`
+
+**Lösung:**
+- Korrekte Darkmode-Erkennung mit `matchMedia` API
+- Berücksichtigung von manueller Theme-Override (`data-theme` Attribut)
+- Dynamische Farbanpassung aller Popup-Elemente
+
+**Implementierung:**
+```javascript
+// Darkmode-aware Styling
+const prefersDark = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
+const themeOverride = document.documentElement.getAttribute('data-theme');
+const isDark = prefersDark && themeOverride !== 'light';
+
+const bgColor = isDark ? '#1a1a1a' : 'white';
+const textColor = isDark ? '#e0e0e0' : '#333';
+const subtextColor = isDark ? '#999' : '#666';
+const borderColor = isDark ? '#444' : '#6c757d';
+const itemBg = isDark ? '#2a2a2a' : '#f8f9fa';
+const itemBgHover = isDark ? '#333' : '#e9ecef';
+const dividerColor = isDark ? '#444' : '#dee2e6';
+```
+
+**Angewendete Farben:**
+- Hintergrund: `#1a1a1a` (dark) / `white` (light)
+- Text: `#e0e0e0` (dark) / `#333` (light)
+- Ränder: `#444` (dark) / `#6c757d` (light)
+- Hover-Effekt: `#333` (dark) / `#e9ecef` (light)
+
+**Dateien:**
+- `src/admin/booking-calendar-v2.php` (Zeilen 884-927)
+
+**Git-Commits:** `b967345`, `6bcf90a`
+
+**Status:** ✅ Vollständig implementiert und getestet
+
+---
+
+### Feature: Service-Filter für Walk-in Termine
+
+**Aufgabenstellung:**
+- Fernwartung und Hausbesuch ergeben keinen Sinn für Walk-in Termine
+- Kunden kommen ins Geschäft → diese Services sollen ausgeblendet werden
+- Für feste Termine sollen alle Services verfügbar bleiben
+
+**Implementierung:**
+
+1. **Data-Attribute** (`src/pages/termin.php`)
+   - Service-Karten für Fernwartung und Hausbesuch markiert
+   - Attribut: `data-service-onsite-only="true"`
+   - Zeilen 101, 109
+
+2. **JavaScript-Funktion** (`src/pages/termin.php`)
+   - `updateServiceVisibility()` prüft aktuellen Buchungstyp
+   - Bei Walk-in: Karten mit `data-service-onsite-only` ausblenden
+   - Bei festem Termin: Alle Karten anzeigen
+   - Falls ausgeblendeter Service ausgewählt: Auswahl löschen
+
+3. **Integration in Navigation** (`src/pages/termin.php`)
+   - Funktion wird bei jedem Wechsel zu Schritt 2 aufgerufen
+   - In `nextStep()` und `prevStep()` integriert
+   - Automatische Anpassung bei Termintyp-Wechsel
+
+**Technische Details:**
+```javascript
+// Service-Sichtbarkeit basierend auf Buchungstyp
+function updateServiceVisibility() {
+    const bookingType = formData.booking_type;
+    const onsiteOnlyCards = document.querySelectorAll('.service-card[data-service-onsite-only="true"]');
+
+    onsiteOnlyCards.forEach(card => {
+        if (bookingType === 'walkin') {
+            // Bei Walk-in: Fernwartung und Hausbesuch ausblenden
+            card.style.display = 'none';
+
+            // Falls dieser Service ausgewählt war, Auswahl löschen
+            const radio = card.querySelector('input[type="radio"]');
+            if (radio && radio.checked) {
+                radio.checked = false;
+                formData.service_type = '';
+            }
+        } else {
+            // Bei festem Termin: alle Services anzeigen
+            card.style.display = '';
+        }
+    });
+}
+```
+
+**Workflow:**
+1. Kunde wählt "Ich komme vorbei" → Weiter zu Schritt 2
+2. `updateServiceVisibility()` wird aufgerufen
+3. Fernwartung und Hausbesuch werden ausgeblendet
+4. Verbleibende Services: Beratung, Verkauf, Installation, Diagnose, Reparatur, Sonstiges
+
+**Dateien:**
+- `src/pages/termin.php` (Zeilen 101, 109, 569-570, 610-611, 842-863)
+
+**Git-Commit:** `e30b26c`
+
+**Status:** ✅ Vollständig implementiert und getestet
