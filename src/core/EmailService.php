@@ -134,10 +134,15 @@ class EmailService {
 
         // Uhrzeit formatieren
         if ($booking['booking_type'] === 'walkin') {
+            // Prüfe ob Samstag (andere Öffnungszeiten)
+            $date = new DateTime($booking['booking_date']);
+            $isSaturday = $date->format('N') == 6;
+            $timeRange = $isSaturday ? '12:00-16:00' : '14:00-17:00';
+
             if ($booking['booking_time']) {
                 $timeFormatted = 'Empfohlene Ankunftszeit: ' . substr($booking['booking_time'], 0, 5) . ' Uhr';
             } else {
-                $timeFormatted = 'Flexible Ankunft zwischen 14:00-17:00 Uhr';
+                $timeFormatted = "Flexible Ankunft zwischen {$timeRange} Uhr";
             }
         } else {
             $timeFormatted = $booking['booking_time'] ? substr($booking['booking_time'], 0, 5) . ' Uhr' : '-';
@@ -152,7 +157,11 @@ class EmailService {
         // Flexibilitäts-Hinweis für "Ich komme vorbei"
         $flexibilityNote = '';
         if ($booking['booking_type'] === 'walkin') {
-            $flexibilityNote = "Sie können flexibel zwischen 14:00-17:00 Uhr vorbeikommen. Die empfohlene Zeit hilft uns, Wartezeiten zu minimieren.";
+            // Prüfe ob Samstag (andere Öffnungszeiten)
+            $date = new DateTime($booking['booking_date']);
+            $isSaturday = $date->format('N') == 6;
+            $timeRange = $isSaturday ? '12:00-16:00' : '14:00-17:00';
+            $flexibilityNote = "Sie können flexibel zwischen {$timeRange} Uhr vorbeikommen. Die empfohlene Zeit hilft uns, Wartezeiten zu minimieren.";
         }
 
         // Optionale Felder

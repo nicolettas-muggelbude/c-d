@@ -272,12 +272,16 @@ include __DIR__ . '/../templates/header.php';
                                 if (isset($walkinsByDate[$dateStr]) && !empty($walkinsByDate[$dateStr])):
                                     $walkins = $walkinsByDate[$dateStr];
                                     $walkinCount = count($walkins);
+                                    // Samstag hat andere Öffnungszeiten
+                                    $date = new DateTime($dateStr);
+                                    $isSaturday = $date->format('N') == 6;
+                                    $walkinTimeRange = $isSaturday ? '12:00-16:00' : '14:00-17:00';
                                 ?>
                                     <div class="booking-item"
                                          style="background-color: #6c757d; cursor: pointer;"
                                          onclick="showWalkinDetails('<?= $dateStr ?>')"
                                          title="<?= $walkinCount ?> Walk-in Termine">
-                                        <strong>14:00-17:00</strong>
+                                        <strong><?= $walkinTimeRange ?></strong>
                                         <span>🚶 Ich komme vorbei (<?= $walkinCount ?>)</span>
                                     </div>
                                 <?php endif; ?>
@@ -872,9 +876,14 @@ function showWalkinDetails(dateStr) {
     }
 
     // Bei mehreren Walk-ins: Liste anzeigen
+    // Prüfe ob Samstag (andere Öffnungszeiten)
+    const date = new Date(dateStr);
+    const isSaturday = date.getDay() === 6;
+    const timeRange = isSaturday ? '12:00-16:00' : '14:00-17:00';
+
     let html = `<div style="background: white; border: 2px solid #6c757d; border-radius: 8px; padding: 1.5rem; max-width: 600px; max-height: 80vh; overflow-y: auto; box-shadow: 0 4px 6px rgba(0,0,0,0.1);">`;
     html += `<h3 style="margin: 0 0 1rem 0; color: #333; font-size: 1.3rem;">🚶 Ich komme vorbei (${walkins.length})</h3>`;
-    html += `<div style="font-size: 1rem; color: #666; margin-bottom: 1.5rem;">14:00-17:00 Uhr</div>`;
+    html += `<div style="font-size: 1rem; color: #666; margin-bottom: 1.5rem;">${timeRange} Uhr</div>`;
     html += `<div style="display: flex; flex-direction: column; gap: 0.75rem;">`;
 
     const serviceLabels = {

@@ -181,20 +181,27 @@ include __DIR__ . '/../templates/header.php';
                          onclick="openCreateModalWithDateTime('<?= $dateStr ?>', '<?= $timeSlot ?>')">
 
                         <?php
-                        // Walk-ins: Spezielle Behandlung beim Slot 14:00
-                        if ($currentHour === 14 && isset($walkinsByDate[$dateStr]) && !empty($walkinsByDate[$dateStr])) {
+                        // Walk-ins: Spezielle Behandlung
+                        // Samstag (6): 12:00-16:00 Uhr (4h), Di-Fr: 14:00-17:00 Uhr (3h)
+                        $date = new DateTime($dateStr);
+                        $isSaturday = $date->format('N') == 6;
+                        $walkinStartHour = $isSaturday ? 12 : 14;
+                        $walkinHeight = $isSaturday ? 236 : 176; // 4h = 240px-4, 3h = 180px-4
+                        $walkinTimeRange = $isSaturday ? '12:00-16:00' : '14:00-17:00';
+
+                        if ($currentHour === $walkinStartHour && isset($walkinsByDate[$dateStr]) && !empty($walkinsByDate[$dateStr])) {
                             $walkins = $walkinsByDate[$dateStr];
                             $walkinCount = count($walkins);
                             ?>
                             <div class="week-booking week-booking-multi"
-                                 style="background-color: #6c757d; height: 176px; position: absolute; left: 2px; right: 2px; top: 2px; z-index: 10; cursor: default; overflow-y: auto;"
+                                 style="background-color: #6c757d; height: <?= $walkinHeight ?>px; position: absolute; left: 2px; right: 2px; top: 2px; z-index: 10; cursor: default; overflow-y: auto;"
                                  onclick="event.stopPropagation()"
-                                 title="Walk-in Zeitfenster: 14:00-17:00 Uhr">
+                                 title="Walk-in Zeitfenster: <?= $walkinTimeRange ?> Uhr">
 
                                 <div style="padding: 0.4rem 0.6rem;">
                                     <strong style="font-size: 0.95em;">🚶 Ich komme vorbei (<?= $walkinCount ?>)</strong>
                                     <div style="font-size: 0.8em; margin-top: 0.2rem; opacity: 0.9;">
-                                        14:00-17:00 Uhr
+                                        <?= $walkinTimeRange ?> Uhr
                                     </div>
 
                                     <?php if ($walkinCount <= 3): ?>

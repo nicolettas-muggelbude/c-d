@@ -230,14 +230,24 @@ if ($data['booking_type'] === 'walkin') {
     $result = $db->querySingle($sql, [':date' => $data['booking_date']]);
     $walkinCount = (int)($result['count'] ?? 0);
 
-    // Slots: 14:00, 15:00, 16:00 (rotierend)
-    $slots = ['14:00:00', '15:00:00', '16:00:00'];
-    $assignedSlot = $slots[$walkinCount % 3];
+    // Samstag hat andere Öffnungszeiten (12:00-16:00)
+    $date = new DateTime($data['booking_date']);
+    $isSaturday = $date->format('N') == 6;
+
+    if ($isSaturday) {
+        // Samstag: 12:00, 13:00, 14:00, 15:00 (4 Slots)
+        $slots = ['12:00:00', '13:00:00', '14:00:00', '15:00:00'];
+        $assignedSlot = $slots[$walkinCount % 4];
+    } else {
+        // Di-Fr: 14:00, 15:00, 16:00 (3 Slots)
+        $slots = ['14:00:00', '15:00:00', '16:00:00'];
+        $assignedSlot = $slots[$walkinCount % 3];
+    }
 
     // Empfohlene Zeit zuweisen
     $data['booking_time'] = $assignedSlot;
 
-    error_log("Walk-in Slot assigned: {$assignedSlot} (Count: {$walkinCount})");
+    error_log("Walk-in Slot assigned: {$assignedSlot} (Count: {$walkinCount}, Saturday: " . ($isSaturday ? 'yes' : 'no') . ")");
 }
 
 error_log('Preparing database insert...');
