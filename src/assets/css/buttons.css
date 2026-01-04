@@ -103,7 +103,7 @@
 
 .btn-warning {
     background: var(--color-warning);
-    color: var(--color-dark);
+    color: white;
     border-color: var(--color-warning);
 }
 
