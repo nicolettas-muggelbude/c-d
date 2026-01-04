@@ -56,18 +56,21 @@ if ($booking['status'] === 'cancelled') {
     exit;
 }
 
-// Zeitpunkt prüfen (nur >= 24h vorher erlaubt)
-$bookingDateTime = new DateTime($booking['booking_date'] . ' ' . ($booking['booking_time'] ?? '00:00:00'));
-$now = new DateTime();
-$hoursUntil = ($bookingDateTime->getTimestamp() - $now->getTimestamp()) / 3600;
+// Zeitpunkt prüfen (nur für feste Termine: >= 24h vorher erlaubt)
+// Walk-ins können jederzeit storniert werden
+if ($booking['booking_type'] === 'fixed') {
+    $bookingDateTime = new DateTime($booking['booking_date'] . ' ' . ($booking['booking_time'] ?? '00:00:00'));
+    $now = new DateTime();
+    $hoursUntil = ($bookingDateTime->getTimestamp() - $now->getTimestamp()) / 3600;
 
-if ($hoursUntil < 24) {
-    http_response_code(400);
-    echo json_encode([
-        'success' => false,
-        'error' => 'Stornierungen sind nur bis 24 Stunden vor dem Termin möglich. Bitte kontaktieren Sie uns telefonisch.'
-    ]);
-    exit;
+    if ($hoursUntil < 24) {
+        http_response_code(400);
+        echo json_encode([
+            'success' => false,
+            'error' => 'Stornierungen sind nur bis 24 Stunden vor dem Termin möglich. Bitte kontaktieren Sie uns telefonisch.'
+        ]);
+        exit;
+    }
 }
 
 // Buchung auf 'cancelled' setzen

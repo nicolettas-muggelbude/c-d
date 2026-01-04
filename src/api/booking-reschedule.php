@@ -72,18 +72,21 @@ try {
         exit;
     }
 
-    // Zeitlimit prüfen: >= 48h vor Termin
-    $bookingDateTime = new DateTime($booking['booking_date'] . ' ' . ($booking['booking_time'] ?? '00:00:00'));
-    $now = new DateTime();
-    $hoursUntil = ($bookingDateTime->getTimestamp() - $now->getTimestamp()) / 3600;
+    // Zeitlimit prüfen (nur für feste Termine: >= 48h vor Termin)
+    // Walk-ins können jederzeit geändert werden
+    if ($booking['booking_type'] === 'fixed') {
+        $bookingDateTime = new DateTime($booking['booking_date'] . ' ' . ($booking['booking_time'] ?? '00:00:00'));
+        $now = new DateTime();
+        $hoursUntil = ($bookingDateTime->getTimestamp() - $now->getTimestamp()) / 3600;
 
-    if ($hoursUntil < 48) {
-        http_response_code(409);
-        echo json_encode([
-            'success' => false,
-            'error' => 'Terminänderungen sind nur bis 48 Stunden vor dem Termin möglich. Bitte kontaktieren Sie uns telefonisch.'
-        ]);
-        exit;
+        if ($hoursUntil < 48) {
+            http_response_code(409);
+            echo json_encode([
+                'success' => false,
+                'error' => 'Terminänderungen sind nur bis 48 Stunden vor dem Termin möglich. Bitte kontaktieren Sie uns telefonisch.'
+            ]);
+            exit;
+        }
     }
 
     // Neuen Termintyp basierend auf Uhrzeit bestimmen

@@ -35,11 +35,15 @@ if (!$token) {
         $now = new DateTime();
         $hoursUntil = ($bookingDateTime->getTimestamp() - $now->getTimestamp()) / 3600;
 
-        // Änderung nur möglich wenn >= 48h vorher
-        $canModify = $hoursUntil >= 48;
-
-        // Stornierung nur möglich wenn >= 24h vorher
-        $canCancel = $hoursUntil >= 24;
+        // Walk-ins können jederzeit geändert/storniert werden
+        // Feste Termine: Änderung >= 48h, Stornierung >= 24h vorher
+        if ($booking['booking_type'] === 'walkin') {
+            $canModify = true;
+            $canCancel = true;
+        } else {
+            $canModify = $hoursUntil >= 48;
+            $canCancel = $hoursUntil >= 24;
+        }
     }
 }
 
