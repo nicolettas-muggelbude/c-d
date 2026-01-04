@@ -174,17 +174,17 @@ include __DIR__ . '/../templates/header.php';
                         foreach ($dayBookings as $booking):
                             if ($booking['_start_hour'] !== $currentHour) continue;
 
-                            $bgColor = '#28a745'; // confirmed
-                            if ($booking['status'] === 'pending') $bgColor = '#ffc107';
-                            if ($booking['status'] === 'completed') $bgColor = '#6c757d';
-                            if ($booking['booking_type'] === 'blocked') $bgColor = '#dc3545';
-                            if ($booking['booking_type'] === 'internal') $bgColor = '#17a2b8';
+                            $bgColor = '#1e7e34'; // confirmed (dunkler)
+                            if ($booking['status'] === 'pending') $bgColor = '#e0a800';
+                            if ($booking['status'] === 'completed') $bgColor = '#545b62';
+                            if ($booking['booking_type'] === 'blocked') $bgColor = '#c82333';
+                            if ($booking['booking_type'] === 'internal') $bgColor = '#117a8b';
 
                             $durationHours = $booking['_duration_hours'];
-                            $heightPixels = ($durationHours * 60) - 1; // 60px pro Stunde minus 1px für Border
+                            $heightPixels = ($durationHours * 60) - 4; // 60px pro Stunde minus 4px für Border (2px oben + 2px unten)
                             ?>
                             <div class="week-booking week-booking-multi"
-                                 style="background-color: <?= $bgColor ?>; height: <?= $heightPixels ?>px; position: absolute; left: 1px; right: 1px; top: 1px; z-index: 10;"
+                                 style="background-color: <?= $bgColor ?>; height: <?= $heightPixels ?>px; position: absolute; left: 2px; right: 2px; top: 2px; z-index: 10;"
                                  onclick="event.stopPropagation(); openEditModal(<?= $booking['id'] ?>)"
                                  title="<?= $booking['_display_start'] ?> - <?= $booking['_display_end'] ?>">
 
@@ -363,7 +363,7 @@ include __DIR__ . '/../templates/header.php';
 .week-grid {
     display: grid;
     grid-template-columns: 80px repeat(7, 1fr);
-    gap: 1px;
+    gap: 2px;
     background-color: #ddd;
     border: 1px solid #ddd;
     overflow-x: auto;

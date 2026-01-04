@@ -642,3 +642,70 @@ Vorhandene Walk-ins: 1
 - `database/update-templates-flexibility.php` (Template-Update)
 
 **Status:** ✅ Vollständig implementiert und getestet
+
+---
+
+### Booking Week View: Separator-Linien & Kontrast-Optimierung
+
+**Aufgabenstellung:**
+- Separator-Linien zwischen aufeinanderfolgenden Terminen nicht sichtbar
+- Beispiel: Zwei Termine auf 14:00 und 15:00 - keine Trennung erkennbar
+- Farben der Termineinträge zu hell für guten Kontrast
+
+**Implementierte Lösung:**
+
+1. **Grid-Gap vergrößert** (`src/admin/booking-week.php`)
+   - CSS `.week-grid`: gap von `1px` → `2px`
+   - Hintergrundfarbe `#ddd` wird als Separator sichtbar
+   - Betrifft horizontale und vertikale Trennung
+
+2. **Positionierung der Termine angepasst**
+   - `left`, `right`, `top`: von `1px` → `2px`
+   - Termine nun eingerückt, damit Grid-Gap sichtbar wird
+   - Verhindert Überlagerung der Separator-Linien
+
+3. **Höhenberechnung korrigiert**
+   - Berechnung: `($durationHours * 60) - 4` (vorher: `-2`)
+   - Schafft Platz für oberen und unteren Separator
+   - Bei 1-Stunden-Termin: 56px statt 58px
+
+4. **Farben dunkler für besseren Kontrast**
+   - confirmed: `#1e7e34` (vorher: `#28a745`)
+   - pending: `#e0a800` (vorher: `#ffc107`)
+   - completed: `#545b62` (vorher: `#6c757d`)
+   - blocked: `#c82333` (vorher: `#dc3545`)
+   - internal: `#117a8b` (vorher: `#17a2b8`)
+
+**Vorher/Nachher:**
+```css
+/* Vorher */
+.week-grid {
+    gap: 1px;
+}
+$heightPixels = ($durationHours * 60) - 2;
+style="left: 1px; right: 1px; top: 1px;"
+
+/* Nachher */
+.week-grid {
+    gap: 2px;
+}
+$heightPixels = ($durationHours * 60) - 4;
+style="left: 2px; right: 2px; top: 2px;"
+```
+
+**Technische Details:**
+- Grid-Gap fungiert als visuelle Trennung zwischen Zellen
+- Absolute Positionierung der Termine innerhalb der Grid-Zellen
+- Dunklere Farben verbessern Lesbarkeit auf hellen/dunklen Hintergründen
+- Separator-Linien nun auch bei aufeinanderfolgenden Terminen sichtbar
+
+**Debugging-Session:**
+1. **Versuch 1:** `bottom: 1px` hinzugefügt - keine Änderung
+2. **Versuch 2:** Höhe auf `-2px` geändert - "nicht sichtbar"
+3. **User-Klarstellung:** "Nur bei Einzelterminen" → Grid-Gap zu klein
+4. **Versuch 3 (erfolgreich):** Grid-Gap auf 2px + Positioning angepasst
+
+**Dateien:**
+- `src/admin/booking-week.php` (Zeilen 177-181, 184-187, 363-368)
+
+**Status:** ✅ Vollständig implementiert und getestet
