@@ -50,9 +50,9 @@ include __DIR__ . '/../templates/header.php';
                     <li>Notebooks & Desktop-PCs</li>
                     <li>Tablets & Smartphones</li>
                     <li>Peripherie & Zubehör</li>
-                    <li>Netzwerktechnik</li>
+                    <li>Kassensysteme (POS)</li>
                     <li>Custom Gaming PC</li>
-                    <li>NAS / Server</li>
+                    <li>NAS / (Home)Server</li>
                 </ul>
                 <a href="<?= BASE_URL ?>/shop" class="btn btn-primary">Zum Shop</a>
             </div>
