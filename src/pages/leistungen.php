@@ -120,7 +120,7 @@ include __DIR__ . '/../templates/header.php';
                     Installation und Schulung.
                 </p>
                 <ul class="service-list">
-                    <li>Büro-Ausstattung komplett</li>
+                    <li>IT-Ausstattung komplett</li>
                     <li>Netzwerk-Installation</li>
                     <li>Server-Einrichtung</li>
                     <li>Mitarbeiter-Schulungen</li>
