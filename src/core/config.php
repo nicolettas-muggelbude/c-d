@@ -70,9 +70,9 @@ if (PRODUCTION_MODE && (!empty($_SERVER['HTTPS']) || $_SERVER['SERVER_PORT'] == 
     ini_set('session.cookie_secure', 1);
 }
 
-// Session-Lifetime (2 Stunden)
-ini_set('session.gc_maxlifetime', 7200);
-ini_set('session.cookie_lifetime', 7200);
+// Session-Lifetime (12 Stunden)
+ini_set('session.gc_maxlifetime', 43200);
+ini_set('session.cookie_lifetime', 43200);
 
 // CSRF-Token Secret (in Produktion durch echten Random-String ersetzen!)
 define('CSRF_SECRET', PRODUCTION_MODE ?

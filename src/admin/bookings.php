@@ -46,7 +46,7 @@ if ($searchQuery) {
     $params[':search'] = '%' . $searchQuery . '%';
 }
 
-$sql .= " ORDER BY booking_date DESC, booking_time DESC, created_at DESC";
+$sql .= " ORDER BY booking_date ASC, booking_time ASC, created_at ASC";
 
 $bookings = $db->query($sql, $params);
 
