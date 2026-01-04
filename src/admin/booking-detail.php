@@ -64,7 +64,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action'])) {
                 }
             } else if ($bookingType === 'walkin') {
                 if ($dayOfWeek < 2 || $dayOfWeek > 6) {
-                    $errors[] = 'Walk-in Termine sind nur Dienstag bis Samstag möglich';
+                    $errors[] = '"Ich komme vorbei" Termine sind nur Dienstag bis Samstag möglich';
                 }
             }
         }
@@ -198,7 +198,7 @@ include __DIR__ . '/../templates/header.php';
                         <?php if ($booking['booking_type'] === 'fixed'): ?>
                             <span class="badge badge-info">Fester Termin</span>
                         <?php else: ?>
-                            <span class="badge badge-secondary">Ich komme vorbei (Walk-in)</span>
+                            <span class="badge badge-secondary">Ich komme vorbei</span>
                         <?php endif; ?>
                     </div>
                 </div>
@@ -219,7 +219,7 @@ include __DIR__ . '/../templates/header.php';
                         <?php if ($booking['booking_type'] === 'fixed' && $booking['booking_time']): ?>
                             <strong><?= e($booking['booking_time']) ?> Uhr</strong>
                         <?php else: ?>
-                            <span class="text-muted">Walk-in (ab 14:00 Uhr)</span>
+                            <span class="text-muted">Ich komme vorbei (ab 14:00 Uhr)</span>
                         <?php endif; ?>
                     </div>
                 </div>
@@ -324,7 +324,7 @@ include __DIR__ . '/../templates/header.php';
                         <?php if ($booking['booking_type'] === 'fixed'): ?>
                             Feste Termine: Dienstag bis Freitag
                         <?php else: ?>
-                            Walk-in: Dienstag bis Samstag
+                            Ich komme vorbei: Dienstag bis Samstag
                         <?php endif; ?>
                     </small>
                 </div>

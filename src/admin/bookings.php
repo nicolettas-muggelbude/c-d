@@ -195,7 +195,7 @@ include __DIR__ . '/../templates/header.php';
                                         <?php if ($booking['booking_type'] === 'fixed'): ?>
                                             <?= e($booking['booking_time']) ?> Uhr
                                         <?php else: ?>
-                                            <span class="text-muted">Walk-in</span>
+                                            <span class="text-muted">Ich komme vorbei</span>
                                         <?php endif; ?>
                                     </td>
                                     <td>
@@ -207,7 +207,7 @@ include __DIR__ . '/../templates/header.php';
                                         <?php if ($booking['booking_type'] === 'fixed'): ?>
                                             <span class="badge badge-info">Fester Termin</span>
                                         <?php else: ?>
-                                            <span class="badge badge-secondary">Walk-in</span>
+                                            <span class="badge badge-secondary">Ich komme vorbei</span>
                                         <?php endif; ?>
                                     </td>
                                     <td>

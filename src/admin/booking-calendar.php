@@ -120,7 +120,7 @@ include __DIR__ . '/../templates/header.php';
                     <span class="badge" style="background-color: #17a2b8; color: white;">F</span> = Fester Termin
                 </div>
                 <div style="display: flex; align-items: center; gap: 0.5rem;">
-                    <span class="badge" style="background-color: #6c757d; color: white;">W</span> = Walk-in
+                    <span class="badge" style="background-color: #6c757d; color: white;">W</span> = Ich komme vorbei
                 </div>
             </div>
         </div>

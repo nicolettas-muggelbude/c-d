@@ -573,3 +573,72 @@
 - `database/add-admin-cancellation-template.sql` (Admin-Email)
 
 **Status:** ✅ Vollständig implementiert und getestet
+
+---
+
+### Terminbuchung: Zeitslots für "Ich komme vorbei"
+
+**Aufgabenstellung:**
+- Email-Templates zeigten noch "Walk-in" statt "Ich komme vorbei"
+- "Ich komme vorbei" Termine hatten keine Zeitverwaltung
+- Bessere Verteilung der Kunden über den Nachmittag (14:00-17:00 Uhr)
+- Flexibilität bewahren, aber Orientierung geben
+
+**Implementierte Lösung:**
+
+1. **Automatische Slot-Zuweisung** (`src/api/booking.php`)
+   - Bei "Ich komme vorbei" Buchung: Zähle vorhandene Termine am Tag
+   - Slot-Rotation: 14:00 → 15:00 → 16:00 → 14:00 ...
+   - Formel: `$slots[$walkinCount % 3]`
+   - Empfohlene Zeit wird in `booking_time` gespeichert
+   - Keine Begrenzung der Termine pro Tag
+
+2. **Email-Formatierung verbessert** (`src/core/EmailService.php`)
+   - Für "Ich komme vorbei": "Empfohlene Ankunftszeit: 15:00 Uhr"
+   - Für feste Termine: "15:00 Uhr" (unverändert)
+   - Neuer Platzhalter `{flexibility_note}`:
+     - Bei Walk-in: "Sie können flexibel zwischen 14:00-17:00 Uhr vorbeikommen. Die empfohlene Zeit hilft uns, Wartezeiten zu minimieren."
+     - Bei festen Terminen: leer
+
+3. **Email-Templates aktualisiert** (`database/update-templates-flexibility.php`)
+   - confirmation, reschedule, reminder_24h, reminder_1h
+   - `{flexibility_note}` Platzhalter eingefügt
+   - Zeigt Flexibilitäts-Hinweis nur bei "Ich komme vorbei"
+
+4. **UI-Verbesserungen** (`src/index.php`, `src/pages/termin.php`)
+   - "Termin buchen" Button: Orange (`btn-warning`) statt grau
+   - "Fester Termin vor Ort" → "Fester Termin" (Zweideutigkeit entfernt)
+   - Konsistente Bezeichnung "Ich komme vorbei" überall
+
+**Geschäftslogik:**
+- Feste Termine: Vormittags (11:00-12:00 Uhr, Di-Fr)
+- "Ich komme vorbei": Nachmittags (14:00-17:00 Uhr, Di-Sa)
+- Kein Konflikt zwischen den Terminarten
+- Empfohlene Zeit ist nicht verpflichtend
+
+**Technische Details:**
+- Slot-Berechnung: `$slots[$walkinCount % 3]` (Modulo 3 für Rotation)
+- Zeit wird als Empfehlung gespeichert (booking_time)
+- Platzhalter nur bei Walk-ins gefüllt
+- Debug-Logging: "Walk-in Slot assigned: 15:00:00 (Count: 1)"
+
+**Beispiel-Workflow:**
+```
+Tag: Freitag, 17.01.2026
+Vorhandene Walk-ins: 1
+
+→ Neue Buchung erhält Slot: 15:00 Uhr (Index 1 % 3 = 1)
+→ Email: "Empfohlene Ankunftszeit: 15:00 Uhr"
+→ Hinweis: "Sie können flexibel zwischen 14:00-17:00 Uhr vorbeikommen"
+```
+
+**Dateien:**
+- `src/api/booking.php` (Slot-Zuweisung)
+- `src/core/EmailService.php` (Formatierung, Platzhalter)
+- `src/index.php` (Button-Farbe)
+- `src/pages/termin.php` (Terminart-Bezeichnung)
+- `src/pages/termin-verwalten.php` (Labels)
+- `src/admin/*.php` (8 Admin-Dateien)
+- `database/update-templates-flexibility.php` (Template-Update)
+
+**Status:** ✅ Vollständig implementiert und getestet

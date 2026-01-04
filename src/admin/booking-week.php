@@ -254,7 +254,7 @@ include __DIR__ . '/../templates/header.php';
                     <label>Terminart</label>
                     <select id="booking_type" name="booking_type" class="form-control" onchange="updateFormFields()">
                         <option value="fixed">Fester Termin</option>
-                        <option value="walkin">Walk-in</option>
+                        <option value="walkin">Ich komme vorbei</option>
                         <option value="internal">Interne Notiz</option>
                         <option value="blocked">Gesperrt</option>
                     </select>

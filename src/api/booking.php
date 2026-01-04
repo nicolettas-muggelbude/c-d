@@ -219,8 +219,27 @@ if ($hellocashClient->isConfigured()) {
 // Token für Kundenverwaltung generieren
 $manageToken = bin2hex(random_bytes(32)); // 64 Zeichen Hex-String
 
-// In Datenbank speichern
+// Slot-Zuweisung für "Ich komme vorbei" Termine
 $db = Database::getInstance();
+if ($data['booking_type'] === 'walkin') {
+    // Zähle vorhandene Walk-ins am gewählten Tag
+    $sql = "SELECT COUNT(*) as count FROM bookings
+            WHERE booking_date = :date
+            AND booking_type = 'walkin'
+            AND status != 'cancelled'";
+    $result = $db->querySingle($sql, [':date' => $data['booking_date']]);
+    $walkinCount = (int)($result['count'] ?? 0);
+
+    // Slots: 14:00, 15:00, 16:00 (rotierend)
+    $slots = ['14:00:00', '15:00:00', '16:00:00'];
+    $assignedSlot = $slots[$walkinCount % 3];
+
+    // Empfohlene Zeit zuweisen
+    $data['booking_time'] = $assignedSlot;
+
+    error_log("Walk-in Slot assigned: {$assignedSlot} (Count: {$walkinCount})");
+}
+
 error_log('Preparing database insert...');
 
 try {

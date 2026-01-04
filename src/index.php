@@ -59,7 +59,7 @@ include __DIR__ . '/templates/header.php';
             </p>
             <div class="btn-group">
                 <a href="<?= BASE_URL ?>/shop" class="btn btn-primary">Zum Shop</a>
-                <a href="<?= BASE_URL ?>/termin" class="btn btn-outline">Termin buchen</a>
+                <a href="<?= BASE_URL ?>/termin" class="btn btn-warning">Termin buchen</a>
             </div>
         </div>
     </div>
@@ -247,7 +247,7 @@ include __DIR__ . '/templates/header.php';
             <a href="tel:+49123456789" class="btn btn-primary">
                 📞 Jetzt anrufen
             </a>
-            <a href="<?= BASE_URL ?>/termin" class="btn btn-outline">
+            <a href="<?= BASE_URL ?>/termin" class="btn btn-warning">
                 📅 Termin buchen
             </a>
             <a href="<?= BASE_URL ?>/kontakt" class="btn btn-outline">

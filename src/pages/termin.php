@@ -51,7 +51,7 @@ include __DIR__ . '/../templates/header.php';
                         <input type="radio" name="booking_type" value="fixed" required onchange="nextStep(2)">
                         <div class="card-content">
                             <span class="icon">📅</span>
-                            <h3>Fester Termin vor Ort</h3>
+                            <h3>Fester Termin</h3>
                             <p>Buchen Sie einen festen Termin zwischen 11:00-12:00 Uhr (Di-Fr)</p>
                             <ul>
                                 <li>✓ Garantierte Bedienung</li>
@@ -182,7 +182,7 @@ include __DIR__ . '/../templates/header.php';
                     <input type="hidden" name="booking_time" id="booking_time">
                 </div>
 
-                <!-- Info für Walk-ins -->
+                <!-- Info für "Ich komme vorbei" -->
                 <div class="alert alert-info" id="walkin-info" style="display: none;">
                     <strong>Hinweis:</strong> Sie können zwischen 14:00-17:00 Uhr ohne feste Uhrzeit vorbeikommen.
                     Wir benachrichtigen Sie per Email, falls mit längeren Wartezeiten zu rechnen ist.
@@ -687,7 +687,7 @@ function setupDateValidation() {
         // Feste Termine: nur Di-Fr (2-5) erlaubt -> Mo, Sa, So deaktivieren
         disabledDays = [0, 1, 6]; // Sonntag, Montag, Samstag
     } else if (bookingType === 'walkin') {
-        // Walk-in: Di-Sa (2-6) erlaubt -> So, Mo deaktivieren
+        // Ich komme vorbei: Di-Sa (2-6) erlaubt -> So, Mo deaktivieren
         disabledDays = [0, 1]; // Sonntag, Montag
     }
 

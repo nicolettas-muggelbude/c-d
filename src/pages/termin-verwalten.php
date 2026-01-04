@@ -244,10 +244,10 @@ include __DIR__ . '/../templates/header.php';
                                     </label>
                                     <label style="display: flex; align-items: center; gap: 0.5rem; cursor: pointer;">
                                         <input type="radio" name="new_booking_type" value="walkin" <?php echo $booking['booking_type'] === 'walkin' ? 'checked' : ''; ?> onchange="toggleNewTimeSelection()">
-                                        <span>Walk-in (ohne feste Uhrzeit)</span>
+                                        <span>Ich komme vorbei (ohne feste Uhrzeit)</span>
                                     </label>
                                 </div>
-                                <small class="form-help">Walk-in: Sie kommen zwischen 14:00 und 17:00 Uhr vorbei</small>
+                                <small class="form-help">Ich komme vorbei: Sie kommen zwischen 14:00 und 17:00 Uhr vorbei</small>
                             </div>
 
                             <div class="form-group">
@@ -352,7 +352,7 @@ include __DIR__ . '/../templates/header.php';
                 timeSelection.style.display = 'block';
             } else {
                 timeSelection.style.display = 'none';
-                // Zeitauswahl zurücksetzen bei Walk-in
+                // Zeitauswahl zurücksetzen bei "Ich komme vorbei"
                 if (timeInput) {
                     timeInput.value = '';
                 }
@@ -411,7 +411,7 @@ include __DIR__ . '/../templates/header.php';
                 // Feste Termine: nur Di-Fr (2-5) erlaubt -> Mo, Sa, So deaktivieren
                 disabledDays = [0, 1, 6]; // Sonntag, Montag, Samstag
             } else if (bookingType === 'walkin') {
-                // Walk-in: Di-Sa (2-6) erlaubt -> So, Mo deaktivieren
+                // Ich komme vorbei: Di-Sa (2-6) erlaubt -> So, Mo deaktivieren
                 disabledDays = [0, 1]; // Sonntag, Montag
             }
 

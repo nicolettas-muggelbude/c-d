@@ -116,7 +116,7 @@ class EmailService {
         // Booking-Type Labels
         $bookingTypeLabels = [
             'fixed' => 'Fester Termin',
-            'walkin' => 'Walk-in',
+            'walkin' => 'Ich komme vorbei',
             'internal' => 'Interne Notiz',
             'blocked' => 'Gesperrt'
         ];
@@ -133,15 +133,26 @@ class EmailService {
                         $date->format('Y');
 
         // Uhrzeit formatieren
-        $timeFormatted = 'Walk-in ab 14:00 Uhr';
-        if ($booking['booking_time']) {
-            $timeFormatted = substr($booking['booking_time'], 0, 5) . ' Uhr';
+        if ($booking['booking_type'] === 'walkin') {
+            if ($booking['booking_time']) {
+                $timeFormatted = 'Empfohlene Ankunftszeit: ' . substr($booking['booking_time'], 0, 5) . ' Uhr';
+            } else {
+                $timeFormatted = 'Flexible Ankunft zwischen 14:00-17:00 Uhr';
+            }
+        } else {
+            $timeFormatted = $booking['booking_time'] ? substr($booking['booking_time'], 0, 5) . ' Uhr' : '-';
         }
 
         // Kundenanmerkungen-Sektion
         $notesSection = '';
         if (!empty($booking['customer_notes'])) {
             $notesSection = "Ihre Anmerkungen:\n" . $booking['customer_notes'] . "\n";
+        }
+
+        // Flexibilitäts-Hinweis für "Ich komme vorbei"
+        $flexibilityNote = '';
+        if ($booking['booking_type'] === 'walkin') {
+            $flexibilityNote = "Sie können flexibel zwischen 14:00-17:00 Uhr vorbeikommen. Die empfohlene Zeit hilft uns, Wartezeiten zu minimieren.";
         }
 
         // Optionale Felder
@@ -186,6 +197,7 @@ class EmailService {
             '{booking_type}' => $bookingTypeLabels[$booking['booking_type']] ?? $booking['booking_type'],
             '{booking_type_label}' => $bookingTypeLabels[$booking['booking_type']] ?? $booking['booking_type'],
             '{customer_notes_section}' => $notesSection,
+            '{flexibility_note}' => $flexibilityNote,
             '{admin_booking_link}' => $adminBookingLink,
             '{admin_link}' => $adminBookingLink,
             '{manage_link}' => $manageLink
