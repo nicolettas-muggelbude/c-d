@@ -66,6 +66,7 @@ include __DIR__ . '/../templates/header.php';
                     Anforderungen und Ihr Budget.
                 </p>
                 <ul class="service-list">
+                    <li>Persönliche Beratung</li>
                     <li>Bedarfsanalyse</li>
                     <li>Produktempfehlungen</li>
                     <li>Kosten-Nutzen-Analyse</li>
