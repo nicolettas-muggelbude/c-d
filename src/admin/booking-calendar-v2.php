@@ -882,7 +882,11 @@ function showWalkinDetails(dateStr) {
     const timeRange = isSaturday ? '12:00-16:00' : '14:00-17:00';
 
     // Darkmode-aware Styling
-    const isDark = document.documentElement.classList.contains('dark-mode');
+    // Prüfe: prefers-color-scheme: dark UND NICHT data-theme="light"
+    const prefersDark = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
+    const themeOverride = document.documentElement.getAttribute('data-theme');
+    const isDark = prefersDark && themeOverride !== 'light';
+
     const bgColor = isDark ? '#1a1a1a' : 'white';
     const textColor = isDark ? '#e0e0e0' : '#333';
     const subtextColor = isDark ? '#999' : '#666';
