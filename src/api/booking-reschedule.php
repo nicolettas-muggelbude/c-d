@@ -86,15 +86,11 @@ try {
         exit;
     }
 
-    // Bei festem Termin: Zeit muss angegeben sein
-    if ($booking['booking_type'] === 'fixed' && !$newTime) {
-        http_response_code(400);
-        echo json_encode(['success' => false, 'error' => 'Uhrzeit erforderlich für festen Termin']);
-        exit;
-    }
+    // Neuen Termintyp basierend auf Uhrzeit bestimmen
+    $newBookingType = $newTime ? 'fixed' : 'walkin';
 
     // Bei festem Termin: Verfügbarkeit des neuen Slots prüfen
-    if ($booking['booking_type'] === 'fixed' && $newTime) {
+    if ($newBookingType === 'fixed') {
         // Prüfen ob der neue Slot noch verfügbar ist
         $slotCheckSql = "SELECT COUNT(*) as booking_count
                          FROM bookings
@@ -122,20 +118,36 @@ try {
         }
     }
 
-    // Alte Werte für Email speichern
-    $oldDate = $booking['booking_date'];
-    $oldTime = $booking['booking_time'];
+    // Alte Werte für Email speichern und formatieren
+    $oldDateRaw = $booking['booking_date'];
+    $oldTimeRaw = $booking['booking_time'];
+
+    // Datum formatieren (Deutsch)
+    $dateObj = new DateTime($oldDateRaw);
+    $weekdays = ['Sonntag', 'Montag', 'Dienstag', 'Mittwoch', 'Donnerstag', 'Freitag', 'Samstag'];
+    $months = ['', 'Januar', 'Februar', 'März', 'April', 'Mai', 'Juni',
+               'Juli', 'August', 'September', 'Oktober', 'November', 'Dezember'];
+
+    $oldDate = $weekdays[(int)$dateObj->format('w')] . ', ' .
+               $dateObj->format('d') . '. ' .
+               $months[(int)$dateObj->format('n')] . ' ' .
+               $dateObj->format('Y');
+
+    // Zeit formatieren (ohne Sekunden)
+    $oldTime = substr($oldTimeRaw, 0, 5) . ' Uhr';
 
     // Buchung aktualisieren
     $updateSql = "UPDATE bookings
                   SET booking_date = :new_date,
                       booking_time = :new_time,
+                      booking_type = :new_type,
                       updated_at = NOW()
                   WHERE id = :id";
 
     $db->update($updateSql, [
         ':new_date' => $newDate,
         ':new_time' => $newTime,
+        ':new_type' => $newBookingType,
         ':id' => $booking['id']
     ]);
 

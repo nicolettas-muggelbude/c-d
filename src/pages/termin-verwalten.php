@@ -234,6 +234,22 @@ include __DIR__ . '/../templates/header.php';
                         <p>Wählen Sie einen neuen Termin aus:</p>
 
                         <form id="reschedule-form">
+                            <!-- Termintyp-Auswahl -->
+                            <div class="form-group">
+                                <label>Terminart *</label>
+                                <div style="display: flex; gap: var(--space-md); flex-wrap: wrap;">
+                                    <label style="display: flex; align-items: center; gap: 0.5rem; cursor: pointer;">
+                                        <input type="radio" name="new_booking_type" value="fixed" <?php echo $booking['booking_type'] === 'fixed' ? 'checked' : ''; ?> onchange="toggleNewTimeSelection()">
+                                        <span>Fester Termin (mit Uhrzeit)</span>
+                                    </label>
+                                    <label style="display: flex; align-items: center; gap: 0.5rem; cursor: pointer;">
+                                        <input type="radio" name="new_booking_type" value="walkin" <?php echo $booking['booking_type'] === 'walkin' ? 'checked' : ''; ?> onchange="toggleNewTimeSelection()">
+                                        <span>Walk-in (ohne feste Uhrzeit)</span>
+                                    </label>
+                                </div>
+                                <small class="form-help">Walk-in: Sie kommen zwischen 14:00 und 17:00 Uhr vorbei</small>
+                            </div>
+
                             <div class="form-group">
                                 <label for="new_booking_date">Neues Datum *</label>
                                 <div style="position: relative;">
@@ -250,16 +266,14 @@ include __DIR__ . '/../templates/header.php';
                                 <small class="form-help">Ausgebuchte Tage sind im Kalender ausgegraut</small>
                             </div>
 
-                            <?php if ($booking['booking_type'] === 'fixed'): ?>
-                            <!-- Zeit-Auswahl nur für feste Termine -->
-                            <div class="form-group" id="new-time-selection">
+                            <!-- Zeit-Auswahl (wird ein-/ausgeblendet je nach Terminart) -->
+                            <div class="form-group" id="new-time-selection" style="display: <?php echo $booking['booking_type'] === 'fixed' ? 'block' : 'none'; ?>;">
                                 <label>Neue Uhrzeit *</label>
                                 <div class="time-slots" id="new-time-slots">
                                     <p style="text-align: center; color: var(--text-muted);">Bitte wählen Sie zuerst ein Datum aus.</p>
                                 </div>
                                 <input type="hidden" name="new_booking_time" id="new_booking_time">
                             </div>
-                            <?php endif; ?>
 
                             <div class="form-actions">
                                 <button type="button" class="btn btn-outline" onclick="cancelEditMode()">
@@ -329,6 +343,28 @@ include __DIR__ . '/../templates/header.php';
             loadFullyBookedDates();
         }
 
+        function toggleNewTimeSelection() {
+            const selectedType = document.querySelector('input[name="new_booking_type"]:checked').value;
+            const timeSelection = document.getElementById('new-time-selection');
+            const timeInput = document.getElementById('new_booking_time');
+
+            if (selectedType === 'fixed') {
+                timeSelection.style.display = 'block';
+            } else {
+                timeSelection.style.display = 'none';
+                // Zeitauswahl zurücksetzen bei Walk-in
+                if (timeInput) {
+                    timeInput.value = '';
+                }
+            }
+
+            // Flatpickr neu initialisieren mit den richtigen Wochentagen
+            bookingType = selectedType;
+            if (flatpickrInstance) {
+                initFlatpickr();
+            }
+        }
+
         function cancelEditMode() {
             // Formular verstecken
             document.getElementById('reschedule-form-container').style.display = 'none';
@@ -382,7 +418,9 @@ include __DIR__ . '/../templates/header.php';
             // Flatpickr initialisieren
             flatpickrInstance = flatpickr(dateInput, {
                 locale: 'de',
-                dateFormat: 'Y-m-d',
+                dateFormat: 'Y-m-d', // Internes Format für API
+                altInput: true, // Separates Anzeigefeld für Benutzer
+                altFormat: 'd.m.Y', // Deutsches Format: TT.MM.JJJJ
                 minDate: 'today',
 
                 // Tage deaktivieren
@@ -399,8 +437,11 @@ include __DIR__ . '/../templates/header.php';
                 onChange: function(selectedDates, dateStr, instance) {
                     console.log('Flatpickr: Date selected:', dateStr);
 
+                    // Aktuell gewählten Termintyp prüfen (nicht die alte Variable)
+                    const selectedType = document.querySelector('input[name="new_booking_type"]:checked')?.value;
+
                     // Zeitslots laden für feste Termine
-                    if (bookingType === 'fixed') {
+                    if (selectedType === 'fixed') {
                         loadNewTimeSlots(dateStr);
                     }
                 }
@@ -489,6 +530,7 @@ include __DIR__ . '/../templates/header.php';
 
             const token = '<?php echo htmlspecialchars($token ?? '', ENT_QUOTES); ?>';
             const newDate = document.getElementById('new_booking_date').value;
+            const newBookingType = document.querySelector('input[name="new_booking_type"]:checked').value;
             const newTime = document.getElementById('new_booking_time')?.value || null;
 
             // Validierung
@@ -497,7 +539,7 @@ include __DIR__ . '/../templates/header.php';
                 return;
             }
 
-            if (bookingType === 'fixed' && !newTime) {
+            if (newBookingType === 'fixed' && !newTime) {
                 alert('Bitte wählen Sie eine neue Uhrzeit aus.');
                 return;
             }

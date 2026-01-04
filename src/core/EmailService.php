@@ -54,14 +54,20 @@ class EmailService {
         $subject = $this->replacePlaceholders($template['subject'], $booking);
         $body = $this->replacePlaceholders($template['body'], $booking);
 
-        // Signatur anhängen
-        $fullBody = $body . "\n\n" . $signature;
+        // Signatur für HTML konvertieren (Zeilenumbrüche → <br>)
+        $signatureHtml = nl2br($signature);
+
+        // HTML-Body mit Signatur
+        $fullBodyHtml = $body . "\n\n" . $signatureHtml;
+
+        // Plaintext-Fallback (HTML-Tags entfernen)
+        $fullBodyPlain = strip_tags($body) . "\n\n" . $signature;
 
         // Email versenden
-        $success = $this->sendMail($booking['customer_email'], $subject, $fullBody);
+        $success = $this->sendMail($booking['customer_email'], $subject, $fullBodyHtml, $fullBodyPlain);
 
         // Log-Eintrag erstellen
-        $this->logEmail($bookingId, $templateType, $booking['customer_email'], $subject, $fullBody, $success);
+        $this->logEmail($bookingId, $templateType, $booking['customer_email'], $subject, $fullBodyHtml, $success);
 
         return $success;
     }
@@ -237,14 +243,20 @@ class EmailService {
         $subject = $this->replacePlaceholders($template['subject'], $booking);
         $body = $this->replacePlaceholders($template['body'], $booking);
 
-        // Signatur anhängen
-        $fullBody = $body . "\n\n" . $signature;
+        // Signatur für HTML konvertieren (Zeilenumbrüche → <br>)
+        $signatureHtml = nl2br($signature);
+
+        // HTML-Body mit Signatur
+        $fullBodyHtml = $body . "\n\n" . $signatureHtml;
+
+        // Plaintext-Fallback (HTML-Tags entfernen)
+        $fullBodyPlain = strip_tags($body) . "\n\n" . $signature;
 
         // Email an Admin versenden
-        $success = $this->sendMail(MAIL_ADMIN, $subject, $fullBody);
+        $success = $this->sendMail(MAIL_ADMIN, $subject, $fullBodyHtml, $fullBodyPlain);
 
         // Log-Eintrag erstellen
-        $this->logEmail($bookingId, 'booking_notification', MAIL_ADMIN, $subject, $fullBody, $success);
+        $this->logEmail($bookingId, $templateType, MAIL_ADMIN, $subject, $fullBodyHtml, $success);
 
         return $success;
     }
@@ -252,7 +264,7 @@ class EmailService {
     /**
      * Email versenden (mit PHPMailer)
      */
-    private function sendMail($to, $subject, $body) {
+    private function sendMail($to, $subject, $bodyHtml, $bodyPlain = null) {
         try {
             $mail = new \PHPMailer\PHPMailer\PHPMailer(true);
 
@@ -284,9 +296,14 @@ class EmailService {
 
             // Inhalt
             $mail->CharSet = 'UTF-8';
-            $mail->isHTML(false); // Plain Text
+            $mail->isHTML(true); // HTML-Emails
             $mail->Subject = $subject;
-            $mail->Body    = $body;
+            $mail->Body    = $bodyHtml;
+
+            // Plaintext-Fallback für Email-Clients ohne HTML-Unterstützung
+            if ($bodyPlain !== null) {
+                $mail->AltBody = $bodyPlain;
+            }
 
             // Versenden
             $sent = $mail->send();

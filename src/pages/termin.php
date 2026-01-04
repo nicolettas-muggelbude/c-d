@@ -697,7 +697,9 @@ function setupDateValidation() {
     // Flatpickr initialisieren
     flatpickrInstance = flatpickr(dateInput, {
         locale: 'de',
-        dateFormat: 'Y-m-d',
+        dateFormat: 'Y-m-d', // Internes Format für API
+        altInput: true, // Separates Anzeigefeld für Benutzer
+        altFormat: 'd.m.Y', // Deutsches Format: TT.MM.JJJJ
         minDate: 'today',
 
         // Tage deaktivieren
