@@ -554,7 +554,7 @@ nav a.active {
 /* Mobile Navigation */
 @media (max-width: 991px) {
     .header-content {
-        gap: 12px; /* Kleinerer Abstand zwischen Icon-Buttons */
+        gap: 8px; /* Kleinerer Abstand zwischen Icon-Buttons */
     }
 
     .hamburger {
