@@ -80,7 +80,7 @@ include __DIR__ . '/templates/header.php';
             <div class="card text-center">
                 <div class="card-icon">💻</div>
                 <h3>Hardware-Verkauf</h3>
-                <p>Refurbished Hardware und exone Neugeräte. Nachhaltig, hochwertig und mit Garantie.</p>
+                <p>Technik wie Neu! Hochwertige Refurbished Hardware mit 24 Monate Garantie. Neue Business Hardware <strong>exone Business</strong>.</p>
             </div>
 
             <div class="card text-center">

@@ -43,15 +43,16 @@ include __DIR__ . '/../templates/header.php';
                 <div class="service-icon">💻</div>
                 <h2>Hardware-Verkauf</h2>
                 <p>
-                    Hochwertige Refurbished-Hardware und exone Neugeräte. Alle Geräte sind professionell geprüft,
-                    gereinigt und kommen mit Garantie.
+                    Technik wie Neu! Hochwertige Refurbished Hardware mit 24 Monate Garantie.
+                    Neue Business Hardware <strong>exone Business</strong>.
                 </p>
                 <ul class="service-list">
                     <li>Notebooks & Desktop-PCs</li>
                     <li>Tablets & Smartphones</li>
                     <li>Peripherie & Zubehör</li>
                     <li>Netzwerktechnik</li>
-                    <li>12 Monate Gewährleistung</li>
+                    <li>Custom Gaming PC</li>
+                    <li>NAS / Server</li>
                 </ul>
                 <a href="<?= BASE_URL ?>/shop" class="btn btn-primary">Zum Shop</a>
             </div>
