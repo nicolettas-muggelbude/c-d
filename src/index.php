@@ -92,7 +92,7 @@ include __DIR__ . '/templates/header.php';
             <div class="card text-center">
                 <div class="card-icon">⚙️</div>
                 <h3>Softwareentwicklung</h3>
-                <p>Maßgeschneiderte Software-Lösungen für Ihr Business. Von der Idee bis zur Umsetzung.</p>
+                <p>Maßgeschneiderte Software-Lösungen, Webseiten/Apps und Tools für Linux & Windows. Von der Idee bis zur Umsetzung.</p>
             </div>
 
             <div class="card text-center">
