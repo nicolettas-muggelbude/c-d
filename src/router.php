@@ -249,6 +249,10 @@ switch ($page) {
                 require __DIR__ . '/api/booking-cancel.php';
                 break;
 
+            case 'booking-reschedule':
+                require __DIR__ . '/api/booking-reschedule.php';
+                break;
+
             case 'hellocash-search':
                 require __DIR__ . '/api/hellocash-search.php';
                 break;

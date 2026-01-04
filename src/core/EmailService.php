@@ -19,7 +19,7 @@ class EmailService {
      * @param string $templateType Template-Typ (confirmation, reminder_24h, reminder_1h)
      * @return bool Erfolg
      */
-    public function sendBookingEmail($bookingId, $templateType) {
+    public function sendBookingEmail($bookingId, $templateType, $extraPlaceholders = [], $skipDuplicateCheck = false) {
         // Buchungsdaten laden
         $booking = $this->db->querySingle("SELECT * FROM bookings WHERE id = :id", [':id' => $bookingId]);
 
@@ -28,8 +28,13 @@ class EmailService {
             return false;
         }
 
-        // Prüfen ob Email bereits versendet wurde
-        if ($this->isEmailAlreadySent($bookingId, $templateType)) {
+        // Zusätzliche Platzhalter zu Booking-Daten hinzufügen
+        if (!empty($extraPlaceholders)) {
+            $booking = array_merge($booking, $extraPlaceholders);
+        }
+
+        // Prüfen ob Email bereits versendet wurde (außer bei skipDuplicateCheck)
+        if (!$skipDuplicateCheck && $this->isEmailAlreadySent($bookingId, $templateType)) {
             error_log("EmailService: Email type $templateType already sent for booking $bookingId");
             return false;
         }
@@ -147,6 +152,9 @@ class EmailService {
             $manageLink = BASE_URL . '/termin/verwalten?token=' . $booking['manage_token'];
         }
 
+        // Telefonnummer kombiniert
+        $customerPhone = $booking['customer_phone_country'] . ' ' . $booking['customer_phone_mobile'];
+
         // Platzhalter-Map
         $placeholders = [
             '{customer_firstname}' => $booking['customer_firstname'],
@@ -156,19 +164,34 @@ class EmailService {
             '{customer_phone_country}' => $booking['customer_phone_country'],
             '{customer_phone_mobile}' => $booking['customer_phone_mobile'],
             '{customer_phone_landline}' => $customerPhoneLandline,
+            '{customer_phone}' => $customerPhone,
             '{customer_street}' => $booking['customer_street'],
             '{customer_house_number}' => $booking['customer_house_number'],
             '{customer_postal_code}' => $booking['customer_postal_code'],
             '{customer_city}' => $booking['customer_city'],
             '{booking_id}' => $booking['id'],
+            '{booking_number}' => str_pad($booking['id'], 6, '0', STR_PAD_LEFT),
+            '{booking_date}' => $dateFormatted,
             '{booking_date_formatted}' => $dateFormatted,
+            '{booking_time}' => $timeFormatted,
             '{booking_time_formatted}' => $timeFormatted,
+            '{service_type}' => $serviceLabels[$booking['service_type']] ?? $booking['service_type'],
             '{service_type_label}' => $serviceLabels[$booking['service_type']] ?? $booking['service_type'],
+            '{booking_type}' => $bookingTypeLabels[$booking['booking_type']] ?? $booking['booking_type'],
             '{booking_type_label}' => $bookingTypeLabels[$booking['booking_type']] ?? $booking['booking_type'],
             '{customer_notes_section}' => $notesSection,
             '{admin_booking_link}' => $adminBookingLink,
+            '{admin_link}' => $adminBookingLink,
             '{manage_link}' => $manageLink
         ];
+
+        // Zusätzliche Platzhalter aus Booking-Daten (z.B. old_date, old_time)
+        foreach ($booking as $key => $value) {
+            $placeholder = '{' . $key . '}';
+            if (!isset($placeholders[$placeholder]) && is_scalar($value)) {
+                $placeholders[$placeholder] = $value;
+            }
+        }
 
         return str_replace(array_keys($placeholders), array_values($placeholders), $text);
     }
@@ -179,7 +202,7 @@ class EmailService {
      * @param int $bookingId Buchungs-ID
      * @return bool Erfolg
      */
-    public function sendBookingNotification($bookingId) {
+    public function sendBookingNotification($bookingId, $templateType = 'booking_notification', $extraPlaceholders = [], $skipDuplicateCheck = false) {
         // Buchungsdaten laden
         $booking = $this->db->querySingle("SELECT * FROM bookings WHERE id = :id", [':id' => $bookingId]);
 
@@ -188,17 +211,22 @@ class EmailService {
             return false;
         }
 
-        // Prüfen ob Email bereits versendet wurde
-        if ($this->isEmailAlreadySent($bookingId, 'booking_notification')) {
-            error_log("EmailService: booking_notification already sent for booking $bookingId");
+        // Zusätzliche Platzhalter zu Booking-Daten hinzufügen
+        if (!empty($extraPlaceholders)) {
+            $booking = array_merge($booking, $extraPlaceholders);
+        }
+
+        // Prüfen ob Email bereits versendet wurde (außer bei skipDuplicateCheck)
+        if (!$skipDuplicateCheck && $this->isEmailAlreadySent($bookingId, $templateType)) {
+            error_log("EmailService: $templateType already sent for booking $bookingId");
             return false;
         }
 
         // Template laden
-        $template = $this->getTemplate('booking_notification');
+        $template = $this->getTemplate($templateType);
 
         if (!$template || !$template['is_active']) {
-            error_log("EmailService: Template booking_notification not found or inactive");
+            error_log("EmailService: Template $templateType not found or inactive");
             return false;
         }
 

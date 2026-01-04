@@ -384,3 +384,104 @@
   - Kontaktformular & Terminbuchungs-Daten
   - HelloCash-Integration (Kundendaten-Verarbeitung)
   - PHPMailer SMTP (Email-Versand)
+
+---
+
+### Feature: Terminänderung (Reschedule) mit Magic Link
+
+**Aufgabenstellung:**
+- Kunde soll Termine nicht nur stornieren, sondern auch verlegen können
+- Neues Datum/Zeit wählen ohne Stornierung → Neubuchung
+- Validierung: >= 48h vor Termin (wie bei Stornierung)
+- Email-Benachrichtigungen für Kunde + Admin
+
+**Implementierte Lösung:**
+
+1. **API-Endpoint Terminänderung** (`src/api/booking-reschedule.php`)
+   - POST `/api/booking-reschedule` mit Token, new_date, new_time
+   - Validierungen:
+     - Token-basierte Buchungs-Identifikation
+     - Status-Prüfung (keine cancelled/completed)
+     - Zeitlimit: >= 48h vor aktuellem Termin
+     - Bei festem Termin: new_time erforderlich
+     - Slot-Verfügbarkeit prüfen (max 2 Buchungen pro Slot)
+   - Alte Werte (old_date, old_time) für Email speichern
+   - Buchung aktualisieren (booking_date, booking_time, updated_at)
+   - Emails versenden mit skipDuplicateCheck=true
+
+2. **Email-Templates** (Datenbank)
+   - **Kunde:** `reschedule` - Terminänderung bestätigt
+     - Zeigt alten und neuen Termin
+     - Enthält Magic Link für weitere Verwaltung
+     - Platzhalter: {old_date}, {old_time}, {booking_date}, {booking_time}
+   - **Admin:** `admin_reschedule` - Benachrichtigung über Änderung
+     - Zeigt Kunde, alte und neue Termindaten
+     - Enthält Admin-Link zur Buchungsdetails
+     - SQL: `database/add-admin-reschedule-template.sql`
+     - SQL: `database/add-booking-reschedule-email-template.sql`
+
+3. **EmailService erweitert** (`src/core/EmailService.php`)
+   - `sendBookingEmail()` akzeptiert `$extraPlaceholders` Array
+   - `sendBookingNotification()` akzeptiert `$templateType` Parameter
+   - Beide Methoden: `$skipDuplicateCheck` Parameter für mehrfache Terminänderungen
+   - `replacePlaceholders()` erweitert:
+     - Automatische Integration von Extra-Platzhaltern (old_date, old_time)
+     - Vollständige Platzhalter-Map mit allen Buchungsfeldern
+     - Loop über `$booking` Array für dynamische Platzhalter
+
+4. **Frontend: Terminänderung-Formular** (`src/pages/termin-verwalten.php`)
+   - Flatpickr-Integration für neues Datum
+   - Zeitslot-Auswahl für feste Termine
+   - Verfügbarkeits-Validierung (wie bei Hauptformular)
+   - Deaktivierung ausgebuchter Tage
+   - API-Aufrufe:
+     - `/api/fully-booked-dates` für Kalender
+     - `/api/available-slots` für Zeitauswahl
+     - `/api/booking-reschedule` für Terminänderung
+
+5. **Router-Integration** (`src/router.php`)
+   - Route `booking-reschedule` registriert
+
+**Geschäftsregeln:**
+- **Zeitlimit:** Änderungen nur bis 48h vor Termin
+- **Slot-Limit:** Max 2 Buchungen pro Zeitslot (wie bei Hauptbuchung)
+- **Status:** Nur pending/confirmed Buchungen können geändert werden
+- **Multiple Changes:** Mehrfache Änderungen erlaubt (skipDuplicateCheck)
+
+**Technische Details:**
+- Extra-Placeholders: `['old_date' => '2026-01-16', 'old_time' => '12:00:00']`
+- Merging: `$booking = array_merge($booking, $extraPlaceholders)`
+- Email-Type Logging: reschedule emails werden als `booking_notification` geloggt (Admin)
+- HTTP Status Codes:
+  - 200: Erfolg
+  - 400: Fehlende/ungültige Parameter
+  - 404: Buchung nicht gefunden
+  - 409: Zeitlimit überschritten, Slot voll, oder Status-Problem
+  - 500: Server-Fehler
+
+**Debugging-Session: PHP OPcache Problem**
+- **Problem:** Email-Platzhalter wurden nicht ersetzt (Templates wurden unverändert versendet)
+- **Ursache:** PHP OPcache cachte alte Version von `EmailService.php`
+- **Symptome:**
+  - Änderungen an PHP-Dateien waren im Code sichtbar
+  - Browser erhielt aber alten Output vom Server
+  - Debug-Logs erschienen nicht in error.log
+  - Server-Restart via `server.sh restart` schlug fehl (Root-Process)
+- **Lösung:**
+  - Script `src/clear-cache.php` erstellt mit `opcache_reset()`
+  - Cache via `curl http://localhost:8000/clear-cache.php` geleert
+  - Alle Platzhalter funktionieren danach korrekt
+- **Verifizierung:**
+  - Email ID 30 (vor Cache-Clear): `{booking_number}`, `{old_date}` ❌
+  - Email ID 32 (nach Cache-Clear): `000016`, `2026-01-16` ✅
+
+**Dateien:**
+- `src/api/booking-reschedule.php` (neu)
+- `src/pages/termin-verwalten.php` (erweitert)
+- `src/core/EmailService.php` (erweitert)
+- `src/router.php` (Route hinzugefügt)
+- `src/clear-cache.php` (Debug-Tool)
+- `database/add-booking-reschedule-email-template.sql` (neu)
+- `database/add-admin-reschedule-template.sql` (neu)
+
+**Status:** ✅ Vollständig implementiert und getestet
