@@ -881,9 +881,19 @@ function showWalkinDetails(dateStr) {
     const isSaturday = date.getDay() === 6;
     const timeRange = isSaturday ? '12:00-16:00' : '14:00-17:00';
 
-    let html = `<div style="background: white; border: 2px solid #6c757d; border-radius: 8px; padding: 1.5rem; max-width: 600px; max-height: 80vh; overflow-y: auto; box-shadow: 0 4px 6px rgba(0,0,0,0.1);">`;
-    html += `<h3 style="margin: 0 0 1rem 0; color: #333; font-size: 1.3rem;">🚶 Ich komme vorbei (${walkins.length})</h3>`;
-    html += `<div style="font-size: 1rem; color: #666; margin-bottom: 1.5rem;">${timeRange} Uhr</div>`;
+    // Darkmode-aware Styling
+    const isDark = document.documentElement.classList.contains('dark-mode');
+    const bgColor = isDark ? '#1a1a1a' : 'white';
+    const textColor = isDark ? '#e0e0e0' : '#333';
+    const subtextColor = isDark ? '#999' : '#666';
+    const borderColor = isDark ? '#444' : '#6c757d';
+    const itemBg = isDark ? '#2a2a2a' : '#f8f9fa';
+    const itemBgHover = isDark ? '#333' : '#e9ecef';
+    const dividerColor = isDark ? '#444' : '#dee2e6';
+
+    let html = `<div style="background: ${bgColor}; border: 2px solid ${borderColor}; border-radius: 8px; padding: 1.5rem; max-width: 600px; max-height: 80vh; overflow-y: auto; box-shadow: 0 4px 6px rgba(0,0,0,0.3);">`;
+    html += `<h3 style="margin: 0 0 1rem 0; color: ${textColor}; font-size: 1.3rem;">🚶 Ich komme vorbei (${walkins.length})</h3>`;
+    html += `<div style="font-size: 1rem; color: ${subtextColor}; margin-bottom: 1.5rem;">${timeRange} Uhr</div>`;
     html += `<div style="display: flex; flex-direction: column; gap: 0.75rem;">`;
 
     const serviceLabels = {
@@ -902,12 +912,12 @@ function showWalkinDetails(dateStr) {
         const service = serviceLabels[w.service_type] || w.service_type;
         const notes = w.customer_notes ? w.customer_notes.substring(0, 100) : '';
 
-        html += `<div onclick="openEditModal(${w.id}); closeWalkinPopup();" style="cursor: pointer; padding: 1rem; background: #f8f9fa; border-radius: 6px; border-left: 4px solid #6c757d; transition: all 0.2s;" onmouseover="this.style.background='#e9ecef'" onmouseout="this.style.background='#f8f9fa'">`;
-        html += `<div style="font-size: 1.1rem; font-weight: bold; margin-bottom: 0.3rem;">${w.customer_firstname} ${w.customer_lastname}</div>`;
-        html += `<div style="font-size: 0.95rem; color: #666; margin-bottom: 0.3rem;">⏰ Empfohlung: ${time} Uhr</div>`;
-        html += `<div style="font-size: 0.95rem; color: #666; margin-bottom: 0.3rem;">📋 Anliegen: ${service}</div>`;
+        html += `<div onclick="openEditModal(${w.id}); closeWalkinPopup();" style="cursor: pointer; padding: 1rem; background: ${itemBg}; border-radius: 6px; border-left: 4px solid ${borderColor}; transition: all 0.2s;" onmouseover="this.style.background='${itemBgHover}'" onmouseout="this.style.background='${itemBg}'">`;
+        html += `<div style="font-size: 1.1rem; font-weight: bold; margin-bottom: 0.3rem; color: ${textColor};">${w.customer_firstname} ${w.customer_lastname}</div>`;
+        html += `<div style="font-size: 0.95rem; color: ${subtextColor}; margin-bottom: 0.3rem;">⏰ Empfohlung: ${time} Uhr</div>`;
+        html += `<div style="font-size: 0.95rem; color: ${subtextColor}; margin-bottom: 0.3rem;">📋 Anliegen: ${service}</div>`;
         if (notes) {
-            html += `<div style="font-size: 0.9rem; color: #555; font-style: italic; margin-top: 0.5rem; padding-top: 0.5rem; border-top: 1px solid #dee2e6;">💬 ${notes}${w.customer_notes.length > 100 ? '...' : ''}</div>`;
+            html += `<div style="font-size: 0.9rem; color: ${subtextColor}; font-style: italic; margin-top: 0.5rem; padding-top: 0.5rem; border-top: 1px solid ${dividerColor};">💬 ${notes}${w.customer_notes.length > 100 ? '...' : ''}</div>`;
         }
         html += `</div>`;
     });
