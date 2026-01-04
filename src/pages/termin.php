@@ -83,22 +83,6 @@ include __DIR__ . '/../templates/header.php';
 
                 <div class="service-options">
                     <label class="service-card">
-                        <input type="radio" name="service_type" value="pc-reparatur" required onchange="nextStep(3)">
-                        <div class="card-content">
-                            <span class="icon">🖥️</span>
-                            <h3>PC-Reparatur</h3>
-                        </div>
-                    </label>
-
-                    <label class="service-card">
-                        <input type="radio" name="service_type" value="notebook-reparatur" required onchange="nextStep(3)">
-                        <div class="card-content">
-                            <span class="icon">💻</span>
-                            <h3>Notebook-Reparatur</h3>
-                        </div>
-                    </label>
-
-                    <label class="service-card">
                         <input type="radio" name="service_type" value="beratung" required onchange="nextStep(3)">
                         <div class="card-content">
                             <span class="icon">💬</span>
@@ -107,34 +91,50 @@ include __DIR__ . '/../templates/header.php';
                     </label>
 
                     <label class="service-card">
-                        <input type="radio" name="service_type" value="software" required onchange="nextStep(3)">
+                        <input type="radio" name="service_type" value="verkauf" required onchange="nextStep(3)">
                         <div class="card-content">
-                            <span class="icon">📀</span>
-                            <h3>Software-Installation</h3>
+                            <span class="icon">🛒</span>
+                            <h3>Verkauf</h3>
                         </div>
                     </label>
 
                     <label class="service-card">
-                        <input type="radio" name="service_type" value="datenrettung" required onchange="nextStep(3)">
+                        <input type="radio" name="service_type" value="fernwartung" required onchange="nextStep(3)">
                         <div class="card-content">
-                            <span class="icon">💾</span>
-                            <h3>Datenrettung</h3>
+                            <span class="icon">💻</span>
+                            <h3>Fernwartung</h3>
                         </div>
                     </label>
 
                     <label class="service-card">
-                        <input type="radio" name="service_type" value="virus-entfernung" required onchange="nextStep(3)">
+                        <input type="radio" name="service_type" value="hausbesuch" required onchange="nextStep(3)">
                         <div class="card-content">
-                            <span class="icon">🦠</span>
-                            <h3>Virus-Entfernung</h3>
+                            <span class="icon">🏠</span>
+                            <h3>Hausbesuch</h3>
                         </div>
                     </label>
 
                     <label class="service-card">
-                        <input type="radio" name="service_type" value="upgrade" required onchange="nextStep(3)">
+                        <input type="radio" name="service_type" value="installation" required onchange="nextStep(3)">
                         <div class="card-content">
-                            <span class="icon">⬆️</span>
-                            <h3>Hardware-Upgrade</h3>
+                            <span class="icon">⚙️</span>
+                            <h3>Installation</h3>
+                        </div>
+                    </label>
+
+                    <label class="service-card">
+                        <input type="radio" name="service_type" value="diagnose" required onchange="nextStep(3)">
+                        <div class="card-content">
+                            <span class="icon">🔍</span>
+                            <h3>Diagnose</h3>
+                        </div>
+                    </label>
+
+                    <label class="service-card">
+                        <input type="radio" name="service_type" value="reparatur" required onchange="nextStep(3)">
+                        <div class="card-content">
+                            <span class="icon">🛠️</span>
+                            <h3>Reparatur</h3>
                         </div>
                     </label>
 
@@ -204,6 +204,7 @@ include __DIR__ . '/../templates/header.php';
                         <input type="text"
                                id="customer_firstname"
                                name="customer_firstname"
+                               class="form-control"
                                required>
                     </div>
 
@@ -212,6 +213,7 @@ include __DIR__ . '/../templates/header.php';
                         <input type="text"
                                id="customer_lastname"
                                name="customer_lastname"
+                               class="form-control"
                                required>
                     </div>
                 </div>
@@ -221,6 +223,7 @@ include __DIR__ . '/../templates/header.php';
                     <input type="text"
                            id="customer_company"
                            name="customer_company"
+                           class="form-control"
                            placeholder="Firmenname">
                 </div>
 
@@ -229,6 +232,7 @@ include __DIR__ . '/../templates/header.php';
                     <input type="email"
                            id="customer_email"
                            name="customer_email"
+                           class="form-control"
                            required>
                 </div>
 
@@ -257,6 +261,7 @@ include __DIR__ . '/../templates/header.php';
                     <input type="tel"
                            id="customer_phone_landline"
                            name="customer_phone_landline"
+                           class="form-control"
                            placeholder="030 12345678">
                 </div>
 
@@ -267,6 +272,7 @@ include __DIR__ . '/../templates/header.php';
                         <input type="text"
                                id="customer_street"
                                name="customer_street"
+                               class="form-control"
                                required
                                placeholder="Musterstraße">
                     </div>
@@ -275,6 +281,7 @@ include __DIR__ . '/../templates/header.php';
                         <input type="text"
                                id="customer_house_number"
                                name="customer_house_number"
+                               class="form-control"
                                required
                                placeholder="123">
                     </div>
@@ -286,6 +293,7 @@ include __DIR__ . '/../templates/header.php';
                         <input type="text"
                                id="customer_postal_code"
                                name="customer_postal_code"
+                               class="form-control"
                                required
                                placeholder="12345">
                     </div>
@@ -294,6 +302,7 @@ include __DIR__ . '/../templates/header.php';
                         <input type="text"
                                id="customer_city"
                                name="customer_city"
+                               class="form-control"
                                required
                                placeholder="Berlin">
                     </div>
@@ -824,6 +833,85 @@ function updateSummary() {
     }
 }
 
+// === sessionStorage für Kontaktdaten ===
+
+// Felder die gespeichert werden sollen
+const storageFields = [
+    'customer_firstname',
+    'customer_lastname',
+    'customer_company',
+    'customer_email',
+    'customer_phone_country',
+    'customer_phone_mobile',
+    'customer_phone_landline',
+    'customer_street',
+    'customer_house_number',
+    'customer_postal_code',
+    'customer_city',
+    'customer_notes'
+];
+
+// Formulardaten in sessionStorage speichern
+function saveFormToStorage() {
+    const formData = {};
+    storageFields.forEach(fieldId => {
+        const element = document.getElementById(fieldId);
+        if (element) {
+            formData[fieldId] = element.value;
+        }
+    });
+    sessionStorage.setItem('booking_customer_data', JSON.stringify(formData));
+    console.log('Kontaktdaten in sessionStorage gespeichert');
+}
+
+// Formulardaten aus sessionStorage wiederherstellen
+function restoreFormFromStorage() {
+    const saved = sessionStorage.getItem('booking_customer_data');
+    if (!saved) return;
+
+    try {
+        const formData = JSON.parse(saved);
+        let restoredCount = 0;
+
+        storageFields.forEach(fieldId => {
+            const element = document.getElementById(fieldId);
+            if (element && formData[fieldId]) {
+                element.value = formData[fieldId];
+                restoredCount++;
+            }
+        });
+
+        if (restoredCount > 0) {
+            console.log(`${restoredCount} Kontaktdaten aus sessionStorage wiederhergestellt`);
+        }
+    } catch (error) {
+        console.error('Fehler beim Wiederherstellen der Formulardaten:', error);
+    }
+}
+
+// Formulardaten aus sessionStorage löschen
+function clearFormStorage() {
+    sessionStorage.removeItem('booking_customer_data');
+    console.log('Kontaktdaten aus sessionStorage gelöscht');
+}
+
+// Event-Listener auf alle Formularfelder setzen
+document.addEventListener('DOMContentLoaded', function() {
+    // Daten beim Laden der Seite wiederherstellen
+    restoreFormFromStorage();
+
+    // Event-Listener für Auto-Save bei Änderungen
+    storageFields.forEach(fieldId => {
+        const element = document.getElementById(fieldId);
+        if (element) {
+            // Bei Texteingaben: input-Event (live während der Eingabe)
+            // Bei Selects: change-Event
+            const eventType = element.tagName === 'SELECT' ? 'change' : 'input';
+            element.addEventListener(eventType, saveFormToStorage);
+        }
+    });
+});
+
 // Formular absenden
 document.getElementById('booking-form').addEventListener('submit', async function(e) {
     e.preventDefault();
@@ -853,6 +941,9 @@ document.getElementById('booking-form').addEventListener('submit', async functio
         const result = await response.json();
 
         if (result.success) {
+            // Gespeicherte Daten aus sessionStorage löschen
+            clearFormStorage();
+
             // Formular verstecken, Erfolg anzeigen
             document.getElementById('booking-form').style.display = 'none';
             document.querySelector('.booking-progress').style.display = 'none';

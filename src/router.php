@@ -48,7 +48,14 @@ switch ($page) {
         break;
 
     case 'termin':
-        require __DIR__ . '/pages/termin.php';
+        if ($param === 'verwalten') {
+            // Buchungsverwaltung: /termin/verwalten
+            // Token aus Query-String (?token=...)
+            require __DIR__ . '/pages/termin-verwalten.php';
+        } else {
+            // Normale Terminbuchung
+            require __DIR__ . '/pages/termin.php';
+        }
         break;
 
     case 'impressum':
@@ -236,6 +243,10 @@ switch ($page) {
 
             case 'fully-booked-dates':
                 require __DIR__ . '/api/fully-booked-dates.php';
+                break;
+
+            case 'booking-cancel':
+                require __DIR__ . '/api/booking-cancel.php';
                 break;
 
             case 'hellocash-search':

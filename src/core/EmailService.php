@@ -85,14 +85,21 @@ class EmailService {
     private function replacePlaceholders($text, $booking) {
         // Service-Type Labels
         $serviceLabels = [
+            'beratung' => 'Beratung',
+            'verkauf' => 'Verkauf',
+            'fernwartung' => 'Fernwartung',
+            'hausbesuch' => 'Hausbesuch',
+            'installation' => 'Installation',
+            'diagnose' => 'Diagnose',
+            'reparatur' => 'Reparatur',
+            'sonstiges' => 'Sonstiges',
+            // Alt (für Kompatibilität)
             'pc-reparatur' => 'PC-Reparatur',
             'notebook-reparatur' => 'Notebook-Reparatur',
-            'beratung' => 'Beratung',
             'software' => 'Software-Installation',
             'datenrettung' => 'Datenrettung',
             'virus-entfernung' => 'Virus-Entfernung',
-            'upgrade' => 'Hardware-Upgrade',
-            'sonstiges' => 'Sonstiges'
+            'upgrade' => 'Hardware-Upgrade'
         ];
 
         // Booking-Type Labels
@@ -134,6 +141,12 @@ class EmailService {
         // Admin-Link
         $adminBookingLink = BASE_URL . '/admin/booking-detail?id=' . $booking['id'];
 
+        // Kunden-Verwaltungs-Link (Magic Link)
+        $manageLink = '';
+        if (!empty($booking['manage_token'])) {
+            $manageLink = BASE_URL . '/termin/verwalten?token=' . $booking['manage_token'];
+        }
+
         // Platzhalter-Map
         $placeholders = [
             '{customer_firstname}' => $booking['customer_firstname'],
@@ -153,7 +166,8 @@ class EmailService {
             '{service_type_label}' => $serviceLabels[$booking['service_type']] ?? $booking['service_type'],
             '{booking_type_label}' => $bookingTypeLabels[$booking['booking_type']] ?? $booking['booking_type'],
             '{customer_notes_section}' => $notesSection,
-            '{admin_booking_link}' => $adminBookingLink
+            '{admin_booking_link}' => $adminBookingLink,
+            '{manage_link}' => $manageLink
         ];
 
         return str_replace(array_keys($placeholders), array_values($placeholders), $text);

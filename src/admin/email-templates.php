@@ -43,8 +43,18 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     }
 }
 
-// Templates laden
-$templates = $db->query("SELECT * FROM email_templates ORDER BY template_type");
+// Templates laden und nach Typ gruppieren
+$bookingTemplates = $db->query("
+    SELECT * FROM email_templates
+    WHERE template_type IN ('confirmation', 'booking_notification', 'reminder_24h', 'reminder_1h')
+    ORDER BY template_name
+");
+
+$shopTemplates = $db->query("
+    SELECT * FROM email_templates
+    WHERE template_type IN ('order_confirmation', 'order_notification')
+    ORDER BY template_name
+");
 
 // Signatur laden
 $signature = $db->querySingle("SELECT * FROM email_signature WHERE id = 1");
@@ -67,11 +77,12 @@ include __DIR__ . '/../templates/header.php';
             <div class="alert alert-success"><?= e($success) ?></div>
         <?php endif; ?>
 
-        <!-- Email-Templates -->
+        <!-- Buchungs-Templates -->
         <div class="card mb-xl">
-            <h2 class="mb-lg">Email-Templates</h2>
+            <h2 class="mb-lg">📅 Buchungs-Templates</h2>
+            <p class="text-muted mb-lg">Email-Vorlagen für Terminbuchungen</p>
 
-            <?php foreach ($templates as $template): ?>
+            <?php foreach ($bookingTemplates as $template): ?>
                 <div class="card mb-lg" style="background: var(--bg-secondary);">
                     <div style="display: flex; justify-content: space-between; align-items: start; margin-bottom: 1rem;">
                         <div>
@@ -102,18 +113,60 @@ include __DIR__ . '/../templates/header.php';
                             <textarea name="body" class="form-control" rows="15" required><?= e($template['body']) ?></textarea>
                             <small class="text-muted">
                                 <strong>Verfügbare Platzhalter:</strong><br>
-                                <?php if (strpos($template['template_type'], 'order_') === 0): ?>
-                                    <!-- Shop-Platzhalter -->
-                                    {customer_firstname}, {customer_lastname}, {customer_email}, {customer_company_line},
-                                    {customer_phone_line}, {customer_address}, {order_number}, {order_date}, {order_items},
-                                    {order_subtotal}, {order_tax}, {order_total}, {delivery_method}, {payment_method},
-                                    {invoice_link_section}, {order_notes_section}, {admin_order_link}
-                                <?php else: ?>
-                                    <!-- Booking-Platzhalter -->
-                                    {customer_firstname}, {customer_lastname}, {booking_id},
-                                    {booking_date_formatted}, {booking_time_formatted},
-                                    {service_type_label}, {booking_type_label}, {customer_notes_section}
-                                <?php endif; ?>
+                                {customer_firstname}, {customer_lastname}, {customer_email}, {customer_company},
+                                {customer_phone_country}, {customer_phone_mobile}, {customer_phone_landline},
+                                {customer_street}, {customer_house_number}, {customer_postal_code}, {customer_city},
+                                {booking_id}, {booking_date_formatted}, {booking_time_formatted},
+                                {service_type_label}, {booking_type_label}, {customer_notes_section}, {admin_booking_link}
+                            </small>
+                        </div>
+
+                        <button type="submit" class="btn btn-primary">Template speichern</button>
+                    </form>
+                </div>
+            <?php endforeach; ?>
+        </div>
+
+        <!-- Shop-Templates -->
+        <div class="card mb-xl">
+            <h2 class="mb-lg">🛒 Shop-Templates</h2>
+            <p class="text-muted mb-lg">Email-Vorlagen für Bestellungen</p>
+
+            <?php foreach ($shopTemplates as $template): ?>
+                <div class="card mb-lg" style="background: var(--bg-secondary);">
+                    <div style="display: flex; justify-content: space-between; align-items: start; margin-bottom: 1rem;">
+                        <div>
+                            <h3 style="margin-bottom: 0.25rem;"><?= e($template['template_name']) ?></h3>
+                            <small class="text-muted">Typ: <?= e($template['template_type']) ?></small>
+                        </div>
+                        <form method="POST" style="display: inline;">
+                            <input type="hidden" name="action" value="toggle_active">
+                            <input type="hidden" name="template_id" value="<?= $template['id'] ?>">
+                            <button type="submit" class="btn btn-sm <?= $template['is_active'] ? 'btn-primary' : 'btn-outline' ?>">
+                                <?= $template['is_active'] ? 'Aktiv ✓' : 'Inaktiv' ?>
+                            </button>
+                        </form>
+                    </div>
+
+                    <form method="POST">
+                        <input type="hidden" name="action" value="update_template">
+                        <input type="hidden" name="template_id" value="<?= $template['id'] ?>">
+
+                        <div class="form-group">
+                            <label>Betreff</label>
+                            <input type="text" name="subject" class="form-control"
+                                   value="<?= e($template['subject']) ?>" required>
+                        </div>
+
+                        <div class="form-group">
+                            <label>Email-Text</label>
+                            <textarea name="body" class="form-control" rows="15" required><?= e($template['body']) ?></textarea>
+                            <small class="text-muted">
+                                <strong>Verfügbare Platzhalter:</strong><br>
+                                {customer_firstname}, {customer_lastname}, {customer_email}, {customer_company_line},
+                                {customer_phone_line}, {customer_address}, {order_number}, {order_date}, {order_items},
+                                {order_subtotal}, {order_tax}, {order_total}, {delivery_method}, {payment_method},
+                                {invoice_link_section}, {order_notes_section}, {admin_order_link}
                             </small>
                         </div>
 

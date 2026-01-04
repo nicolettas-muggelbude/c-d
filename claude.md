@@ -111,11 +111,13 @@
 **Priorität Hoch:**
 - CSV-Import testen mit echten Lieferanten-Daten
 - Produktions-Deployment vorbereiten
+- **Datenschutzerklärung erstellen** (noch nicht vorhanden!)
 
 **Priorität Mittel:**
 - HelloCash-Sync für eigene Artikel (Phase 3)
 - Dropshipping-API-Integration
 - Bewertungen einbinden (Google Reviews API)
+- Impressum erstellen/aktualisieren
 
 **Priorität Niedrig:**
 - Newsletter-System
@@ -245,3 +247,140 @@
 
 **Git-Commit:**
 - Alle Debug-Logs noch aktiv (für kommende Tests)
+
+---
+
+### Kunden-Self-Service: Terminverwaltung mit Magic Link
+
+**Aufgabenstellung:**
+- Kunden sollen ihre Buchungen eigenständig verwalten können
+- Stornierung und Änderung ohne Admin-Eingriff ermöglichen
+- Sicherer Zugriff ohne Login-System
+
+**Implementierte Lösung: Magic Link (Option A)**
+
+1. **Datenbank-Erweiterung** (`database/add-booking-manage-token.sql`)
+   - Neue Spalte `manage_token` (VARCHAR 64) in `bookings` Tabelle
+   - Unique Index für schnelle Token-Suche
+   - Automatische Token-Generierung für bestehende Buchungen
+
+2. **Token-Generierung bei Buchung** (`src/api/booking.php`)
+   - `bin2hex(random_bytes(32))` für kryptographisch sicheren Token
+   - Token wird bei jeder Buchung automatisch generiert
+   - Token wird in API-Response zurückgegeben für Email-Versand
+
+3. **Kunden-Verwaltungsseite** (`src/pages/termin-verwalten.php`)
+   - Route: `/termin/verwalten?token=...`
+   - Token-Validierung aus Query-String
+   - Anzeige aller Buchungsdetails
+   - Zeitbasierte Berechtigungsprüfung:
+     - Änderung: >= 48h vor Termin
+     - Stornierung: >= 24h vor Termin
+   - Vollständiger Darkmode-Support
+   - Responsive Design
+
+4. **API-Endpoint Stornierung** (`src/api/booking-cancel.php`)
+   - POST `/api/booking-cancel` mit Token
+   - Validierung: Token, Status, Zeitlimit (24h)
+   - Status-Update auf 'cancelled'
+   - Email-Bestätigung an Kunde + Admin-Benachrichtigung
+   - HTTP 409 bei Regelverletzung
+
+5. **Router-Integration** (`src/router.php`)
+   - Route `termin/verwalten` registriert
+   - API-Route `booking-cancel` registriert
+
+6. **Email-System erweitert** (`src/core/EmailService.php`)
+   - Neue Service-Kategorien in Platzhalter-Map:
+     - beratung, verkauf, fernwartung, hausbesuch
+     - installation, diagnose, reparatur, sonstiges
+   - Neuer Platzhalter `{manage_link}` für Magic Link
+   - Automatische Link-Generierung aus Token
+
+7. **Email-Templates aktualisiert** (`database/update-booking-email-templates.sql`)
+   - Bestätigungs-Email: Management-Link-Sektion hinzugefügt
+   - Neue Template: Stornierungsbestätigung (`cancellation`)
+   - Klarstellung über Änderungs- und Stornierungsfristen
+
+**Geschäftsregeln:**
+- **Stornierung:** Bis 24 Stunden vor Termin online möglich
+- **Änderung:** Bis 48 Stunden vor Termin online möglich (Placeholder, noch nicht implementiert)
+- **Nach Fristablauf:** Kunde muss telefonisch/per Email kontaktieren
+
+**Sicherheit:**
+- 64 Zeichen Hex-Token (256 Bit Entropy)
+- Token-basierte Authentifizierung ohne Session
+- Unique Index verhindert Token-Kollisionen
+- Server-seitige Zeitvalidierung
+
+**Technische Details:**
+- Magic Link Format: `http://localhost:8000/termin/verwalten?token={64-char-hex}`
+- Token-Generierung: `bin2hex(random_bytes(32))`
+- Zeitberechnung: DateTime-Differenz in Stunden
+- Status-Werte: pending, confirmed, cancelled, completed
+
+**Noch nicht implementiert:**
+- Terminänderung (Datum/Zeit neu wählen)
+- Fallback-Seite mit Buchungsnummer + Email-Suche
+- QR-Code in Email für mobilen Zugriff
+
+**Debugging-Erkenntnisse:**
+- Email-Template benötigt `template_name` (NOT NULL)
+- Token muss vor Email-Versand in DB gespeichert sein
+- Router benötigt explizite Registrierung für neue Routes
+- EmailService lädt Booking-Daten neu → Token muss in DB sein
+
+**Git-Commit:**
+- Bereit für Tests der kompletten Kunden-Self-Service Funktionalität
+
+---
+
+### Bugfixes & Verbesserungen: Terminverwaltung & sessionStorage
+
+**Bugfix: Stornierungsbestätigung**
+- **Problem:** Nach Stornierung wurde "Fehler: Keine Terminbuchung vorhanden" angezeigt
+- **Lösung:** Separate Variable `$cancelled` eingeführt (Zeile 13)
+- **Änderung:** Bei storniertem Termin wird Info-Box angezeigt statt Fehler-Box
+- **Ergebnis:** "Kein Termin gebucht" in blauer Info-Box (ohne "Fehler:" Präfix)
+- **Datei:** `src/pages/termin-verwalten.php:13,31,76-98`
+
+**Feature: sessionStorage für Kontaktdaten (DSGVO-konform)**
+- **Anforderung:** Kunde soll Daten nicht erneut eingeben müssen bei Reload/Tab-Wechsel
+- **Lösung:** sessionStorage statt Cookie (keine Einwilligung erforderlich)
+- **Implementierung:**
+  - Automatisches Speichern bei jeder Eingabe (live während Tippens)
+  - Automatisches Wiederherstellen beim Laden der Seite
+  - Automatisches Löschen nach erfolgreicher Buchung
+  - 12 Kontaktfelder werden gespeichert
+- **Datenschutz:**
+  - ✅ Keine Cookie-Einwilligung erforderlich (kein Cookie)
+  - ✅ Daten nur lokal im Browser, keine Server-Übermittlung
+  - ✅ Automatische Löschung bei Browser-Schließen
+- **Datei:** `src/pages/termin.php:836-913,945`
+- **Storage-Key:** `booking_customer_data`
+
+**Gespeicherte Felder:**
+- Vorname, Nachname, Firma (optional)
+- E-Mail, Ländervorwahl, Mobilnummer, Festnetz (optional)
+- Straße, Hausnummer, PLZ, Ort
+- Bemerkungen (optional)
+
+**UX-Verbesserung: Daten bei Neubuchung nach Stornierung**
+- **Problem:** Nach Stornierung mussten Daten bei Neubuchung erneut eingegeben werden
+- **Lösung:** Kundendaten werden beim Klick auf "Neuen Termin buchen" in sessionStorage gespeichert
+- **Implementierung:**
+  - JavaScript-Funktion `saveCustomerDataToStorage()` beim Button-Klick
+  - Speichert 11 Kontaktfelder aus stornierter Buchung
+  - Notizen werden absichtlich nicht übernommen (neue Buchung = neue Notizen)
+  - Automatisches Vorausfüllen auf Terminbuchungs-Seite
+- **User-Flow:** Stornierung → "Neuen Termin buchen" → Formular vorausgefüllt
+- **Datei:** `src/pages/termin-verwalten.php:83,88-108`
+
+**Vorgemerkt für künftige Entwicklung:**
+- 📋 **Datenschutzerklärung erstellen** (aktuell nicht vorhanden)
+  - Hinweis auf sessionStorage-Nutzung
+  - Allgemeine DSGVO-Anforderungen
+  - Cookie-Richtlinie (falls künftig Cookies verwendet werden)
+  - Kontaktformular & Terminbuchungs-Daten
+  - HelloCash-Integration (Kundendaten-Verarbeitung)
+  - PHPMailer SMTP (Email-Versand)

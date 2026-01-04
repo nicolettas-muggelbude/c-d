@@ -216,6 +216,9 @@ if ($hellocashClient->isConfigured()) {
     error_log('HelloCash API not configured');
 }
 
+// Token für Kundenverwaltung generieren
+$manageToken = bin2hex(random_bytes(32)); // 64 Zeichen Hex-String
+
 // In Datenbank speichern
 $db = Database::getInstance();
 error_log('Preparing database insert...');
@@ -240,6 +243,7 @@ try {
             customer_postal_code,
             customer_city,
             hellocash_customer_id,
+            manage_token,
             status,
             created_at
         ) VALUES (
@@ -260,6 +264,7 @@ try {
             :customer_postal_code,
             :customer_city,
             :hellocash_customer_id,
+            :manage_token,
             'pending',
             NOW()
         )
@@ -282,7 +287,8 @@ try {
         ':customer_house_number' => trim($data['customer_house_number']),
         ':customer_postal_code' => trim($data['customer_postal_code']),
         ':customer_city' => trim($data['customer_city']),
-        ':hellocash_customer_id' => $hellocashUserId
+        ':hellocash_customer_id' => $hellocashUserId,
+        ':manage_token' => $manageToken
     ];
 
     error_log('Insert params: ' . json_encode($params));
@@ -295,10 +301,11 @@ try {
         echo json_encode([
             'success' => true,
             'booking_id' => $bookingId,
+            'manage_token' => $manageToken,
             'message' => 'Termin erfolgreich gebucht'
         ]);
 
-        // Email-Bestätigung an Kunden senden
+        // Email-Bestätigung an Kunden senden (inkl. Management-Link)
         $emailService = new EmailService();
         $emailService->sendBookingEmail($bookingId, 'confirmation');
 

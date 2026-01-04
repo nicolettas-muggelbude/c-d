@@ -395,6 +395,12 @@ include __DIR__ . '/../templates/header.php';
     color: #155724;
 }
 
+.alert-error {
+    background-color: #f8d7da;
+    border: 1px solid #f5c6cb;
+    color: #721c24;
+}
+
 .badge {
     display: inline-block;
     padding: 0.35rem 0.65rem;
@@ -445,30 +451,162 @@ include __DIR__ . '/../templates/header.php';
     width: 100%;
     padding: 0.75rem;
     font-size: 1rem;
-    border: 1px solid #ddd;
+    border: 1px solid var(--border-color);
     border-radius: 4px;
     font-family: inherit;
+    background: var(--bg-primary);
+    color: var(--text-primary);
+    transition: var(--transition-base);
 }
 
 .form-control:focus {
     outline: none;
     border-color: var(--color-primary);
-    box-shadow: 0 0 0 3px rgba(0, 123, 255, 0.1);
+    box-shadow: 0 0 0 3px rgba(139, 195, 74, 0.1);
 }
 
 .form-group label {
     display: block;
     margin-bottom: 0.5rem;
     font-weight: 500;
+    color: var(--text-primary);
 }
 
 code {
     padding: 0.25rem 0.5rem;
-    background-color: #f8f9fa;
-    border: 1px solid #ddd;
+    background-color: var(--bg-secondary);
+    border: 1px solid var(--border-color);
     border-radius: 3px;
     font-family: 'Courier New', monospace;
     font-size: 0.9rem;
+    color: var(--text-primary);
+}
+
+/* Darkmode Support */
+@media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) .form-control,
+    :root:not([data-theme="light"]) input[type="date"],
+    :root:not([data-theme="light"]) input[type="time"],
+    :root:not([data-theme="light"]) select {
+        background: #1A1F26 !important;
+        border-color: #374151 !important;
+        color: #E8E8E8 !important;
+    }
+
+    :root:not([data-theme="light"]) .form-control:focus,
+    :root:not([data-theme="light"]) input[type="date"]:focus,
+    :root:not([data-theme="light"]) input[type="time"]:focus,
+    :root:not([data-theme="light"]) select:focus {
+        background: #242A35 !important;
+        border-color: #8BC34A !important;
+        color: #E8E8E8 !important;
+    }
+
+    :root:not([data-theme="light"]) .form-group label {
+        color: #E8E8E8 !important;
+    }
+
+    :root:not([data-theme="light"]) code {
+        background-color: #2C3E50 !important;
+        border-color: #374151 !important;
+        color: #E8E8E8 !important;
+    }
+
+    :root:not([data-theme="light"]) option {
+        background: #1A1F26 !important;
+        color: #E8E8E8 !important;
+    }
+
+    :root:not([data-theme="light"]) .detail-item label {
+        color: #B8B8B8 !important;
+    }
+
+    :root:not([data-theme="light"]) .detail-item div {
+        color: #E8E8E8 !important;
+    }
+
+    :root:not([data-theme="light"]) .note-box {
+        background-color: #2C3E50 !important;
+        color: #E8E8E8 !important;
+    }
+
+    :root:not([data-theme="light"]) .alert-success {
+        background-color: #1e4620 !important;
+        border-color: #2d5f2f !important;
+        color: #a8d5aa !important;
+    }
+
+    :root:not([data-theme="light"]) .alert-error {
+        background-color: #4a1e1e !important;
+        border-color: #5f2d2d !important;
+        color: #d5a8a8 !important;
+    }
+
+    :root:not([data-theme="light"]) .text-muted {
+        color: #888888 !important;
+    }
+}
+
+[data-theme="dark"] .form-control,
+[data-theme="dark"] input[type="date"],
+[data-theme="dark"] input[type="time"],
+[data-theme="dark"] select {
+    background: #1A1F26 !important;
+    border-color: #374151 !important;
+    color: #E8E8E8 !important;
+}
+
+[data-theme="dark"] .form-control:focus,
+[data-theme="dark"] input[type="date"]:focus,
+[data-theme="dark"] input[type="time"]:focus,
+[data-theme="dark"] select:focus {
+    background: #242A35 !important;
+    border-color: #8BC34A !important;
+    color: #E8E8E8 !important;
+}
+
+[data-theme="dark"] .form-group label {
+    color: #E8E8E8 !important;
+}
+
+[data-theme="dark"] code {
+    background-color: #2C3E50 !important;
+    border-color: #374151 !important;
+    color: #E8E8E8 !important;
+}
+
+[data-theme="dark"] option {
+    background: #1A1F26 !important;
+    color: #E8E8E8 !important;
+}
+
+[data-theme="dark"] .detail-item label {
+    color: #B8B8B8 !important;
+}
+
+[data-theme="dark"] .detail-item div {
+    color: #E8E8E8 !important;
+}
+
+[data-theme="dark"] .note-box {
+    background-color: #2C3E50 !important;
+    color: #E8E8E8 !important;
+}
+
+[data-theme="dark"] .alert-success {
+    background-color: #1e4620 !important;
+    border-color: #2d5f2f !important;
+    color: #a8d5aa !important;
+}
+
+[data-theme="dark"] .alert-error {
+    background-color: #4a1e1e !important;
+    border-color: #5f2d2d !important;
+    color: #d5a8a8 !important;
+}
+
+[data-theme="dark"] .text-muted {
+    color: #888888 !important;
 }
 
 @media (max-width: 768px) {
