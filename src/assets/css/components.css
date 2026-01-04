@@ -10,21 +10,28 @@
 /* ============================================= */
 
 .hero {
-    background: linear-gradient(135deg, #D8D8D8 0%, #F0F0F0 100%);
+    background:
+        linear-gradient(rgba(0, 0, 0, 0.5), rgba(0, 0, 0, 0.5)),
+        url('/data/images/shop_banner.png') center/cover no-repeat;
     padding: var(--space-3xl) 0;
-    min-height: 400px;
+    min-height: 500px;
     display: flex;
     align-items: center;
+    color: white;
 }
 
 @media (prefers-color-scheme: dark) {
     :root:not([data-theme="light"]) .hero {
-        background: linear-gradient(135deg, #1F2937 0%, #2C3E50 100%);
+        background:
+            linear-gradient(rgba(0, 0, 0, 0.6), rgba(0, 0, 0, 0.6)),
+            url('/data/images/shop_banner.png') center/cover no-repeat;
     }
 }
 
 [data-theme="dark"] .hero {
-    background: linear-gradient(135deg, #1F2937 0%, #2C3E50 100%);
+    background:
+        linear-gradient(rgba(0, 0, 0, 0.6), rgba(0, 0, 0, 0.6)),
+        url('/data/images/shop_banner.png') center/cover no-repeat;
 }
 
 .hero-content {
@@ -35,12 +42,16 @@
 
 .hero h1 {
     margin-bottom: var(--space-lg);
+    color: white;
+    text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
 }
 
 .hero .lead {
     font-size: var(--font-size-lg);
     margin-bottom: var(--space-xl);
     line-height: 1.6;
+    color: white;
+    text-shadow: 1px 1px 3px rgba(0, 0, 0, 0.5);
 }
 
 /* ============================================= */
