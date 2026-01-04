@@ -42,8 +42,10 @@ if ($filterDate) {
 }
 
 if ($searchQuery) {
-    $sql .= " AND (customer_firstname LIKE :search OR customer_lastname LIKE :search OR customer_email LIKE :search)";
-    $params[':search'] = '%' . $searchQuery . '%';
+    $sql .= " AND (customer_firstname LIKE :search1 OR customer_lastname LIKE :search2 OR customer_email LIKE :search3)";
+    $params[':search1'] = '%' . $searchQuery . '%';
+    $params[':search2'] = '%' . $searchQuery . '%';
+    $params[':search3'] = '%' . $searchQuery . '%';
 }
 
 $sql .= " ORDER BY booking_date ASC, booking_time ASC, created_at ASC";
