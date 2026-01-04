@@ -79,8 +79,8 @@ try {
     $emailService = new EmailService();
     $emailService->sendBookingEmail($booking['id'], 'cancellation');
 
-    // Admin benachrichtigen
-    $emailService->sendBookingNotification($booking['id']);
+    // Admin benachrichtigen (Stornierung)
+    $emailService->sendBookingNotification($booking['id'], 'admin_cancellation');
 
     http_response_code(200);
     echo json_encode([

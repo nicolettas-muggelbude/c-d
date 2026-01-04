@@ -485,3 +485,91 @@
 - `database/add-admin-reschedule-template.sql` (neu)
 
 **Status:** ✅ Vollständig implementiert und getestet
+
+---
+
+### Email-System: HTML-Templates & Vorschau-Integration
+
+**Aufgabenstellung:**
+- Email-Templates von Plaintext zu HTML konvertieren
+- Vollständige HTML/Plaintext Dual-Format Unterstützung
+- Admin-Vorschau für Email-Templates
+- Termintyp-Wechsel bei Umbuchung ermöglichen
+- Deutsche Datumsformatierung in Formularen
+
+**Implementierte Lösungen:**
+
+1. **HTML Email-Templates** (`database/convert-templates-to-html.sql`)
+   - Alle 10 Email-Templates zu HTML konvertiert:
+     - Buchung: confirmation, booking_notification, cancellation, reschedule
+     - Admin: admin_cancellation, admin_reschedule
+     - Reminder: reminder_24h, reminder_1h
+     - Shop: order_confirmation, order_notification
+   - HTML-Struktur: `<h2>`, `<p>`, `<ul>`, `<a>` Tags
+   - Styled Buttons für Call-to-Action Links
+   - Verbesserte Lesbarkeit und professionelles Design
+
+2. **PHPMailer HTML-Support** (`src/core/EmailService.php`)
+   - `isHTML(true)` für HTML-Email-Versand
+   - Dual-Format mit `AltBody` für Plaintext-Fallback
+   - Signatur-Formatierung:
+     - HTML: `nl2br($signature)` für korrekte Zeilenumbrüche
+     - Plaintext: `strip_tags()` für reinen Text
+   - Methoden-Signatur erweitert für HTML + Plain Bodies
+
+3. **Admin Email-Vorschau** (`src/admin/email-templates.php`)
+   - Integrierte Vorschau direkt in Template-Verwaltung
+   - Vorschau-Button öffnet `test-email-preview.php` in neuem Tab
+   - Side-by-side Ansicht: HTML + Plaintext Version
+   - Buchungs-ID wählbar für Test mit realen Daten
+   - Betreff-Anzeige mit Platzhalter-Ersetzung
+
+4. **Email-Vorschau API** (`src/api/email-preview.php`)
+   - GET `/api/email-preview?type=confirmation&id=17`
+   - Reflection API für Zugriff auf private `replacePlaceholders()` Methode
+   - Generiert HTML + Plaintext Version mit Signatur
+   - JSON Response mit subject, html, plain
+   - Route in `router.php` registriert
+
+5. **Termintyp-Wechsel bei Umbuchung** (`src/api/booking-reschedule.php`, `src/pages/termin-verwalten.php`)
+   - Radio-Buttons: "Fester Termin" ↔ "Walk-in"
+   - Dynamische Zeitauswahl basierend auf Termintyp
+   - `booking_type` wird bei Umbuchung aktualisiert
+   - Flatpickr passt erlaubte Wochentage an
+   - JavaScript: `toggleNewTimeSelection()` für UI-Steuerung
+
+6. **Deutsche Datumsformatierung** (`src/pages/termin.php`, `src/pages/termin-verwalten.php`)
+   - Flatpickr `altInput` System:
+     - User sieht: `16.01.2026` (d.m.Y)
+     - API erhält: `2026-01-16` (Y-m-d)
+   - Separates Display-Feld für bessere UX
+   - Alte Termine in Umbuchungs-Emails formatiert (Deutsch)
+
+7. **Admin-Cancellation-Email Fix** (`database/add-admin-cancellation-template.sql`, `src/api/booking-cancel.php`)
+   - Separates Template `admin_cancellation` erstellt
+   - Admin erhält jetzt Benachrichtigung bei Kundenstornierungen
+   - Enthält vollständige Buchungsdetails + Kundenkontakt
+
+**Technische Details:**
+- HTML-Email Body: `$mail->Body = $bodyHtml`
+- Plaintext-Fallback: `$mail->AltBody = $bodyPlain`
+- Reflection API: `$method->setAccessible(true)` für private Methoden
+- Template-Gruppierung: Buchungs-Templates vs Shop-Templates
+- German Date Format: `d.m.Y` vs. ISO `Y-m-d`
+
+**Debugging-Session: OPcache & Platzhalter**
+- **Problem:** Email-Platzhalter nicht ersetzt (fortgesetzt von vorheriger Session)
+- **Lösung:** `clear-cache.php` mit `opcache_reset()`
+- **Ergebnis:** Alle Templates funktionieren korrekt nach Cache-Clear
+
+**Dateien:**
+- `src/core/EmailService.php` (HTML-Support, Dual-Format)
+- `src/admin/email-templates.php` (Vorschau-Integration)
+- `src/api/email-preview.php` (neu)
+- `src/api/booking-reschedule.php` (Termintyp-Wechsel)
+- `src/pages/termin-verwalten.php` (Radio-Buttons, German Date)
+- `src/pages/termin.php` (Flatpickr altInput)
+- `database/convert-templates-to-html.sql` (HTML-Konvertierung)
+- `database/add-admin-cancellation-template.sql` (Admin-Email)
+
+**Status:** ✅ Vollständig implementiert und getestet

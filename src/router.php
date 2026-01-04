@@ -261,6 +261,10 @@ switch ($page) {
                 require __DIR__ . '/api/health-check.php';
                 break;
 
+            case 'email-preview':
+                require __DIR__ . '/api/email-preview.php';
+                break;
+
             default:
                 http_response_code(404);
                 echo json_encode(['error' => 'API-Endpoint nicht gefunden']);

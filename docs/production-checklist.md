@@ -11,7 +11,7 @@
 ### 🧪 Terminmodul testen
 
 - [ ] **Buchungs-Workflow**
-  - [ ] Fester Termin: Alle 8 Services durchspielen
+  - [x] Fester Termin: Alle 8 Services durchspielen
   - [ ] Walk-in: Alle 8 Services durchspielen
   - [ ] Navigation Vor/Zurück zwischen Schritten funktioniert
   - [ ] Zusammenfassung zeigt korrekte Daten
@@ -26,29 +26,29 @@
   - [ ] Straße/Hausnummer/Ort min. 2 Zeichen
 
 - [ ] **Zeitslot-System**
-  - [ ] Verfügbare Zeiten werden korrekt angezeigt
-  - [ ] Doppelbuchung wird verhindert
+  - [x] Verfügbare Zeiten werden korrekt angezeigt
+  - [x] Doppelbuchung wird verhindert
   - [ ] Walk-in Zeiten: Di-Fr 14-17 Uhr, Sa 12-16 Uhr
-  - [ ] Feste Termine: Nur 11:00 + 12:00 Uhr
-  - [ ] Gebuchte Slots sind ausgegraut/deaktiviert
+  - [x] Feste Termine: Nur 11:00 + 12:00 Uhr
+  - [x] Gebuchte Slots sind ausgegraut/deaktiviert
   - [ ] API `/api/available-slots` funktioniert
 
 - [ ] **Email-Versand**
-  - [ ] Kunde erhält Bestätigungs-Email
-  - [ ] Admin erhält Benachrichtigung
-  - [ ] Deutsche Umlaute korrekt (UTF-8)
-  - [ ] Links in Email funktionieren
+  - [x] Kunde erhält Bestätigungs-Email
+  - [x] Admin erhält Benachrichtigung
+  - [x] Deutsche Umlaute korrekt (UTF-8)
+  - [x] Links in Email funktionieren
   - [ ] Admin-Detail-Link korrekt
-  - [ ] Email-Layout ist lesbar
+  - [x] Email-Layout ist lesbar
 
 - [ ] **HelloCash-Integration**
-  - [ ] Neuer Kunde wird in HelloCash angelegt
+  - [x] Neuer Kunde wird in HelloCash angelegt
   - [ ] Bestehender Kunde wird gefunden (Email-Match)
-  - [ ] Bestehender Kunde wird gefunden (Telefon-Match)
-  - [ ] Adresse wird korrekt übertragen
-  - [ ] Ländercode wird korrekt gemappt (DE aus +49)
+  - [ ] Bestehender Kunde wird gefunden (Vorname-Match)
+  - [x] Adresse wird korrekt übertragen
+  - [x] Ländercode wird korrekt gemappt (DE aus +49)
   - [ ] Festnetz landet in `user_notes`
-  - [ ] Keine Duplikate werden erstellt
+  - [x] Keine Duplikate werden erstellt
 
 - [ ] **Admin-Bereich: Termine**
   - [ ] Übersicht zeigt alle Buchungen
