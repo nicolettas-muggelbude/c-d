@@ -98,7 +98,7 @@ include __DIR__ . '/../templates/header.php';
                         </div>
                     </label>
 
-                    <label class="service-card">
+                    <label class="service-card" data-service-onsite-only="true">
                         <input type="radio" name="service_type" value="fernwartung" required onchange="nextStep(3)">
                         <div class="card-content">
                             <span class="icon">💻</span>
@@ -106,7 +106,7 @@ include __DIR__ . '/../templates/header.php';
                         </div>
                     </label>
 
-                    <label class="service-card">
+                    <label class="service-card" data-service-onsite-only="true">
                         <input type="radio" name="service_type" value="hausbesuch" required onchange="nextStep(3)">
                         <div class="card-content">
                             <span class="icon">🏠</span>
@@ -566,7 +566,9 @@ function nextStep(step) {
     currentStep = step;
 
     // Spezielle Aktionen pro Schritt
-    if (step === 3) {
+    if (step === 2) {
+        updateServiceVisibility();
+    } else if (step === 3) {
         setupStep3();
     } else if (step === 4) {
         updateSummary();
@@ -605,7 +607,9 @@ function prevStep(step) {
     currentStep = step;
 
     // Spezielle Aktionen pro Schritt
-    if (step === 3) {
+    if (step === 2) {
+        updateServiceVisibility();
+    } else if (step === 3) {
         setupStep3();
     }
 
@@ -833,6 +837,29 @@ function updateSummary() {
         document.getElementById('summary-time-label').style.display = 'none';
         document.getElementById('summary-time').style.display = 'none';
     }
+}
+
+// Service-Sichtbarkeit basierend auf Buchungstyp aktualisieren
+function updateServiceVisibility() {
+    const bookingType = formData.booking_type;
+    const onsiteOnlyCards = document.querySelectorAll('.service-card[data-service-onsite-only="true"]');
+
+    onsiteOnlyCards.forEach(card => {
+        if (bookingType === 'walkin') {
+            // Bei Walk-in: Fernwartung und Hausbesuch ausblenden
+            card.style.display = 'none';
+
+            // Falls dieser Service ausgewählt war, Auswahl löschen
+            const radio = card.querySelector('input[type="radio"]');
+            if (radio && radio.checked) {
+                radio.checked = false;
+                formData.service_type = '';
+            }
+        } else {
+            // Bei festem Termin: alle Services anzeigen
+            card.style.display = '';
+        }
+    });
 }
 
 // === sessionStorage für Kontaktdaten ===
