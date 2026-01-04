@@ -54,7 +54,7 @@ include __DIR__ . '/templates/header.php';
         <div class="hero-content">
             <h1>IT-Lösungen mit Herz</h1>
             <p class="lead">
-                Willkommen bei PC-Wittfoot! Wir beraten Sie persönlich, verständlich und mit einer Tasse Kaffee.
+                Willkommen bei PC-Wittfoot im Systemhäuschen! Wir beraten Sie persönlich, verständlich und mit einer Tasse Kaffee.
                 Von der Diagnose über die Reparatur bis zum Verkauf - bei uns sind Sie in guten Händen.
             </p>
             <div class="btn-group">
