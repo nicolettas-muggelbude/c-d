@@ -43,7 +43,7 @@
 .hero h1 {
     margin-bottom: var(--space-lg);
     color: white;
-    text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
+    text-shadow: 1px 2px 8px rgba(0, 0, 0, 0.3);
 }
 
 .hero .lead {
@@ -51,7 +51,7 @@
     margin-bottom: var(--space-xl);
     line-height: 1.6;
     color: white;
-    text-shadow: 1px 1px 3px rgba(0, 0, 0, 0.5);
+    text-shadow: 1px 1px 6px rgba(0, 0, 0, 0.3);
 }
 
 /* ============================================= */
@@ -565,8 +565,8 @@ nav a.active {
         flex-direction: column;
         background: var(--bg-primary);
         border-bottom: 1px solid var(--border-color);
-        padding: var(--space-lg);
-        gap: var(--space-md);
+        padding: var(--space-md);
+        gap: var(--space-xs);
         max-height: 0;
         overflow: hidden;
         transition: max-height var(--transition-base);
@@ -574,11 +574,11 @@ nav a.active {
     }
 
     nav.active {
-        max-height: 400px;
+        max-height: 350px;
     }
 
     nav a {
-        padding: var(--space-sm) 0;
+        padding: 10px 0;
         border-bottom: 1px solid var(--border-color);
     }
 
