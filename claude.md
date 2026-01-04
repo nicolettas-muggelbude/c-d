@@ -764,3 +764,91 @@ style="left: 2px; right: 2px; top: 2px;"
 **Git-Commit:** `2935972`
 
 **Status:** ✅ Behoben und getestet
+
+---
+
+### Feature: Walk-in Gruppierung in Admin-Kalenderansichten
+
+**Hintergrund:**
+- Walk-ins haben keine festen Slots, sondern Empfehlungszeiten (14:00, 15:00, 16:00)
+- Kunden können flexibel zwischen 14:00-17:00 Uhr kommen
+- Problem: Admin-Ansichten zeigten Walk-ins wie feste Termine an Zeitslots
+- Bei mehreren Walk-ins zur gleichen Empfehlungszeit: Überlappung/Überschreibung
+
+**Lösung: Option A - Gruppierte Darstellung**
+Walk-ins werden nicht mehr an einzelnen Zeitslots angezeigt, sondern als gruppierter Block "14:00-17:00 Uhr".
+
+**Implementierung:**
+
+1. **Wochenansicht** (`src/admin/booking-week.php`)
+   - Walk-ins nach Datum gruppieren in `$walkinsByDate`
+   - Beim Slot 14:00: Block mit allen Walk-ins des Tages anzeigen
+   - Block: Höhe 176px (3 Stunden), `overflow-y: auto` für Scrollbar
+   - **Detailansicht** (≤3 Walk-ins):
+     - Name, Zeit, Anliegen, Anmerkung (40 Zeichen)
+   - **Kompakte Ansicht** (>3 Walk-ins):
+     - Alle Walk-ins aufgelistet (scrollbar)
+     - Name, Zeit, Anliegen (ohne Anmerkung)
+   - Jeder Walk-in klickbar → Edit-Modal
+
+2. **Monatsansicht** (`src/admin/booking-calendar-v2.php`)
+   - Walk-ins gruppieren in `$walkinsByDate`
+   - Ein Eintrag: "🚶 Ich komme vorbei (X)"
+   - **Klick öffnet Popup:**
+     - 1 Walk-in → Direkt Edit-Modal
+     - Mehrere → Popup mit Liste
+   - **Popup-Details:**
+     - max-width: 600px, max-height: 80vh (scrollbar)
+     - Pro Walk-in: Name, Zeit, Anliegen, Anmerkung (100 Zeichen)
+     - Jeder klickbar → Edit-Modal
+   - Walk-in-Daten in JavaScript via `json_encode($walkinsByDate)`
+
+**Technische Details:**
+```php
+// Walk-ins gruppieren (beide Ansichten)
+$walkinsByDate = [];
+foreach ($bookingsByDate as $date => $dayBookings) {
+    $walkins = array_filter($dayBookings, function($b) {
+        return $b['booking_type'] === 'walkin';
+    });
+    if (!empty($walkins)) {
+        $walkinsByDate[$date] = array_values($walkins);
+    }
+}
+
+// Wochenansicht: Walk-ins überspringen, nur feste Termine rendern
+if ($booking['booking_type'] === 'walkin') continue;
+
+// Monatsansicht: Walk-ins überspringen
+if ($booking['booking_type'] === 'walkin') continue;
+```
+
+**Service-Labels:**
+```php
+$serviceLabels = [
+    'beratung' => 'Beratung',
+    'verkauf' => 'Verkauf',
+    'fernwartung' => 'Fernwartung',
+    'hausbesuch' => 'Hausbesuch',
+    'installation' => 'Installation',
+    'diagnose' => 'Diagnose',
+    'reparatur' => 'Reparatur',
+    'sonstiges' => 'Sonstiges'
+];
+```
+
+**UX-Verbesserungen:**
+- Schriftgröße erhöht für bessere Lesbarkeit
+- Anliegen und Anmerkungen auf einen Blick sichtbar
+- Scrollbar bei vielen Walk-ins
+- Alle Walk-ins klickbar für schnelle Bearbeitung
+
+**Beispiel: 4 Walk-ins am 09.01.2026:**
+- Wochenansicht: Kompakte Liste im 14:00-17:00 Block
+- Monatsansicht: "🚶 Ich komme vorbei (4)" → Klick zeigt Popup
+
+**Dateien:**
+- `src/admin/booking-week.php` (Zeilen 70-79, 184-265)
+- `src/admin/booking-calendar-v2.php` (Zeilen 169-178, 270-912)
+
+**Status:** ✅ Vollständig implementiert und getestet

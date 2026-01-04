@@ -166,6 +166,17 @@ foreach ($bookings as $booking) {
     $bookingsByDate[$date][] = $booking;
 }
 
+// Walk-ins nach Datum gruppieren (für spezielle Darstellung)
+$walkinsByDate = [];
+foreach ($bookingsByDate as $date => $dayBookings) {
+    $walkins = array_filter($dayBookings, function($b) {
+        return $b['booking_type'] === 'walkin';
+    });
+    if (!empty($walkins)) {
+        $walkinsByDate[$date] = array_values($walkins);
+    }
+}
+
 $page_title = 'Termin-Kalender | Admin | PC-Wittfoot UG';
 $page_description = 'Kalender-Übersicht';
 $current_page = '';
@@ -256,8 +267,26 @@ include __DIR__ . '/../templates/header.php';
 
                         <?php if (!empty($dayBookings)): ?>
                             <div class="bookings-list" onclick="event.stopPropagation()">
-                                <?php foreach ($dayBookings as $booking): ?>
-                                    <?php
+                                <?php
+                                // Walk-ins gruppiert anzeigen
+                                if (isset($walkinsByDate[$dateStr]) && !empty($walkinsByDate[$dateStr])):
+                                    $walkins = $walkinsByDate[$dateStr];
+                                    $walkinCount = count($walkins);
+                                ?>
+                                    <div class="booking-item"
+                                         style="background-color: #6c757d; cursor: pointer;"
+                                         onclick="showWalkinDetails('<?= $dateStr ?>')"
+                                         title="<?= $walkinCount ?> Walk-in Termine">
+                                        <strong>14:00-17:00</strong>
+                                        <span>🚶 Ich komme vorbei (<?= $walkinCount ?>)</span>
+                                    </div>
+                                <?php endif; ?>
+
+                                <?php
+                                // Andere Buchungen (fixed, blocked, internal)
+                                foreach ($dayBookings as $booking):
+                                    if ($booking['booking_type'] === 'walkin') continue; // Walk-ins werden gruppiert angezeigt
+
                                     $bgColor = '#28a745'; // confirmed
                                     if ($booking['status'] === 'pending') $bgColor = '#ffc107';
                                     if ($booking['status'] === 'completed') $bgColor = '#6c757d';
@@ -267,7 +296,7 @@ include __DIR__ . '/../templates/header.php';
                                     <div class="booking-item"
                                          style="background-color: <?= $bgColor ?>;"
                                          onclick="openEditModal(<?= $booking['id'] ?>)">
-                                        <?php if (($booking['booking_type'] === 'fixed' || $booking['booking_type'] === 'walkin') && $booking['booking_time']): ?>
+                                        <?php if ($booking['booking_type'] === 'fixed' && $booking['booking_time']): ?>
                                             <strong><?= substr($booking['booking_time'], 0, 5) ?></strong>
                                         <?php endif; ?>
                                         <?php if ($booking['booking_type'] === 'blocked'): ?>
@@ -828,6 +857,77 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     }
 });
+
+// Walk-in Details anzeigen
+const walkinData = <?= json_encode($walkinsByDate) ?>;
+
+function showWalkinDetails(dateStr) {
+    const walkins = walkinData[dateStr] || [];
+    if (walkins.length === 0) return;
+
+    if (walkins.length === 1) {
+        // Bei nur einem Walk-in direkt Edit-Modal öffnen
+        openEditModal(walkins[0].id);
+        return;
+    }
+
+    // Bei mehreren Walk-ins: Liste anzeigen
+    let html = `<div style="background: white; border: 2px solid #6c757d; border-radius: 8px; padding: 1.5rem; max-width: 600px; max-height: 80vh; overflow-y: auto; box-shadow: 0 4px 6px rgba(0,0,0,0.1);">`;
+    html += `<h3 style="margin: 0 0 1rem 0; color: #333; font-size: 1.3rem;">🚶 Ich komme vorbei (${walkins.length})</h3>`;
+    html += `<div style="font-size: 1rem; color: #666; margin-bottom: 1.5rem;">14:00-17:00 Uhr</div>`;
+    html += `<div style="display: flex; flex-direction: column; gap: 0.75rem;">`;
+
+    const serviceLabels = {
+        'beratung': 'Beratung',
+        'verkauf': 'Verkauf',
+        'fernwartung': 'Fernwartung',
+        'hausbesuch': 'Hausbesuch',
+        'installation': 'Installation',
+        'diagnose': 'Diagnose',
+        'reparatur': 'Reparatur',
+        'sonstiges': 'Sonstiges'
+    };
+
+    walkins.forEach(w => {
+        const time = w.booking_time ? w.booking_time.substring(0, 5) : '—';
+        const service = serviceLabels[w.service_type] || w.service_type;
+        const notes = w.customer_notes ? w.customer_notes.substring(0, 100) : '';
+
+        html += `<div onclick="openEditModal(${w.id}); closeWalkinPopup();" style="cursor: pointer; padding: 1rem; background: #f8f9fa; border-radius: 6px; border-left: 4px solid #6c757d; transition: all 0.2s;" onmouseover="this.style.background='#e9ecef'" onmouseout="this.style.background='#f8f9fa'">`;
+        html += `<div style="font-size: 1.1rem; font-weight: bold; margin-bottom: 0.3rem;">${w.customer_firstname} ${w.customer_lastname}</div>`;
+        html += `<div style="font-size: 0.95rem; color: #666; margin-bottom: 0.3rem;">⏰ Empfohlung: ${time} Uhr</div>`;
+        html += `<div style="font-size: 0.95rem; color: #666; margin-bottom: 0.3rem;">📋 Anliegen: ${service}</div>`;
+        if (notes) {
+            html += `<div style="font-size: 0.9rem; color: #555; font-style: italic; margin-top: 0.5rem; padding-top: 0.5rem; border-top: 1px solid #dee2e6;">💬 ${notes}${w.customer_notes.length > 100 ? '...' : ''}</div>`;
+        }
+        html += `</div>`;
+    });
+
+    html += `</div>`;
+    html += `<div style="margin-top: 1.5rem; text-align: right;"><button onclick="closeWalkinPopup()" class="btn btn-sm btn-outline">Schließen</button></div>`;
+    html += `</div>`;
+
+    // Popup erstellen
+    const popup = document.createElement('div');
+    popup.id = 'walkinPopup';
+    popup.style.cssText = 'position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); z-index: 10000;';
+    popup.innerHTML = html;
+
+    const overlay = document.createElement('div');
+    overlay.id = 'walkinOverlay';
+    overlay.style.cssText = 'position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.5); z-index: 9999;';
+    overlay.onclick = closeWalkinPopup;
+
+    document.body.appendChild(overlay);
+    document.body.appendChild(popup);
+}
+
+function closeWalkinPopup() {
+    const popup = document.getElementById('walkinPopup');
+    const overlay = document.getElementById('walkinOverlay');
+    if (popup) popup.remove();
+    if (overlay) overlay.remove();
+}
 
 // Modal schließen bei Klick außerhalb
 window.onclick = function(event) {

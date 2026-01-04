@@ -67,6 +67,17 @@ foreach ($bookings as $booking) {
     $bookingsByDate[$date][] = $booking;
 }
 
+// Walk-ins nach Datum gruppieren (für spezielle Darstellung)
+$walkinsByDate = [];
+foreach ($bookingsByDate as $date => $dayBookings) {
+    $walkins = array_filter($dayBookings, function($b) {
+        return $b['booking_type'] === 'walkin';
+    });
+    if (!empty($walkins)) {
+        $walkinsByDate[$date] = array_values($walkins);
+    }
+}
+
 // Zeitraster (8:00 - 18:00)
 $startHour = 8;
 $endHour = 18;
@@ -170,9 +181,93 @@ include __DIR__ . '/../templates/header.php';
                          onclick="openCreateModalWithDateTime('<?= $dateStr ?>', '<?= $timeSlot ?>')">
 
                         <?php
-                        // Zeige nur Buchungen, die in dieser Stunde BEGINNEN
+                        // Walk-ins: Spezielle Behandlung beim Slot 14:00
+                        if ($currentHour === 14 && isset($walkinsByDate[$dateStr]) && !empty($walkinsByDate[$dateStr])) {
+                            $walkins = $walkinsByDate[$dateStr];
+                            $walkinCount = count($walkins);
+                            ?>
+                            <div class="week-booking week-booking-multi"
+                                 style="background-color: #6c757d; height: 176px; position: absolute; left: 2px; right: 2px; top: 2px; z-index: 10; cursor: default; overflow-y: auto;"
+                                 onclick="event.stopPropagation()"
+                                 title="Walk-in Zeitfenster: 14:00-17:00 Uhr">
+
+                                <div style="padding: 0.4rem 0.6rem;">
+                                    <strong style="font-size: 0.95em;">🚶 Ich komme vorbei (<?= $walkinCount ?>)</strong>
+                                    <div style="font-size: 0.8em; margin-top: 0.2rem; opacity: 0.9;">
+                                        14:00-17:00 Uhr
+                                    </div>
+
+                                    <?php if ($walkinCount <= 3): ?>
+                                        <!-- Details bei wenigen Walk-ins -->
+                                        <div style="margin-top: 0.5rem; font-size: 0.85em; line-height: 1.4;">
+                                            <?php
+                                            $serviceLabels = [
+                                                'beratung' => 'Beratung',
+                                                'verkauf' => 'Verkauf',
+                                                'fernwartung' => 'Fernwartung',
+                                                'hausbesuch' => 'Hausbesuch',
+                                                'installation' => 'Installation',
+                                                'diagnose' => 'Diagnose',
+                                                'reparatur' => 'Reparatur',
+                                                'sonstiges' => 'Sonstiges'
+                                            ];
+                                            foreach ($walkins as $walkin):
+                                                $service = $serviceLabels[$walkin['service_type']] ?? $walkin['service_type'];
+                                            ?>
+                                                <div onclick="event.stopPropagation(); openEditModal(<?= $walkin['id'] ?>)"
+                                                     style="cursor: pointer; padding: 0.3rem; margin-bottom: 0.3rem; background: rgba(255,255,255,0.1); border-radius: 3px; border-left: 2px solid rgba(255,255,255,0.4);">
+                                                    <div style="font-weight: bold;">
+                                                        <?= e($walkin['customer_firstname'] . ' ' . substr($walkin['customer_lastname'], 0, 1)) ?>.
+                                                    </div>
+                                                    <div style="opacity: 0.9; font-size: 0.9em;">
+                                                        ⏰ <?= substr($walkin['booking_time'], 0, 5) ?> | 📋 <?= e($service) ?>
+                                                    </div>
+                                                    <?php if (!empty($walkin['customer_notes'])): ?>
+                                                        <div style="opacity: 0.85; font-size: 0.85em; font-style: italic; margin-top: 0.2rem;">
+                                                            💬 <?= e(mb_substr($walkin['customer_notes'], 0, 40)) ?><?= mb_strlen($walkin['customer_notes']) > 40 ? '...' : '' ?>
+                                                        </div>
+                                                    <?php endif; ?>
+                                                </div>
+                                            <?php endforeach; ?>
+                                        </div>
+                                    <?php else: ?>
+                                        <!-- Kompakte Ansicht bei vielen Walk-ins (>3) - ALLE anzeigen, scrollbar nutzen -->
+                                        <div style="margin-top: 0.5rem; font-size: 0.82em; line-height: 1.3;">
+                                            <?php
+                                            $serviceLabels = [
+                                                'beratung' => 'Beratung',
+                                                'verkauf' => 'Verkauf',
+                                                'fernwartung' => 'Fernwartung',
+                                                'hausbesuch' => 'Hausbesuch',
+                                                'installation' => 'Installation',
+                                                'diagnose' => 'Diagnose',
+                                                'reparatur' => 'Reparatur',
+                                                'sonstiges' => 'Sonstiges'
+                                            ];
+                                            foreach ($walkins as $walkin):
+                                                $service = $serviceLabels[$walkin['service_type']] ?? $walkin['service_type'];
+                                            ?>
+                                                <div onclick="event.stopPropagation(); openEditModal(<?= $walkin['id'] ?>)"
+                                                     style="cursor: pointer; padding: 0.25rem; margin-bottom: 0.25rem; background: rgba(255,255,255,0.08); border-radius: 2px; border-left: 2px solid rgba(255,255,255,0.3);">
+                                                    <div style="font-weight: bold; font-size: 0.95em;">
+                                                        <?= e($walkin['customer_firstname'] . ' ' . substr($walkin['customer_lastname'], 0, 1)) ?>.
+                                                    </div>
+                                                    <div style="opacity: 0.85; font-size: 0.88em;">
+                                                        ⏰ <?= substr($walkin['booking_time'], 0, 5) ?> | <?= e($service) ?>
+                                                    </div>
+                                                </div>
+                                            <?php endforeach; ?>
+                                        </div>
+                                    <?php endif; ?>
+                                </div>
+                            </div>
+                            <?php
+                        }
+
+                        // Zeige nur Buchungen, die in dieser Stunde BEGINNEN (aber keine Walk-ins)
                         foreach ($dayBookings as $booking):
                             if ($booking['_start_hour'] !== $currentHour) continue;
+                            if ($booking['booking_type'] === 'walkin') continue; // Walk-ins werden separat angezeigt
 
                             $bgColor = '#1e7e34'; // confirmed (dunkler)
                             if ($booking['status'] === 'pending') $bgColor = '#e0a800';
