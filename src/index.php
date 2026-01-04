@@ -98,7 +98,7 @@ include __DIR__ . '/templates/header.php';
             <div class="card text-center">
                 <div class="card-icon">🛡️</div>
                 <h3>Wartung & Support</h3>
-                <p>Regelmäßige Wartung und schneller Support. Damit Ihre IT immer läuft.</p>
+                <p>Regelmäßige Wartung, Sicherheits-Check und Support. Damit Ihre IT immer zuverlässig läuft.</p>
             </div>
 
             <div class="card text-center">
