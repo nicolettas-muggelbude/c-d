@@ -293,7 +293,7 @@ try {
         ':booking_type' => $data['booking_type'],
         ':service_type' => $data['service_type'],
         ':booking_date' => $data['booking_date'],
-        ':booking_time' => $data['booking_type'] === 'fixed' ? $data['booking_time'] : null,
+        ':booking_time' => !empty($data['booking_time']) ? $data['booking_time'] : null,
         ':customer_notes' => isset($data['customer_notes']) ? trim($data['customer_notes']) : null,
         ':customer_firstname' => trim($data['customer_firstname']),
         ':customer_lastname' => trim($data['customer_lastname']),
