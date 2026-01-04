@@ -709,3 +709,58 @@ style="left: 2px; right: 2px; top: 2px;"
 - `src/admin/booking-week.php` (Zeilen 177-181, 184-187, 363-368)
 
 **Status:** ✅ Vollständig implementiert und getestet
+
+---
+
+### Bugfix: Walk-in Zeitslot-Zuweisung
+
+**Problem:**
+- Kunden erhielten Emails mit "Uhrzeit: Flexible Ankunft zwischen 14:00-17:00 Uhr"
+- Obwohl Slot-Zuweisung implementiert war (Zeile 224-241 in booking.php)
+- Zeiten wurden im Log korrekt zugewiesen, aber nicht in DB gespeichert
+
+**Ursache:**
+- Zeile 296 in `src/api/booking.php` überschrieb die Slot-Zuweisung:
+  ```php
+  ':booking_time' => $data['booking_type'] === 'fixed' ? $data['booking_time'] : null
+  ```
+- Diese Logik setzte bei Walk-ins die Zeit auf `null`
+- Die Slot-Zuweisung aus Zeile 238 wurde dadurch zunichte gemacht
+
+**Lösung:**
+```php
+// Vorher (Zeile 296):
+':booking_time' => $data['booking_type'] === 'fixed' ? $data['booking_time'] : null,
+
+// Nachher:
+':booking_time' => !empty($data['booking_time']) ? $data['booking_time'] : null,
+```
+
+**Betroffene Buchungen:**
+- Buchung ID 24 (09.01.2026): Manuell auf 14:00 Uhr gesetzt
+- Buchung ID 25 (09.01.2026): Manuell auf 15:00 Uhr gesetzt
+- Korrigierte Emails an Kunden versendet
+
+**Debugging-Session:**
+1. Error-Logs zeigten: Slots wurden zugewiesen ("Walk-in Slot assigned: 14:00:00")
+2. Datenbank zeigte: `booking_time` war NULL
+3. Direkter Code-Test: INSERT-Parameter überschrieben die Zuweisung
+4. OPcache-Probleme: Mehrfache Cache-Clears erforderlich
+5. EmailService-Call-Fehler: Array statt ID übergeben → Warnings
+
+**Verifikation:**
+- Buchung ID 26 (neue Testbuchung): Zeit 16:00 Uhr ✓
+- Email ID 75/76: "Empfohlene Ankunftszeit: 16:00 Uhr" ✓
+- Email ID 77/78 (korrigiert): 14:00 und 15:00 Uhr ✓
+
+**Technische Details:**
+- Slot-Rotation: `$slots[$walkinCount % 3]` funktioniert korrekt
+- Problem war ausschließlich beim DB-INSERT
+- OPcache muss nach Änderungen geleert werden (curl clear-cache.php)
+
+**Dateien:**
+- `src/api/booking.php` (Zeile 296)
+
+**Git-Commit:** `2935972`
+
+**Status:** ✅ Behoben und getestet
