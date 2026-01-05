@@ -6,7 +6,7 @@
 /* Base Button */
 .btn {
     display: inline-block;
-    padding: var(--space-sm) var(--space-lg);
+    padding: 10px var(--space-lg); /* 10px für 44px Touch-Target (WCAG 2.1 AA) */
     font-size: var(--font-size-base);
     font-weight: var(--font-weight-semibold);
     line-height: 1.5;
@@ -17,6 +17,7 @@
     cursor: pointer;
     transition: var(--transition-base);
     font-family: inherit;
+    min-height: 44px; /* WCAG 2.1 AA Touch-Target */
 }
 
 .btn:hover {
@@ -73,8 +74,9 @@
 
 /* Button Sizes */
 .btn-sm {
-    padding: var(--space-xs) var(--space-md);
+    padding: 12px var(--space-md); /* 12px für 44px Touch-Target (WCAG 2.1 AA) */
     font-size: var(--font-size-sm);
+    min-height: 44px; /* WCAG 2.1 AA Touch-Target */
 }
 
 .btn-lg {

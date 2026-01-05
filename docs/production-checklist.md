@@ -172,12 +172,12 @@
 
 ### 🎨 Design & UX Testing
 
-- [ ] **Responsive Design**
-  - [ ] Mobile (< 768px): Layout korrekt
-  - [ ] Tablet (768px - 1024px): Layout korrekt
-  - [ ] Desktop (> 1024px): Layout korrekt
-  - [ ] Touch-Targets min. 44x44px (Mobile)
-  - [ ] Hamburger Menu auf Mobile funktioniert
+- [x] **Responsive Design**
+  - [x] Mobile (< 768px): Layout korrekt
+  - [x] Tablet (768px - 1024px): Layout korrekt
+  - [x] Desktop (> 1024px): Layout korrekt
+  - [x] Touch-Targets min. 44x44px (Mobile)
+  - [x] Hamburger Menu auf Mobile funktioniert
 
 - [ ] **Darkmode**
   - [ ] Alle Seiten im Darkmode testen

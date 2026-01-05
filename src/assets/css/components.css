@@ -491,7 +491,11 @@ nav a.active {
     background: none;
     border: none;
     cursor: pointer;
-    padding: 8px;
+    padding: 12px; /* 12px für 44px Touch-Target (WCAG 2.1 AA) */
+    min-width: 44px; /* WCAG 2.1 AA Touch-Target */
+    min-height: 44px; /* WCAG 2.1 AA Touch-Target */
+    align-items: center;
+    justify-content: center;
 }
 
 /* Hamburger auf Desktop verstecken */
@@ -893,7 +897,7 @@ nav a.active {
 .form-group select,
 .form-group textarea {
     width: 100%;
-    padding: var(--space-sm) var(--space-md);
+    padding: 10px var(--space-md); /* 10px für 44px Touch-Target (WCAG 2.1 AA) */
     border: 1px solid var(--border-color);
     border-radius: var(--border-radius-md);
     font-size: var(--font-size-base);
@@ -901,6 +905,7 @@ nav a.active {
     background: var(--bg-primary);
     color: var(--text-primary);
     transition: var(--transition-base);
+    min-height: 44px; /* WCAG 2.1 AA Touch-Target */
 }
 
 .form-group input:focus,
