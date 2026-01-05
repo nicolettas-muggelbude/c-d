@@ -204,7 +204,7 @@
   - [x] role="alert" für Fehler-/Erfolgsmeldungen
   - [x] Farbkontraste WCAG AA konform (--color-primary-dark, --color-secondary-dark)
   - [ ] Screen-Reader Test (optional)
-  - [ ] Skip-Links vorhanden
+  - [x] Skip-Links vorhanden
 
 ---
 
