@@ -179,13 +179,13 @@
   - [x] Touch-Targets min. 44x44px (Mobile)
   - [x] Hamburger Menu auf Mobile funktioniert
 
-- [ ] **Darkmode**
-  - [ ] Alle Seiten im Darkmode testen
-  - [ ] Kontraste ausreichend (WCAG 2.1 AA)
-  - [ ] Toggle speichert Präferenz (localStorage)
-  - [ ] System-Präferenz wird erkannt
-  - [ ] Formulare im Darkmode lesbar
-  - [ ] Admin-Bereich im Darkmode funktioniert
+- [x] **Darkmode**
+  - [x] Alle Seiten im Darkmode testen
+  - [x] Kontraste ausreichend (WCAG 2.1 AA)
+  - [x] Toggle speichert Präferenz (localStorage)
+  - [x] System-Präferenz wird erkannt
+  - [x] Formulare im Darkmode lesbar
+  - [x] Admin-Bereich im Darkmode funktioniert
 
 - [ ] **Cross-Browser Testing**
   - [ ] Chrome (Desktop + Mobile)

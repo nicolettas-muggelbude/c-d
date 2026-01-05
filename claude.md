@@ -1605,4 +1605,88 @@ document.querySelectorAll('.card[data-href]').forEach(card => {
 - `src/assets/css/components.css` - Hamburger & Form Touch-Targets angepasst
 - `docs/production-checklist.md` - Responsive Design auf [x] gesetzt
 
+**Git-Commit:** 927b7f5
+
+---
+
+### Darkmode Testing & Validierung
+
+**Aufgabenstellung:**
+- Darkmode-Implementierung validieren
+- localStorage-Persistenz testen
+- System-Präferenz (prefers-color-scheme) prüfen
+- Kontraste im Darkmode validieren
+- Alle Komponenten im Darkmode testen
+
+**Darkmode-Implementierung:**
+
+**JavaScript (footer.php:110-126):**
+```javascript
+// localStorage-Persistenz
+const savedTheme = localStorage.getItem('theme');
+if (savedTheme) {
+    root.setAttribute('data-theme', savedTheme);
+}
+
+// Toggle zwischen light/dark
+darkmodeToggle.addEventListener('click', () => {
+    const newTheme = currentTheme === 'light' ? 'dark' : 'light';
+    root.setAttribute('data-theme', newTheme);
+    localStorage.setItem('theme', newTheme);
+});
+```
+
+**CSS System-Präferenz (variables.css:171-202):**
+```css
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    /* Automatischer Darkmode wenn keine explizite Präferenz */
+  }
+}
+
+[data-theme="dark"] {
+  /* Manueller Darkmode (überschreibt System) */
+}
+```
+
+**Darkmode-Farben:**
+| Variable | Lightmode | Darkmode | Verwendung |
+|----------|-----------|----------|------------|
+| `--text-primary` | #2C3E50 | #E8E8E8 | Haupttext |
+| `--text-secondary` | #7F8C8D | #B8B8B8 | Sekundärtext |
+| `--text-muted` | #95A5A6 | #888888 | Gedämpfter Text |
+| `--bg-primary` | #FFFFFF | #0F1419 | Haupt-BG |
+| `--bg-secondary` | #F8F9FA | #1A1F26 | Sekundär-BG |
+| `--border-color` | #E9ECEF | #374151 | Rahmen |
+
+**Komponenten-Anpassungen:**
+- ✅ **Hero-Section:** Darkened overlay für Hintergrundbild
+- ✅ **Cards:** `bg-secondary` (#1A1F26) im Darkmode
+- ✅ **Forms:** Input (#1a1a1a), Border (#404040), Text (#e0e0e0)
+- ✅ **Calendar:** Spezifische Darkmode-Farben (#2d2d2d, #404040)
+- ✅ **Darkmode-Toggle:** Icon wechselt (☀️ ↔ 🌙)
+- ✅ **Select-Options:** Background #2d2d2d
+
+**Kontraste validiert:**
+- ✅ Text Primary (#E8E8E8) auf BG Primary (#0F1419) - Hoher Kontrast
+- ✅ Text Secondary (#B8B8B8) auf BG Primary (#0F1419) - Hoher Kontrast
+- ✅ Form Controls (#e0e0e0) auf Input BG (#1a1a1a) - Hoher Kontrast
+- ✅ Alle Kontraste erfüllen WCAG 2.1 AA (min. 4.5:1)
+
+**Features getestet:**
+- ✅ localStorage speichert Präferenz dauerhaft
+- ✅ System-Präferenz wird respektiert (prefers-color-scheme)
+- ✅ Manueller Toggle überschreibt System-Präferenz
+- ✅ Alle Seiten haben Darkmode-Support
+- ✅ Admin-Bereich funktioniert im Darkmode
+- ✅ Formulare lesbar und funktionsfähig
+
+**Ergebnis:**
+- ✅ Darkmode vollständig implementiert und WCAG 2.1 AA konform
+- ✅ Hybrid-Ansatz: Automatisch + umschaltbar
+- ✅ Alle Komponenten Darkmode-kompatibel
+
+**Betroffene Dateien:**
+- `docs/production-checklist.md` - Darkmode-Sektion auf [x] gesetzt
+
 **Git-Commit:** Folgt
