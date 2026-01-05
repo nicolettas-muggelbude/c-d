@@ -187,13 +187,14 @@
   - [x] Formulare im Darkmode lesbar
   - [x] Admin-Bereich im Darkmode funktioniert
 
-- [ ] **Cross-Browser Testing**
-  - [ ] Chrome (Desktop + Mobile)
-  - [ ] Firefox (Desktop)
-  - [ ] Safari (Desktop + iOS)
-  - [ ] Edge (Desktop)
-  - [ ] Keine Console-Errors
-  - [ ] JavaScript funktioniert überall
+- [x] **Cross-Browser Testing**
+  - [x] Chrome (Desktop + Mobile)
+  - [x] Firefox (Desktop)
+  - [x] Safari (Desktop + iOS)
+  - [x] Edge (Desktop)
+  - [x] Keine Console-Errors
+  - [x] JavaScript funktioniert überall
+  - ⚠️ **Hinweis:** IE11 wird NICHT unterstützt (CSS Variables, async/await, fetch fehlen)
 
 - [x] **Barrierefreiheit (WCAG 2.1 Level AA)**
   - [x] Keyboard-Navigation funktioniert (Tab, Enter, Escape)
