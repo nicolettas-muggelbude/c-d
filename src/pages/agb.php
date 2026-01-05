@@ -16,9 +16,17 @@ include __DIR__ . '/../templates/header.php';
 
         <h2>§ 1 Geltungsbereich</h2>
         <p>
-            Diese Allgemeinen Geschäftsbedingungen (AGB) gelten für alle Verträge zwischen der PC-Wittfoot UG
+            (1) Diese Allgemeinen Geschäftsbedingungen (AGB) gelten für alle Verträge zwischen der PC-Wittfoot UG
             (nachfolgend "Verkäufer") und dem Kunden (nachfolgend "Kunde"), die über den Online-Shop oder im
             Ladengeschäft geschlossen werden.
+        </p>
+        <p>
+            (2) <strong>Verbraucher</strong> ist jede natürliche Person, die ein Rechtsgeschäft zu Zwecken abschließt,
+            die überwiegend weder ihrer gewerblichen noch ihrer selbständigen beruflichen Tätigkeit zugerechnet werden können.
+        </p>
+        <p>
+            (3) <strong>Unternehmer</strong> ist eine natürliche oder juristische Person oder eine rechtsfähige Personengesellschaft,
+            die bei Abschluss eines Rechtsgeschäfts in Ausübung ihrer gewerblichen oder selbständigen beruflichen Tätigkeit handelt.
         </p>
 
         <h2>§ 2 Vertragsschluss</h2>
@@ -70,22 +78,88 @@ include __DIR__ . '/../templates/header.php';
 
         <h2>§ 6 Gewährleistung</h2>
         <p>
+            <strong>Verbraucher (B2C):</strong>
+        </p>
+        <p>
             (1) Es gelten die gesetzlichen Gewährleistungsrechte.
         </p>
         <p>
-            (2) Bei Neugeräten: 24 Monate Gewährleistung
+            (2) Bei Neugeräten: 24 Monate Gewährleistung ab Übergabe.
         </p>
         <p>
-            (3) Bei Refurbished-Geräten: 12 Monate Gewährleistung
+            (3) Bei gebrauchten Waren (Refurbished-Geräte): Die Gewährleistungsfrist beträgt je nach Hersteller
+            und Lieferant 12 Monate ab Übergabe. Die konkrete Gewährleistungsdauer ist in der Produktbeschreibung
+            angegeben und richtet sich nach den Bedingungen des jeweiligen Lieferanten.
+        </p>
+        <p>
+            <strong>Unternehmer (B2B):</strong>
+        </p>
+        <p>
+            (4) Die Gewährleistungsfrist richtet sich nach den Bedingungen des jeweiligen Lieferanten und beträgt
+            bei Refurbished-Geräten 12 Monate ab Übergabe. Die konkrete Frist ist in der Produktbeschreibung angegeben.
+        </p>
+        <p>
+            (5) Bei Neugeräten beträgt die Gewährleistungsfrist 12 Monate ab Übergabe.
+        </p>
+        <p>
+            (6) Mängelansprüche verjähren innerhalb dieser Frist. Dies gilt nicht bei arglistig verschwiegenen Mängeln.
         </p>
 
-        <h2>§ 7 Widerrufsrecht</h2>
+        <h2>§ 7 Widerrufsrecht und Stornierung</h2>
+
         <p>
-            Verbrauchern steht ein Widerrufsrecht nach Maßgabe der gesetzlichen Bestimmungen zu.
+            <strong>Verbraucher (B2C):</strong>
+        </p>
+        <p>
+            (1) Verbrauchern steht ein gesetzliches Widerrufsrecht nach Maßgabe der gesetzlichen Bestimmungen zu.
             Details finden Sie in unserer <a href="<?= BASE_URL ?>/widerruf">Widerrufsbelehrung</a>.
         </p>
+        <p>
+            (2) Ausnahmen vom Widerrufsrecht bestehen insbesondere bei:
+        </p>
+        <ul>
+            <li>Individuell konfigurierten Systemen nach Kundenspezifikation</li>
+            <li>Versiegelten Software-Lizenzen nach Entfernung der Versiegelung</li>
+            <li>Vollständig erbrachten Dienstleistungen mit ausdrücklicher Zustimmung</li>
+        </ul>
 
-        <h2>§ 8 Haftung</h2>
+        <p>
+            <strong>Unternehmer (B2B):</strong>
+        </p>
+        <p>
+            (3) Geschäftskunden haben kein gesetzliches Widerrufsrecht. Stornierungen nach Vertragsabschluss
+            sind grundsätzlich ausgeschlossen.
+        </p>
+        <p>
+            (4) Kulanz-Stornierung: Auf Kulanz kann eine Bestellung bis zum Versand storniert werden.
+            Bei Stornierung fallen folgende Kosten an:
+        </p>
+        <ul>
+            <li>Bearbeitungsgebühr: 15% des Brutto-Warenwertes</li>
+            <li>Bereits angefallene Versandkosten</li>
+            <li>Transaktionsgebühren des Zahlungsdienstleisters (sofern angefallen)</li>
+        </ul>
+        <p>
+            (5) Nach Versand ist eine Stornierung nur noch nach Rücksprache möglich. Zusätzlich zu den
+            o.g. Gebühren fallen die Rücksendekosten an.
+        </p>
+        <p>
+            (6) Die Erstattung erfolgt abzüglich aller angefallenen Kosten innerhalb von 14 Tagen.
+        </p>
+
+        <h2>§ 8 Abnahmeverweigerung und Rücktrittsrechte</h2>
+        <p>
+            (1) Verweigert der Kunde die Abnahme der Ware, ist der Verkäufer gegenüber dem Kunden berechtigt,
+            vom Kaufvertrag zurückzutreten und Schadensersatz zu verlangen.
+        </p>
+        <p>
+            (2) Verlangt der Verkäufer Schadensersatz, so beträgt dieser pauschal 15% des Verkaufspreises.
+            Der Schadensersatz ist niedriger anzusetzen, wenn der Kunde einen geringeren Schaden nachweist.
+            Der Kunde hat die Möglichkeit nachzuweisen, dass dem Verkäufer überhaupt kein Schaden entstanden ist.
+            Weist der Verkäufer einen höheren Schaden nach, darf er auch einen höheren Schaden verlangen.
+        </p>
+
+        <h2>§ 9 Haftung</h2>
         <p>
             (1) Der Verkäufer haftet unbeschränkt für Vorsatz und grobe Fahrlässigkeit.
         </p>
@@ -94,13 +168,13 @@ include __DIR__ . '/../templates/header.php';
             Vertragspflichten (Kardinalpflichten).
         </p>
 
-        <h2>§ 9 Datenschutz</h2>
+        <h2>§ 10 Datenschutz</h2>
         <p>
             Die Verarbeitung personenbezogener Daten erfolgt gemäß unserer
             <a href="<?= BASE_URL ?>/datenschutz">Datenschutzerklärung</a>.
         </p>
 
-        <h2>§ 10 Schlussbestimmungen</h2>
+        <h2>§ 11 Schlussbestimmungen</h2>
         <p>
             (1) Es gilt das Recht der Bundesrepublik Deutschland unter Ausschluss des UN-Kaufrechts.
         </p>

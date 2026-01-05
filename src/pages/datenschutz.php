@@ -49,11 +49,17 @@ include __DIR__ . '/../templates/header.php';
 
         <h2>2. Hosting</h2>
         <p>
-            Wir hosten die Inhalte unserer Website bei folgendem Anbieter:
+            <strong>Selbst-Hosting durch:</strong><br>
+            PC-Wittfoot UG<br>
+            Melkbrink 61<br>
+            26121 Oldenburg<br>
+            Deutschland
         </p>
         <p>
-            <strong>[Hosting-Provider einfügen]</strong><br>
-            [Adresse einfügen]
+            Wir betreiben unsere Website auf eigenen Servern in einem deutschen Rechenzentrum.
+            Die Server werden ausschließlich von uns verwaltet und administriert. Das Rechenzentrum
+            stellt lediglich die Infrastruktur (Strom, Netzwerk) bereit und hat keinen Zugriff auf
+            personenbezogene Daten. Es erfolgt keine Weitergabe von Daten an Dritte.
         </p>
 
         <h2>3. Allgemeine Hinweise und Pflichtinformationen</h2>
@@ -70,11 +76,12 @@ include __DIR__ . '/../templates/header.php';
             Die verantwortliche Stelle für die Datenverarbeitung auf dieser Website ist:
         </p>
         <p>
-            <strong>PC-Wittfoot UG (haftungsbeschränkt)</strong><br>
-            Musterstraße 123<br>
-            12345 Musterstadt<br>
+            <strong>PC-Wittfoot UG</strong><br>
+            Melkbrink 61<br>
+            26121 Oldenburg<br>
+            Deutschland<br>
             <br>
-            Telefon: +49 (0) 123 456789<br>
+            Telefon: <a href="tel:+4944140576020">+49 441 40576020</a><br>
             E-Mail: <a href="mailto:info@pc-wittfoot.de">info@pc-wittfoot.de</a>
         </p>
 

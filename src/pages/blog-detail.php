@@ -115,11 +115,28 @@ include __DIR__ . '/../templates/header.php';
 </section>
 
 <script>
-// Blog-Cards klickbar machen
+// Blog-Cards klickbar machen (mit Keyboard-Support)
 document.querySelectorAll('.blog-card[data-href]').forEach(card => {
+    // Tastatur-Navigation ermöglichen
+    card.setAttribute('tabindex', '0');
+    card.setAttribute('role', 'link');
+    card.setAttribute('aria-label', card.querySelector('h3').textContent);
+
+    // Click-Handler
     card.addEventListener('click', function() {
         window.location.href = this.dataset.href;
     });
+
+    // Keyboard-Handler (Enter und Space)
+    card.addEventListener('keydown', function(e) {
+        if (e.key === 'Enter' || e.key === ' ') {
+            e.preventDefault();
+            window.location.href = this.dataset.href;
+        }
+    });
+
+    // Visuelles Feedback (Cursor)
+    card.style.cursor = 'pointer';
 });
 </script>
 

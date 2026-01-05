@@ -265,7 +265,7 @@ include __DIR__ . '/../templates/header.php';
                                            required
                                            readonly
                                            style="cursor: pointer; padding-right: 2.5rem;">
-                                    <span style="position: absolute; right: 0.75rem; top: 50%; transform: translateY(-50%); pointer-events: none; font-size: 1.25rem;">📅</span>
+                                    <span style="position: absolute; right: 0.75rem; top: 50%; transform: translateY(-50%); pointer-events: none; font-size: 1.25rem;" aria-hidden="true">📅</span>
                                 </div>
                                 <small class="form-help">Ausgebuchte Tage sind im Kalender ausgegraut</small>
                             </div>

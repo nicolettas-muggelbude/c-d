@@ -4,10 +4,32 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="description" content="<?= e($page_description ?? 'PC-Wittfoot UG - IT-Fachbetrieb mit Herz. Beratung, Verkauf, Reparatur, Softwareentwicklung. Refurbished Hardware & exone Neugeräte.') ?>">
+    <meta name="author" content="PC-Wittfoot UG">
+    <meta name="keywords" content="<?= e($page_keywords ?? 'PC Reparatur Oldenburg, IT Service, Refurbished Hardware, Computerreparatur, Softwareentwicklung') ?>">
     <title><?= e($page_title ?? 'PC-Wittfoot UG') ?></title>
 
+    <!-- Open Graph / Facebook / LinkedIn -->
+    <meta property="og:type" content="website">
+    <meta property="og:url" content="<?= e($page_url ?? 'https://pc-wittfoot.de' . $_SERVER['REQUEST_URI']) ?>">
+    <meta property="og:title" content="<?= e($page_title ?? 'PC-Wittfoot UG') ?>">
+    <meta property="og:description" content="<?= e($page_description ?? 'PC-Wittfoot UG - IT-Fachbetrieb mit Herz. Beratung, Verkauf, Reparatur, Softwareentwicklung. Refurbished Hardware & exone Neugeräte.') ?>">
+    <meta property="og:image" content="<?= e($page_image ?? 'https://pc-wittfoot.de' . asset('images/og-image.png')) ?>">
+    <meta property="og:locale" content="de_DE">
+    <meta property="og:site_name" content="PC-Wittfoot UG">
+
+    <!-- Twitter / X -->
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:url" content="<?= e($page_url ?? 'https://pc-wittfoot.de' . $_SERVER['REQUEST_URI']) ?>">
+    <meta name="twitter:title" content="<?= e($page_title ?? 'PC-Wittfoot UG') ?>">
+    <meta name="twitter:description" content="<?= e($page_description ?? 'PC-Wittfoot UG - IT-Fachbetrieb mit Herz. Beratung, Verkauf, Reparatur, Softwareentwicklung. Refurbished Hardware & exone Neugeräte.') ?>">
+    <meta name="twitter:image" content="<?= e($page_image ?? 'https://pc-wittfoot.de' . asset('images/og-image.png')) ?>">
+
+    <!-- Canonical URL -->
+    <link rel="canonical" href="<?= e($page_url ?? 'https://pc-wittfoot.de' . $_SERVER['REQUEST_URI']) ?>">
+
     <!-- Favicon -->
-    <link rel="icon" type="image/png" href="<?= asset('images/favicon.png') ?>">
+    <link rel="icon" type="image/svg+xml" href="<?= asset('images/logo-square.svg') ?>">
+    <link rel="alternate icon" type="image/png" href="<?= asset('images/favicon.png') ?>")
 
     <!-- CSS -->
     <link rel="stylesheet" href="<?= asset('css/variables.css') ?>">
@@ -39,7 +61,7 @@
                 <!-- Logo -->
                 <div class="logo">
                     <a href="<?= BASE_URL ?>">
-                        <img src="<?= asset('images/logo.png') ?>" alt="PC-Wittfoot Logo" width="150" height="50">
+                        <img src="<?= asset('images/logo-square.svg') ?>" alt="PC-Wittfoot - Zur Startseite">
                     </a>
                 </div>
 

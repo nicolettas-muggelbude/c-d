@@ -16,38 +16,41 @@ include __DIR__ . '/../templates/header.php';
 
         <h2>Angaben gemäß § 5 TMG</h2>
         <p>
-            <strong>PC-Wittfoot UG (haftungsbeschränkt)</strong><br>
-            Musterstraße 123<br>
-            12345 Musterstadt
+            <strong>PC-Wittfoot UG</strong><br>
+            Melkbrink 61<br>
+            26121 Oldenburg<br>
+            Deutschland
         </p>
 
         <h2>Vertreten durch</h2>
         <p>
-            Geschäftsführer: [Name einfügen]
+            Nicole Wittfoot (Geschäftsführerin)
         </p>
 
         <h2>Kontakt</h2>
         <p>
-            Telefon: +49 (0) 123 456789<br>
+            Telefon: <a href="tel:+4944140576020">+49 441 40576020</a><br>
             E-Mail: <a href="mailto:info@pc-wittfoot.de">info@pc-wittfoot.de</a>
         </p>
 
         <h2>Registereintrag</h2>
         <p>
-            Eintragung im Handelsregister<br>
-            Registergericht: [Ort einfügen]<br>
-            Registernummer: [HRB-Nummer einfügen]
+            Eingetragen im Handelsregister.<br>
+            Registergericht: Oldenburg<br>
+            Registernummer: HRB 215517
         </p>
 
         <h2>Umsatzsteuer-ID</h2>
         <p>
-            Umsatzsteuer-Identifikationsnummer gemäß § 27a UStG:<br>
-            [USt-IdNr. einfügen]
+            Umsatzsteuer-Identifikationsnummer gemäß § 27 a Umsatzsteuergesetz:<br>
+            DE331470711
         </p>
 
         <h2>Verantwortlich für den Inhalt nach § 55 Abs. 2 RStV</h2>
         <p>
-            [Name und Anschrift einfügen]
+            Nicole Wittfoot<br>
+            Melkbrink 61<br>
+            26121 Oldenburg
         </p>
 
         <h2>EU-Streitschlichtung</h2>

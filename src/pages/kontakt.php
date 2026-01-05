@@ -58,9 +58,23 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             ]);
 
             if ($inserted) {
+                // E-Mails versenden
+                $emailService = new EmailService();
+                $emailResults = $emailService->sendContactFormEmails([
+                    'name' => $name,
+                    'email' => $email,
+                    'phone' => $phone,
+                    'subject' => $subject,
+                    'message' => $message
+                ]);
+
+                // Erfolg, auch wenn E-Mails fehlschlagen (Daten sind gespeichert)
                 $success = true;
-                // E-Mail senden (optional)
-                // mail(MAIL_ADMIN, "Kontaktanfrage: $subject", $message, "From: $email");
+
+                // Optional: Warnung anzeigen, wenn E-Mails fehlgeschlagen sind
+                if (!$emailResults['customer'] || !$emailResults['admin']) {
+                    error_log("Contact form: Email sending partially failed - Customer: " . ($emailResults['customer'] ? 'OK' : 'FAILED') . ", Admin: " . ($emailResults['admin'] ? 'OK' : 'FAILED'));
+                }
             } else {
                 $error = 'Fehler beim Speichern. Bitte versuchen Sie es später erneut.';
             }
@@ -87,8 +101,8 @@ include __DIR__ . '/../templates/header.php';
 
         <?php if ($success): ?>
             <!-- Erfolgsmeldung -->
-            <div class="alert alert-success">
-                <h2>✓ Vielen Dank für Ihre Nachricht!</h2>
+            <div class="alert alert-success" role="alert">
+                <h2><span aria-hidden="true">✓</span> Vielen Dank für Ihre Nachricht!</h2>
                 <p>Wir haben Ihre Anfrage erhalten und werden uns schnellstmöglich bei Ihnen melden.</p>
                 <p class="mt-md">
                     <a href="<?= BASE_URL ?>" class="btn btn-primary">Zur Startseite</a>
@@ -104,7 +118,7 @@ include __DIR__ . '/../templates/header.php';
                         <h2>Kontaktdaten</h2>
 
                         <div class="contact-item">
-                            <h3>📍 Adresse</h3>
+                            <h3><span aria-hidden="true">📍</span> Adresse</h3>
                             <p>
                                 PC-Wittfoot UG<br>
                                 Musterstraße 123<br>
@@ -113,7 +127,7 @@ include __DIR__ . '/../templates/header.php';
                         </div>
 
                         <div class="contact-item">
-                            <h3>📞 Telefon</h3>
+                            <h3><span aria-hidden="true">📞</span> Telefon</h3>
                             <p>
                                 <a href="tel:+49123456789">+49 (0) 123 456789</a><br>
                                 <span class="text-muted">Mo-Fr: 09:00 - 18:00 Uhr<br>Sa: 10:00 - 14:00 Uhr</span>
@@ -121,14 +135,14 @@ include __DIR__ . '/../templates/header.php';
                         </div>
 
                         <div class="contact-item">
-                            <h3>✉️ E-Mail</h3>
+                            <h3><span aria-hidden="true">✉️</span> E-Mail</h3>
                             <p>
                                 <a href="mailto:info@pc-wittfoot.de">info@pc-wittfoot.de</a>
                             </p>
                         </div>
 
                         <div class="contact-item">
-                            <h3>💬 Messenger</h3>
+                            <h3><span aria-hidden="true">💬</span> Messenger</h3>
                             <p>
                                 <a href="https://wa.me/49123456789" target="_blank" rel="noopener">WhatsApp Business</a><br>
                                 Telegram • Signal
@@ -136,7 +150,7 @@ include __DIR__ . '/../templates/header.php';
                         </div>
 
                         <div class="contact-item">
-                            <h3>🕐 Öffnungszeiten</h3>
+                            <h3><span aria-hidden="true">🕐</span> Öffnungszeiten</h3>
                             <p>
                                 <strong>Montag - Freitag:</strong> 09:00 - 18:00 Uhr<br>
                                 <strong>Samstag:</strong> 10:00 - 14:00 Uhr<br>
@@ -155,7 +169,7 @@ include __DIR__ . '/../templates/header.php';
                         <h2>Nachricht senden</h2>
 
                         <?php if ($error): ?>
-                            <div class="alert alert-error">
+                            <div class="alert alert-error" role="alert">
                                 <strong>Fehler:</strong><br>
                                 <?= $error ?>
                             </div>

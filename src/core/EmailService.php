@@ -605,4 +605,68 @@ class EmailService {
 
         return $success;
     }
+
+    /**
+     * E-Mails für Kontaktformular versenden
+     *
+     * @param array $data Kontaktformular-Daten (name, email, subject, message, phone)
+     * @return array ['customer' => bool, 'admin' => bool] Erfolg beider E-Mails
+     */
+    public function sendContactFormEmails($data) {
+        $signature = $this->getSignature();
+        $signatureHtml = nl2br($signature);
+
+        // E-Mail an Kunden (Bestätigung)
+        $customerSubject = "Ihre Kontaktanfrage: " . $data['subject'];
+        $customerBodyHtml = "
+            <h2>Vielen Dank für Ihre Nachricht!</h2>
+            <p>Hallo " . htmlspecialchars($data['name']) . ",</p>
+            <p>wir haben Ihre Kontaktanfrage erhalten und werden uns schnellstmöglich bei Ihnen melden.</p>
+
+            <h3>Ihre Nachricht:</h3>
+            <p><strong>Betreff:</strong> " . htmlspecialchars($data['subject']) . "</p>
+            <p>" . nl2br(htmlspecialchars($data['message'])) . "</p>
+
+            <hr>
+            " . $signatureHtml;
+
+        $customerBodyPlain = strip_tags($customerBodyHtml) . "\n\n" . $signature;
+        $customerSent = $this->sendMail($data['email'], $customerSubject, $customerBodyHtml, $customerBodyPlain);
+
+        // E-Mail an Admin (Benachrichtigung)
+        $adminSubject = "Neue Kontaktanfrage: " . $data['subject'];
+        $adminBodyHtml = "
+            <h2>Neue Kontaktanfrage eingegangen</h2>
+
+            <h3>Kontaktdaten:</h3>
+            <p>
+                <strong>Name:</strong> " . htmlspecialchars($data['name']) . "<br>
+                <strong>E-Mail:</strong> <a href=\"mailto:" . htmlspecialchars($data['email']) . "\">" . htmlspecialchars($data['email']) . "</a><br>
+                <strong>Telefon:</strong> " . htmlspecialchars($data['phone'] ?: 'Nicht angegeben') . "
+            </p>
+
+            <h3>Betreff:</h3>
+            <p>" . htmlspecialchars($data['subject']) . "</p>
+
+            <h3>Nachricht:</h3>
+            <p>" . nl2br(htmlspecialchars($data['message'])) . "</p>
+
+            <hr>
+            <p><em>Diese E-Mail wurde automatisch über das Kontaktformular versendet.</em></p>";
+
+        $adminBodyPlain = strip_tags($adminBodyHtml);
+        $adminSent = $this->sendMail(MAIL_ADMIN, $adminSubject, $adminBodyHtml, $adminBodyPlain);
+
+        if ($customerSent) {
+            error_log("EmailService: Contact form confirmation sent to " . $data['email']);
+        }
+        if ($adminSent) {
+            error_log("EmailService: Contact form notification sent to admin");
+        }
+
+        return [
+            'customer' => $customerSent,
+            'admin' => $adminSent
+        ];
+    }
 }

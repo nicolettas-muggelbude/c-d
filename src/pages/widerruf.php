@@ -14,9 +14,18 @@ include __DIR__ . '/../templates/header.php';
     <div class="container" style="max-width: 800px;">
         <h1>Widerrufsbelehrung</h1>
 
-        <h2>Widerrufsrecht</h2>
+        <div class="card" style="background: #fff3cd; border-left: 4px solid #ff9800; padding: var(--space-lg); margin-bottom: var(--space-xl); color: #000;">
+            <h3 style="margin-top: 0; color: #000;">⚠️ Wichtiger Hinweis für Geschäftskunden (B2B)</h3>
+            <p style="margin-bottom: 0; color: #000;">
+                <strong>Das Widerrufsrecht gilt ausschließlich für Verbraucher.</strong> Wenn Sie als Unternehmer handeln
+                und die Ware für gewerbliche, selbständige oder freiberufliche Zwecke erwerben, besteht
+                <strong>kein gesetzliches Widerrufsrecht</strong>.
+            </p>
+        </div>
+
+        <h2>Widerrufsrecht für Verbraucher</h2>
         <p>
-            Sie haben das Recht, binnen vierzehn Tagen ohne Angabe von Gründen diesen Vertrag zu widerrufen.
+            Als Verbraucher haben Sie das Recht, binnen vierzehn Tagen ohne Angabe von Gründen diesen Vertrag zu widerrufen.
         </p>
         <p>
             Die Widerrufsfrist beträgt vierzehn Tage ab dem Tag, an dem Sie oder ein von Ihnen benannter Dritter,
@@ -27,10 +36,11 @@ include __DIR__ . '/../templates/header.php';
         </p>
         <p>
             <strong>PC-Wittfoot UG</strong><br>
-            Musterstraße 123<br>
-            12345 Musterstadt<br>
+            Melkbrink 61<br>
+            26121 Oldenburg<br>
+            Deutschland<br>
             E-Mail: <a href="mailto:info@pc-wittfoot.de">info@pc-wittfoot.de</a><br>
-            Telefon: +49 (0) 123 456789
+            Telefon: <a href="tel:+4944140576020">+49 441 40576020</a>
         </p>
         <p>
             mittels einer eindeutigen Erklärung (z.B. ein mit der Post versandter Brief oder E-Mail) über Ihren
@@ -69,6 +79,23 @@ include __DIR__ . '/../templates/header.php';
             mit ihnen zurückzuführen ist.
         </p>
 
+        <h2>Ausnahmen vom Widerrufsrecht</h2>
+        <p>
+            Das Widerrufsrecht besteht nicht bzw. erlischt in folgenden Fällen:
+        </p>
+        <ul>
+            <li><strong>Geschäftskunden (B2B):</strong> Kauf für gewerbliche, selbständige oder freiberufliche Zwecke</li>
+            <li><strong>Individuell konfigurierte Systeme:</strong> Nach Kundenspezifikation zusammengestellte oder angepasste Hardware</li>
+            <li><strong>Versiegelte Software:</strong> Wenn die Versiegelung nach der Lieferung entfernt wurde</li>
+            <li><strong>Entsiegelte Datenträger:</strong> Audio- oder Videoaufnahmen oder Software, wenn die Versiegelung entfernt wurde</li>
+            <li><strong>Vollständig erbrachte Dienstleistungen:</strong> Wenn die Dienstleistung mit ausdrücklicher Zustimmung
+                des Verbrauchers vor Ablauf der Widerrufsfrist vollständig erbracht wurde</li>
+        </ul>
+        <p class="text-muted">
+            <small>Bei individuellen Konfigurationen oder Dienstleistungen werden Sie vor Vertragsabschluss
+            ausdrücklich auf den Ausschluss des Widerrufsrechts hingewiesen und müssen diesem zustimmen.</small>
+        </p>
+
         <h2>Muster-Widerrufsformular</h2>
         <div class="card mt-lg" style="background: var(--bg-secondary); padding: var(--space-xl);">
             <p>
@@ -77,8 +104,9 @@ include __DIR__ . '/../templates/header.php';
             <p>
                 An<br>
                 <strong>PC-Wittfoot UG</strong><br>
-                Musterstraße 123<br>
-                12345 Musterstadt<br>
+                Melkbrink 61<br>
+                26121 Oldenburg<br>
+                Deutschland<br>
                 E-Mail: info@pc-wittfoot.de
             </p>
             <p>

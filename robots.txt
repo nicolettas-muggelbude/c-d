@@ -1,0 +1,22 @@
+# robots.txt für PC-Wittfoot UG
+# https://pc-wittfoot.de
+
+User-agent: *
+
+# Erlaubte Bereiche
+Allow: /
+
+# Blockierte Bereiche
+Disallow: /admin/
+Disallow: /api/
+Disallow: /vendor/
+Disallow: /src/
+Disallow: /tests/
+Disallow: /logs/
+Disallow: /data/
+Disallow: /cron/
+Disallow: /warenkorb
+Disallow: /kasse
+
+# Sitemap
+Sitemap: https://pc-wittfoot.de/sitemap.xml

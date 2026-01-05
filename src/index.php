@@ -72,37 +72,37 @@ include __DIR__ . '/templates/header.php';
 
         <div class="grid grid-cols-1 grid-cols-md-2 grid-cols-lg-3 gap-lg">
             <div class="card text-center">
-                <div class="card-icon">🔧</div>
+                <div class="card-icon" aria-hidden="true">🔧</div>
                 <h3>Diagnose & Reparatur</h3>
                 <p>Professionelle Fehlerdiagnose und Reparatur für alle Geräte. Schnell, zuverlässig und transparent.</p>
             </div>
 
             <div class="card text-center">
-                <div class="card-icon">💻</div>
+                <div class="card-icon" aria-hidden="true">💻</div>
                 <h3>Hardware-Verkauf</h3>
                 <p>Technik wie Neu! Hochwertige Refurbished Hardware mit 24 Monate Garantie. Neue Business Hardware <strong>exone Business</strong>.</p>
             </div>
 
             <div class="card text-center">
-                <div class="card-icon">💡</div>
+                <div class="card-icon" aria-hidden="true">💡</div>
                 <h3>Beratung & Planung</h3>
                 <p>Individuelle IT-Beratung für Privatkunden und Gewerbe. Wir finden die passende Lösung für Sie.</p>
             </div>
 
             <div class="card text-center">
-                <div class="card-icon">⚙️</div>
+                <div class="card-icon" aria-hidden="true">⚙️</div>
                 <h3>Softwareentwicklung</h3>
                 <p>Maßgeschneiderte Software-Lösungen, Webseiten/Apps und Tools für Linux & Windows. Von der Idee bis zur Umsetzung.</p>
             </div>
 
             <div class="card text-center">
-                <div class="card-icon">🛡️</div>
+                <div class="card-icon" aria-hidden="true">🛡️</div>
                 <h3>Wartung & Support</h3>
                 <p>Regelmäßige Wartung, Sicherheits-Check und Support. Damit Ihre IT immer zuverlässig läuft.</p>
             </div>
 
             <div class="card text-center">
-                <div class="card-icon">📦</div>
+                <div class="card-icon" aria-hidden="true">📦</div>
                 <h3>Projektierung</h3>
                 <p>Komplette IT-Projekte aus einer Hand. Planung, Beschaffung, Installation und Schulung.</p>
             </div>
@@ -161,7 +161,7 @@ include __DIR__ . '/templates/header.php';
         <div class="grid grid-cols-2 grid-cols-md-4 gap-md">
             <?php foreach ($categories as $category): ?>
                 <a href="<?= BASE_URL ?>/shop?kategorie=<?= e($category['slug']) ?>" class="category-card">
-                    <div class="category-icon"><?= e($category['icon'] ?? '📦') ?></div>
+                    <div class="category-icon" aria-hidden="true"><?= e($category['icon'] ?? '📦') ?></div>
                     <h3><?= e($category['name']) ?></h3>
                 </a>
             <?php endforeach; ?>
@@ -203,31 +203,31 @@ include __DIR__ . '/templates/header.php';
 <?php endif; ?>
 
 <!-- Warum PC-Wittfoot -->
-<section class="section bg-primary text-white">
+<section class="section bg-primary-dark text-white">
     <div class="container">
         <h2 class="text-center mb-lg">Warum PC-Wittfoot?</h2>
 
         <div class="grid grid-cols-1 grid-cols-md-2 grid-cols-lg-4 gap-lg">
             <div class="text-center">
-                <div class="icon-large">⭐</div>
+                <div class="icon-large" aria-hidden="true">⭐</div>
                 <h3>5 Sterne Bewertung</h3>
                 <p>Exzellente Bewertungen auf Google und Kleinanzeigen.de</p>
             </div>
 
             <div class="text-center">
-                <div class="icon-large">☕</div>
+                <div class="icon-large" aria-hidden="true">☕</div>
                 <h3>Persönlich & entspannt</h3>
                 <p>Beratung im Sitzen mit Kaffee. Wir nehmen uns Zeit für Sie.</p>
             </div>
 
             <div class="text-center">
-                <div class="icon-large">🗣️</div>
+                <div class="icon-large" aria-hidden="true">🗣️</div>
                 <h3>Verständlich erklärt</h3>
                 <p>Keine Fachchinesisch. Wir erklären IT so, dass jeder es versteht.</p>
             </div>
 
             <div class="text-center">
-                <div class="icon-large">🐕</div>
+                <div class="icon-large" aria-hidden="true">🐕</div>
                 <h3>Mit Baileys</h3>
                 <p>Unser Bürohund Baileys ist Teil des Teams und sorgt für gute Laune.</p>
             </div>
@@ -245,24 +245,41 @@ include __DIR__ . '/templates/header.php';
 
         <div class="btn-group">
             <a href="tel:+49123456789" class="btn btn-primary">
-                📞 Jetzt anrufen
+                Jetzt anrufen
             </a>
             <a href="<?= BASE_URL ?>/termin" class="btn btn-warning">
-                📅 Termin buchen
+                Termin buchen
             </a>
             <a href="<?= BASE_URL ?>/kontakt" class="btn btn-outline">
-                ✉️ Kontaktformular
+                Kontaktformular
             </a>
         </div>
     </div>
 </section>
 
 <script>
-// Produkt-Cards klickbar machen
+// Produkt-Cards klickbar machen (mit Keyboard-Support)
 document.querySelectorAll('.product-card[data-href]').forEach(card => {
+    // Tastatur-Navigation ermöglichen
+    card.setAttribute('tabindex', '0');
+    card.setAttribute('role', 'link');
+    card.setAttribute('aria-label', card.querySelector('h3').textContent);
+
+    // Click-Handler
     card.addEventListener('click', function() {
         window.location.href = this.dataset.href;
     });
+
+    // Keyboard-Handler (Enter und Space)
+    card.addEventListener('keydown', function(e) {
+        if (e.key === 'Enter' || e.key === ' ') {
+            e.preventDefault();
+            window.location.href = this.dataset.href;
+        }
+    });
+
+    // Visuelles Feedback (Cursor)
+    card.style.cursor = 'pointer';
 });
 </script>
 

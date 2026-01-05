@@ -257,6 +257,10 @@
     background: var(--color-primary);
 }
 
+.bg-primary-dark {
+    background: var(--color-primary-dark);
+}
+
 .bg-secondary {
     background: var(--bg-secondary);
 }
@@ -380,27 +384,29 @@ header {
     display: flex;
     align-items: center;
     justify-content: space-between;
-    padding: 32px 0;
+    padding: 8px 0;
     gap: 24px;
     min-height: 60px;
 }
 
 @media (min-width: 992px) {
     .header-content {
-        padding: 48px 0;
+        padding: 10px 0;
         min-height: 80px;
     }
 }
 
 .logo img {
     display: block;
-    max-width: 120px;
-    height: auto;
+    width: 60px;
+    height: 60px;
+    margin: 0;
 }
 
 @media (min-width: 768px) {
     .logo img {
-        max-width: 150px;
+        width: 80px;
+        height: 80px;
     }
 }
 

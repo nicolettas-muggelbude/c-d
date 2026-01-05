@@ -50,13 +50,13 @@ include __DIR__ . '/../templates/header.php';
                     <label class="booking-type-card">
                         <input type="radio" name="booking_type" value="fixed" required onchange="nextStep(2)">
                         <div class="card-content">
-                            <span class="icon">📅</span>
+                            <span class="icon" aria-hidden="true">📅</span>
                             <h3>Fester Termin</h3>
                             <p>Buchen Sie einen festen Termin zwischen 11:00-12:00 Uhr (Di-Fr)</p>
                             <ul>
-                                <li>✓ Garantierte Bedienung</li>
-                                <li>✓ Keine Wartezeit</li>
-                                <li>✓ Persönliche Beratung</li>
+                                <li><span aria-hidden="true">✓</span> Garantierte Bedienung</li>
+                                <li><span aria-hidden="true">✓</span> Keine Wartezeit</li>
+                                <li><span aria-hidden="true">✓</span> Persönliche Beratung</li>
                             </ul>
                         </div>
                     </label>
@@ -64,13 +64,13 @@ include __DIR__ . '/../templates/header.php';
                     <label class="booking-type-card">
                         <input type="radio" name="booking_type" value="walkin" required onchange="nextStep(2)">
                         <div class="card-content">
-                            <span class="icon">🚶</span>
+                            <span class="icon" aria-hidden="true">🚶</span>
                             <h3>Ich komme vorbei</h3>
                             <p>Kommen Sie spontan vorbei - ohne feste Uhrzeit</p>
                             <ul>
-                                <li>✓ Di-Fr: 14:00-17:00 Uhr</li>
-                                <li>✓ Sa: 12:00-16:00 Uhr</li>
-                                <li>✓ Wir informieren Sie bei Wartezeiten</li>
+                                <li><span aria-hidden="true">✓</span> Di-Fr: 14:00-17:00 Uhr</li>
+                                <li><span aria-hidden="true">✓</span> Sa: 12:00-16:00 Uhr</li>
+                                <li><span aria-hidden="true">✓</span> Wir informieren Sie bei Wartezeiten</li>
                             </ul>
                         </div>
                     </label>
@@ -85,7 +85,7 @@ include __DIR__ . '/../templates/header.php';
                     <label class="service-card">
                         <input type="radio" name="service_type" value="beratung" required onchange="nextStep(3)">
                         <div class="card-content">
-                            <span class="icon">💬</span>
+                            <span class="icon" aria-hidden="true">💬</span>
                             <h3>Beratung</h3>
                         </div>
                     </label>
@@ -93,7 +93,7 @@ include __DIR__ . '/../templates/header.php';
                     <label class="service-card">
                         <input type="radio" name="service_type" value="verkauf" required onchange="nextStep(3)">
                         <div class="card-content">
-                            <span class="icon">🛒</span>
+                            <span class="icon" aria-hidden="true">🛒</span>
                             <h3>Verkauf</h3>
                         </div>
                     </label>
@@ -101,7 +101,7 @@ include __DIR__ . '/../templates/header.php';
                     <label class="service-card" data-service-onsite-only="true">
                         <input type="radio" name="service_type" value="fernwartung" required onchange="nextStep(3)">
                         <div class="card-content">
-                            <span class="icon">💻</span>
+                            <span class="icon" aria-hidden="true">💻</span>
                             <h3>Fernwartung</h3>
                         </div>
                     </label>
@@ -109,7 +109,7 @@ include __DIR__ . '/../templates/header.php';
                     <label class="service-card" data-service-onsite-only="true">
                         <input type="radio" name="service_type" value="hausbesuch" required onchange="nextStep(3)">
                         <div class="card-content">
-                            <span class="icon">🏠</span>
+                            <span class="icon" aria-hidden="true">🏠</span>
                             <h3>Hausbesuch</h3>
                         </div>
                     </label>
@@ -117,7 +117,7 @@ include __DIR__ . '/../templates/header.php';
                     <label class="service-card">
                         <input type="radio" name="service_type" value="installation" required onchange="nextStep(3)">
                         <div class="card-content">
-                            <span class="icon">⚙️</span>
+                            <span class="icon" aria-hidden="true">⚙️</span>
                             <h3>Installation</h3>
                         </div>
                     </label>
@@ -125,7 +125,7 @@ include __DIR__ . '/../templates/header.php';
                     <label class="service-card">
                         <input type="radio" name="service_type" value="diagnose" required onchange="nextStep(3)">
                         <div class="card-content">
-                            <span class="icon">🔍</span>
+                            <span class="icon" aria-hidden="true">🔍</span>
                             <h3>Diagnose</h3>
                         </div>
                     </label>
@@ -133,7 +133,7 @@ include __DIR__ . '/../templates/header.php';
                     <label class="service-card">
                         <input type="radio" name="service_type" value="reparatur" required onchange="nextStep(3)">
                         <div class="card-content">
-                            <span class="icon">🛠️</span>
+                            <span class="icon" aria-hidden="true">🛠️</span>
                             <h3>Reparatur</h3>
                         </div>
                     </label>
@@ -141,7 +141,7 @@ include __DIR__ . '/../templates/header.php';
                     <label class="service-card">
                         <input type="radio" name="service_type" value="sonstiges" required onchange="nextStep(3)">
                         <div class="card-content">
-                            <span class="icon">🔧</span>
+                            <span class="icon" aria-hidden="true">🔧</span>
                             <h3>Sonstiges</h3>
                         </div>
                     </label>
@@ -167,7 +167,7 @@ include __DIR__ . '/../templates/header.php';
                                required
                                readonly
                                style="cursor: pointer; padding-right: 2.5rem;">
-                        <span style="position: absolute; right: 0.75rem; top: 50%; transform: translateY(-50%); pointer-events: none; font-size: 1.25rem;">📅</span>
+                        <span style="position: absolute; right: 0.75rem; top: 50%; transform: translateY(-50%); pointer-events: none; font-size: 1.25rem;" aria-hidden="true">📅</span>
                     </div>
                     <small class="form-help" id="date-help">Ausgebuchte Tage sind im Kalender ausgegraut</small>
                     <div id="date-warning" class="alert alert-error" style="display: none; margin-top: 0.5rem;"></div>
@@ -345,7 +345,7 @@ include __DIR__ . '/../templates/header.php';
 
         <!-- Erfolgs-Meldung (versteckt) -->
         <div id="booking-success" class="booking-success" style="display: none;">
-            <div class="success-icon">✓</div>
+            <div class="success-icon" aria-hidden="true">✓</div>
             <h2>Termin erfolgreich gebucht!</h2>
             <p>Vielen Dank für Ihre Buchung. Wir haben Ihnen eine Bestätigung per Email gesendet.</p>
             <div class="card">

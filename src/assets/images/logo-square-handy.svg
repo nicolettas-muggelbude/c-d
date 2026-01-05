@@ -1,0 +1,33 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 400" width="400" height="400">
+  <!-- Logo mit Handy (orange, hochkant) -->
+
+  <!-- Hintergrund-Monitor (Grau, größter) -->
+  <g stroke="#666" stroke-width="6" fill="none">
+    <rect x="120" y="60" width="200" height="130" rx="16"/>
+    <rect x="185" y="190" width="70" height="8" rx="2" fill="#666"/>
+  </g>
+
+  <!-- Mittlerer Monitor (Grün, tiefer und leicht nach rechts) -->
+  <g stroke="#8BC34A" stroke-width="6" fill="none">
+    <rect x="80" y="140" width="160" height="105" rx="14"/>
+    <rect x="135" y="245" width="50" height="7" rx="2" fill="#8BC34A"/>
+    <circle cx="145" cy="235" r="3" fill="#8BC34A"/>
+    <circle cx="160" cy="235" r="3" fill="#8BC34A"/>
+    <circle cx="175" cy="235" r="3" fill="#8BC34A"/>
+  </g>
+
+  <!-- Handy (Orange, hochkant/Portrait) -->
+  <g stroke="#FF9800" stroke-width="5" fill="none">
+    <!-- Smartphone im Hochformat -->
+    <rect x="260" y="40" width="70" height="120" rx="12"/>
+    <!-- Home-Button unten -->
+    <circle cx="295" cy="150" r="3" fill="#FF9800"/>
+    <!-- Kamera/Lautsprecher oben -->
+    <rect x="285" y="48" width="20" height="3" rx="1.5" fill="#FF9800"/>
+  </g>
+
+  <!-- Schriftzug "PC-Wittfoot" - volle Breite -->
+  <text x="200" y="315" font-family="Arial, sans-serif" font-weight="700" font-size="52" text-anchor="middle" letter-spacing="2">
+    <tspan fill="#555">PC-W</tspan><tspan fill="#8BC34A">itt</tspan><tspan fill="#555">foot</tspan>
+  </text>
+</svg>

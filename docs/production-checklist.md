@@ -10,68 +10,69 @@
 
 ### 🧪 Terminmodul testen
 
-- [ ] **Buchungs-Workflow**
+- [x] **Buchungs-Workflow**
   - [x] Fester Termin: Alle 8 Services durchspielen
-  - [ ] Walk-in: Alle 8 Services durchspielen
-  - [ ] Navigation Vor/Zurück zwischen Schritten funktioniert
-  - [ ] Zusammenfassung zeigt korrekte Daten
-  - [ ] Erfolgsseite mit Buchungsnummer
+  - [x] Walk-in: Alle 8 Services durchspielen
+  - [x] Navigation Vor/Zurück zwischen Schritten funktioniert
+  - [x] Zusammenfassung zeigt korrekte Daten
+  - [x] Erfolgsseite mit Buchungsnummer
+  - [x] WCAG 2.1 Level AA konform (16 Emojis mit aria-hidden, Keyboard-Navigation)
 
-- [ ] **Formular-Validierung**
-  - [ ] Leere Pflichtfelder werden abgefangen
-  - [ ] E-Mail-Format wird validiert
-  - [ ] PLZ: 5 Ziffern Validierung
-  - [ ] Telefon: Ländervorwahl + Nummer korrekt
-  - [ ] Führende Nullen werden entfernt
-  - [ ] Straße/Hausnummer/Ort min. 2 Zeichen
+- [x] **Formular-Validierung**
+  - [x] Leere Pflichtfelder werden abgefangen
+  - [x] E-Mail-Format wird validiert
+  - [x] PLZ: 5 Ziffern Validierung
+  - [x] Telefon: Ländervorwahl + Nummer korrekt
+  - [x] Führende Nullen werden entfernt
+  - [x] Straße/Hausnummer/Ort min. 2 Zeichen
 
-- [ ] **Zeitslot-System**
+- [x] **Zeitslot-System**
   - [x] Verfügbare Zeiten werden korrekt angezeigt
   - [x] Doppelbuchung wird verhindert
-  - [ ] Walk-in Zeiten: Di-Fr 14-17 Uhr, Sa 12-16 Uhr
+  - [x] Walk-in Zeiten: Di-Fr 14-17 Uhr, Sa 12-16 Uhr
   - [x] Feste Termine: Nur 11:00 + 12:00 Uhr
   - [x] Gebuchte Slots sind ausgegraut/deaktiviert
-  - [ ] API `/api/available-slots` funktioniert
+  - [x] API `/api/available-slots` funktioniert
 
-- [ ] **Email-Versand**
+- [x] **Email-Versand**
   - [x] Kunde erhält Bestätigungs-Email
   - [x] Admin erhält Benachrichtigung
   - [x] Deutsche Umlaute korrekt (UTF-8)
   - [x] Links in Email funktionieren
-  - [ ] Admin-Detail-Link korrekt
+  - [x] Admin-Detail-Link korrekt
   - [x] Email-Layout ist lesbar
 
-- [ ] **HelloCash-Integration**
+- [x] **HelloCash-Integration**
   - [x] Neuer Kunde wird in HelloCash angelegt
-  - [ ] Bestehender Kunde wird gefunden (Email-Match)
-  - [ ] Bestehender Kunde wird gefunden (Vorname-Match)
+  - [x] Bestehender Kunde wird gefunden (Email-Match)
+  - [x] Bestehender Kunde wird gefunden (Vorname-Match)
   - [x] Adresse wird korrekt übertragen
   - [x] Ländercode wird korrekt gemappt (DE aus +49)
-  - [ ] Festnetz landet in `user_notes`
+  - [x] Festnetz landet in `user_notes`
   - [x] Keine Duplikate werden erstellt
 
-- [ ] **Admin-Bereich: Termine**
-  - [ ] Übersicht zeigt alle Buchungen
-  - [ ] Filter nach Status funktioniert
-  - [ ] Filter nach Terminart funktioniert
-  - [ ] Filter nach Datum funktioniert
-  - [ ] Suche nach Name/E-Mail funktioniert
-  - [ ] Detail-Ansicht zeigt alle Daten
-  - [ ] Status ändern funktioniert
-  - [ ] Status-Badges korrekt farbcodiert
+- [x] **Admin-Bereich: Termine**
+  - [x] Übersicht zeigt alle Buchungen
+  - [x] Filter nach Status funktioniert
+  - [x] Filter nach Terminart funktioniert
+  - [x] Filter nach Datum funktioniert
+  - [x] Suche nach Name/E-Mail funktioniert
+  - [x] Detail-Ansicht zeigt alle Daten
+  - [x] Status ändern funktioniert
+  - [x] Status-Badges korrekt farbcodiert
 
-- [ ] **Admin-Bereich: Booking Settings**
-  - [ ] Zeiten ändern funktioniert
-  - [ ] Intervall ändern funktioniert
-  - [ ] Max. Buchungen pro Slot ändern funktioniert
-  - [ ] Live-Vorschau zeigt korrekte Slots
-  - [ ] Validierung: Endzeit nach Startzeit
-  - [ ] Änderungen werden gespeichert
+- [x] **Admin-Bereich: Booking Settings**
+  - [x] Zeiten ändern funktioniert
+  - [x] Intervall ändern funktioniert
+  - [x] Max. Buchungen pro Slot ändern funktioniert
+  - [x] Live-Vorschau zeigt korrekte Slots
+  - [x] Validierung: Endzeit nach Startzeit
+  - [x] Änderungen werden gespeichert
 
 - [ ] **Edge Cases**
-  - [ ] Was passiert bei gleichzeitiger Buchung? (Race Condition)
-  - [ ] Ungültige Datumsauswahl (Sonntag/Montag)
-  - [ ] Sehr lange Eingaben in Textfeldern
+  - [x] Was passiert bei gleichzeitiger Buchung? (Race Condition)
+  - [x] Ungültige Datumsauswahl (Sonntag/Montag)
+  - [x] Sehr lange Eingaben in Textfeldern
   - [ ] SQL-Injection Versuche (Prepared Statements?)
   - [ ] CSRF-Token korrekt validiert
 
@@ -129,7 +130,7 @@
   - [ ] "Über uns" Bereich: Text vorhanden
   - [ ] Call-to-Action Buttons funktionieren
   - [ ] Leistungen-Preview vorhanden
-  - [ ] Bilder: Logo vorhanden
+  - [x] Bilder: Logo vorhanden (modernes SVG-Logo mit Monitor/Laptop/Handy)
   - [ ] Bilder: Baileys-Foto? (optional)
   - [ ] Featured Products Sektion (später entfernen für Production)
 
@@ -139,32 +140,33 @@
   - [ ] Icons/Bilder vorhanden?
   - [ ] Links zu Terminbuchung funktionieren
 
-- [ ] **Kontaktformular (kontakt.php)**
-  - [ ] Formular durchspielen
-  - [ ] Validierung funktioniert
-  - [ ] Daten werden in DB gespeichert
-  - [ ] Erfolgsmeldung wird angezeigt
-  - [ ] CSRF-Schutz aktiv
-  - [ ] Kontaktdaten korrekt angezeigt (Adresse, Telefon, Email)
+- [x] **Kontaktformular (kontakt.php)**
+  - [x] Formular durchspielen
+  - [x] Validierung funktioniert
+  - [x] Daten werden in DB gespeichert
+  - [x] Erfolgsmeldung wird angezeigt
+  - [x] CSRF-Schutz aktiv
+  - [x] Kontaktdaten korrekt angezeigt (Adresse, Telefon, Email)
+  - [x] WCAG 2.1 Level AA konform (Emojis, Alert-Boxen, Formular-Labels)
 
-- [ ] **Rechtliche Seiten**
-  - [ ] **Impressum:** Vollständige Adresse, Telefon, Email
-  - [ ] **Impressum:** USt-ID vorhanden? (falls vorhanden)
-  - [ ] **Impressum:** Geschäftsführer/Inhaber genannt
-  - [ ] **Datenschutz:** Vollständig für Terminbuchung
-  - [ ] **Datenschutz:** HelloCash-Integration erwähnt
-  - [ ] **Datenschutz:** Email-Versand (PHPMailer/SMTP) erwähnt
-  - [ ] **Datenschutz:** Cookie-Banner nötig? (wenn ja: implementieren)
-  - [ ] **AGB:** Vollständig für Terminbuchung
-  - [ ] **Widerruf:** Relevant für Terminbuchung?
+- [x] **Rechtliche Seiten**
+  - [x] **Impressum:** Vollständige Adresse, Telefon, Email
+  - [x] **Impressum:** USt-ID vorhanden (DE331470711)
+  - [x] **Impressum:** Geschäftsführer/Inhaber genannt (Nicole Wittfoot)
+  - [x] **Datenschutz:** Vollständig für Terminbuchung
+  - [x] **Datenschutz:** HelloCash-Integration erwähnt
+  - [x] **Datenschutz:** Email-Versand (PHPMailer/SMTP) erwähnt
+  - [x] **Datenschutz:** Cookie-Banner nötig? NEIN (nur sessionStorage, keine Cookies)
+  - [x] **AGB:** Vollständig (B2C + B2B mit Stornoregelungen)
+  - [x] **Widerruf:** Vollständig (B2C + B2B Ausschluss, Ausnahmen)
 
 - [ ] **Navigation & Footer**
   - [ ] Alle Links funktionieren
   - [ ] Mobile Navigation (Hamburger Menu) funktioniert
   - [ ] Darkmode-Toggle funktioniert
-  - [ ] Footer: Social Media Links setzen (Facebook, Instagram)
-  - [ ] Footer: Kontaktdaten korrekt
-  - [ ] Footer: Öffnungszeiten korrekt
+  - [x] Footer: Social Media Links gesetzt (Facebook, Instagram, WhatsApp)
+  - [x] Footer: Kontaktdaten korrekt (Melkbrink 61, 26121 Oldenburg)
+  - [x] Footer: Öffnungszeiten korrekt (Mo geschlossen, Di-Fr 14-17, Sa 12-16)
 
 ---
 
@@ -193,11 +195,14 @@
   - [ ] Keine Console-Errors
   - [ ] JavaScript funktioniert überall
 
-- [ ] **Barrierefreiheit (WCAG 2.1 Level AA)**
-  - [ ] Keyboard-Navigation funktioniert (Tab, Enter, Escape)
-  - [ ] Fokus-Indikatoren sichtbar
-  - [ ] Alt-Texte für alle Bilder
-  - [ ] Formular-Labels korrekt zugeordnet
+- [x] **Barrierefreiheit (WCAG 2.1 Level AA)**
+  - [x] Keyboard-Navigation funktioniert (Tab, Enter, Escape)
+  - [x] Fokus-Indikatoren sichtbar
+  - [x] Alt-Texte für alle Bilder
+  - [x] Formular-Labels korrekt zugeordnet
+  - [x] aria-hidden für dekorative Emojis (Startseite, Leistungen, Blog, Termin, Kontakt)
+  - [x] role="alert" für Fehler-/Erfolgsmeldungen
+  - [x] Farbkontraste WCAG AA konform (--color-primary-dark, --color-secondary-dark)
   - [ ] Screen-Reader Test (optional)
   - [ ] Skip-Links vorhanden
 
@@ -301,12 +306,12 @@
   - [ ] SSH-Credentials konfigurieren
   - [ ] Testen mit Dry-Run
 
-- [ ] **SEO & Meta**
-  - [ ] Meta-Tags: Title, Description für alle Seiten
-  - [ ] `robots.txt` erstellen
-  - [ ] `sitemap.xml` erstellen (optional)
+- [x] **SEO & Meta**
+  - [x] Meta-Tags: Title, Description für alle Seiten (inkl. Open Graph & Twitter Cards)
+  - [x] `robots.txt` erstellt (mit Sitemap-Referenz)
+  - [x] `sitemap.xml` erstellt (alle öffentlichen Seiten)
   - [ ] Google Search Console registrieren
-  - [ ] Favicon vorhanden?
+  - [x] Favicon vorhanden (SVG + PNG Fallback)
 
 ---
 
@@ -364,5 +369,5 @@
 
 ---
 
-**Letzte Aktualisierung:** 2026-01-03
-**Status:** Phase 1 - Testing läuft
+**Letzte Aktualisierung:** 2026-01-05
+**Status:** Phase 1 - Testing läuft (WCAG 2.1 Level AA Audits abgeschlossen)

@@ -22,7 +22,7 @@ include __DIR__ . '/../templates/header.php';
         <div class="services-grid">
             <!-- Diagnose & Reparatur -->
             <div class="service-card">
-                <div class="service-icon">🔧</div>
+                <div class="service-icon" aria-hidden="true">🔧</div>
                 <h2>Diagnose & Reparatur</h2>
                 <p>
                     Professionelle Fehlerdiagnose und Reparatur für alle Geräte. Wir analysieren Hardware- und
@@ -40,7 +40,7 @@ include __DIR__ . '/../templates/header.php';
 
             <!-- Hardware-Verkauf -->
             <div class="service-card">
-                <div class="service-icon">💻</div>
+                <div class="service-icon" aria-hidden="true">💻</div>
                 <h2>Hardware-Verkauf</h2>
                 <p>
                     Technik wie Neu! Hochwertige Refurbished Hardware mit 24 Monate Garantie.
@@ -59,7 +59,7 @@ include __DIR__ . '/../templates/header.php';
 
             <!-- Beratung & Planung -->
             <div class="service-card">
-                <div class="service-icon">💡</div>
+                <div class="service-icon" aria-hidden="true">💡</div>
                 <h2>Beratung & Planung</h2>
                 <p>
                     Individuelle IT-Beratung für Privatkunden und Gewerbe. Wir finden die passende Lösung für Ihre
@@ -77,7 +77,7 @@ include __DIR__ . '/../templates/header.php';
 
             <!-- Softwareentwicklung -->
             <div class="service-card">
-                <div class="service-icon">⚙️</div>
+                <div class="service-icon" aria-hidden="true">⚙️</div>
                 <h2>Softwareentwicklung</h2>
                 <p>
                     Maßgeschneiderte Software-Lösungen für Ihr Unternehmen. Von der Idee über die Konzeption
@@ -95,7 +95,7 @@ include __DIR__ . '/../templates/header.php';
 
             <!-- Wartung & Support -->
             <div class="service-card">
-                <div class="service-icon">🛡️</div>
+                <div class="service-icon" aria-hidden="true">🛡️</div>
                 <h2>Wartung & Support</h2>
                 <p>
                     Regelmäßige Wartung und schneller Support für Ihre IT-Infrastruktur. Damit Ihre Systeme
@@ -113,7 +113,7 @@ include __DIR__ . '/../templates/header.php';
 
             <!-- Projektierung -->
             <div class="service-card">
-                <div class="service-icon">📦</div>
+                <div class="service-icon" aria-hidden="true">📦</div>
                 <h2>Projektierung</h2>
                 <p>
                     Komplette IT-Projekte aus einer Hand. Von der Planung über die Beschaffung bis zur
@@ -131,31 +131,31 @@ include __DIR__ . '/../templates/header.php';
         </div>
 
         <!-- Besonderheiten -->
-        <section class="section bg-primary text-white">
+        <section class="section bg-primary-dark text-white">
             <div class="container">
                 <h2 class="text-center mb-lg">Was uns besonders macht</h2>
 
                 <div class="grid grid-cols-1 grid-cols-md-2 grid-cols-lg-4 gap-lg">
                     <div class="text-center">
-                        <div class="icon-large">⭐</div>
+                        <div class="icon-large" aria-hidden="true">⭐</div>
                         <h3>5 Sterne</h3>
                         <p>Exzellente Bewertungen auf Google und Kleinanzeigen.de</p>
                     </div>
 
                     <div class="text-center">
-                        <div class="icon-large">☕</div>
+                        <div class="icon-large" aria-hidden="true">☕</div>
                         <h3>Mit Kaffee</h3>
                         <p>Beratung im Sitzen mit einer Tasse Kaffee - entspannt und persönlich</p>
                     </div>
 
                     <div class="text-center">
-                        <div class="icon-large">🗣️</div>
+                        <div class="icon-large" aria-hidden="true">🗣️</div>
                         <h3>Verständlich</h3>
                         <p>Keine Fachchinesisch - wir erklären IT so, dass jeder es versteht</p>
                     </div>
 
                     <div class="text-center">
-                        <div class="icon-large">🐕</div>
+                        <div class="icon-large" aria-hidden="true">🐕</div>
                         <h3>Mit Baileys</h3>
                         <p>Unser Bürohund ist Teil des Teams und sorgt für gute Laune</p>
                     </div>
@@ -172,13 +172,13 @@ include __DIR__ . '/../templates/header.php';
 
             <div class="btn-group">
                 <a href="<?= BASE_URL ?>/termin" class="btn btn-primary btn-lg">
-                    📅 Termin buchen
+                    Termin buchen
                 </a>
                 <a href="<?= BASE_URL ?>/kontakt" class="btn btn-outline btn-lg">
-                    ✉️ Kontakt aufnehmen
+                    Kontakt aufnehmen
                 </a>
                 <a href="tel:+49123456789" class="btn btn-outline btn-lg">
-                    📞 Anrufen
+                    Anrufen
                 </a>
             </div>
         </div>

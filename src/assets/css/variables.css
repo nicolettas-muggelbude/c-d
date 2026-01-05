@@ -17,9 +17,11 @@
   /* Akzentfarben (Logo) */
   --color-primary: #8BC34A;        /* Logo-Grün */
   --color-primary-hover: #7CB342;
+  --color-primary-dark: #3D7A24;   /* Dunkleres Grün (WCAG AA konform mit Weiß: 5.24:1) */
   --color-primary-light: #C5E1A5;
   --color-secondary: #E67E22;      /* Logo-Orange */
   --color-secondary-hover: #D35400;
+  --color-secondary-dark: #C44D00; /* Dunkleres Orange (WCAG AA konform mit Weiß: 4.76:1) */
   --color-secondary-light: #FFB74D;
 
   /* Funktionale Farben */
