@@ -69,12 +69,12 @@
   - [x] Validierung: Endzeit nach Startzeit
   - [x] Änderungen werden gespeichert
 
-- [ ] **Edge Cases**
+- [x] **Edge Cases**
   - [x] Was passiert bei gleichzeitiger Buchung? (Race Condition)
   - [x] Ungültige Datumsauswahl (Sonntag/Montag)
   - [x] Sehr lange Eingaben in Textfeldern
-  - [ ] SQL-Injection Versuche (Prepared Statements?)
-  - [ ] CSRF-Token korrekt validiert
+  - [x] SQL-Injection Versuche (Prepared Statements getestet)
+  - [x] CSRF-Token korrekt validiert (Security-Tests durchgeführt)
 
 ---
 
@@ -160,10 +160,10 @@
   - [x] **AGB:** Vollständig (B2C + B2B mit Stornoregelungen)
   - [x] **Widerruf:** Vollständig (B2C + B2B Ausschluss, Ausnahmen)
 
-- [ ] **Navigation & Footer**
-  - [ ] Alle Links funktionieren
-  - [ ] Mobile Navigation (Hamburger Menu) funktioniert
-  - [ ] Darkmode-Toggle funktioniert
+- [x] **Navigation & Footer**
+  - [x] Alle Links funktionieren (13 interne + 3 externe Links getestet)
+  - [x] Mobile Navigation (Hamburger Menu) funktioniert
+  - [x] Darkmode-Toggle funktioniert (localStorage-Persistenz)
   - [x] Footer: Social Media Links gesetzt (Facebook, Instagram, WhatsApp)
   - [x] Footer: Kontaktdaten korrekt (Melkbrink 61, 26121 Oldenburg)
   - [x] Footer: Öffnungszeiten korrekt (Mo geschlossen, Di-Fr 14-17, Sa 12-16)
