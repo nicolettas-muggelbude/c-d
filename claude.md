@@ -1462,4 +1462,67 @@ document.querySelectorAll('.card[data-href]').forEach(card => {
 **Git-Commits:**
 1. WCAG Compliance (b0dbed4)
 2. Navigation Testing (86411e9)
-3. WCAG Vollständigkeit (folgt)
+3. WCAG Vollständigkeit (9243573)
+
+---
+
+### Leistungen-Seite - Content-Prüfung & Link-Validierung
+
+**Aufgabenstellung:**
+- Alle Dienstleistungen auf Vollständigkeit prüfen
+- Icons/Bilder-Präsenz validieren
+- Links zu Terminbuchung testen
+
+**Content-Analyse:**
+
+**6 Hauptleistungen vollständig dokumentiert:**
+1. **Diagnose & Reparatur** (leistungen.php:24-39)
+   - 5 Unterpunkte: Hardware-Reparatur, Software-Probleme, Virenentfernung, Datenrettung, Kostenvoranschlag
+   - CTA: "Reparatur anfragen" → /kontakt
+
+2. **Hardware-Verkauf** (leistungen.php:42-58)
+   - 6 Unterpunkte: Notebooks, Tablets, Peripherie, Kassensysteme, Gaming PC, NAS
+   - Highlight: "Technik wie Neu! Refurbished mit 24 Monate Garantie"
+   - CTA: "Zum Shop" → /shop
+
+3. **Beratung & Planung** (leistungen.php:61-76)
+   - 5 Unterpunkte: Persönliche Beratung, Bedarfsanalyse, Produktempfehlungen, Kosten-Nutzen, Verständlich
+   - CTA: "Termin buchen" → /termin
+
+4. **Softwareentwicklung** (leistungen.php:79-94)
+   - 5 Unterpunkte: Webanwendungen, Automatisierung, Datenbank, API-Integration, Wartung
+   - CTA: "Projekt anfragen" → /kontakt
+
+5. **Wartung & Support** (leistungen.php:97-112)
+   - 5 Unterpunkte: Systemwartung, Updates, Performance, Support, Fernwartung
+   - CTA: "Support anfragen" → /kontakt
+
+6. **Projektierung** (leistungen.php:115-130)
+   - 5 Unterpunkte: IT-Ausstattung komplett, Netzwerk, Server, Schulungen, Projektmanagement
+   - CTA: "Projekt besprechen" → /kontakt
+
+**Icons/Bilder:**
+- ✅ 6 Service-Icons (🔧, 💻, 💡, ⚙️, 🛡️, 📦) - alle mit aria-hidden="true"
+- ✅ 4 USP-Icons (⭐, ☕, 🗣️, 🐕) im "Was uns besonders macht" Bereich
+
+**Link-Validierung:**
+- ✅ /termin (2×) - 200 OK
+- ✅ /kontakt (4×) - 200 OK
+- ✅ /shop (1×) - 200 OK
+- ✅ tel:+49123456789 (1×) - Telefon-Link
+
+**Besonderheiten:**
+- Preise nicht angegeben (laut Checklist optional)
+- "Was uns besonders macht" Sektion mit 4 USPs
+- CTA-Bereich mit 3 Buttons (Termin, Kontakt, Anrufen)
+
+**Ergebnis:**
+- ✅ Alle 6 Dienstleistungen vollständig beschrieben
+- ✅ 10 Icons WCAG-konform implementiert
+- ✅ Alle 8 Links funktionsfähig
+- ✅ Leistungen-Seite produktionsreif
+
+**Betroffene Dateien:**
+- `docs/production-checklist.md` - Leistungen-Sektion auf [x] gesetzt
+
+**Git-Commit:** Folgt

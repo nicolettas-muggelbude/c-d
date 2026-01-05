@@ -134,11 +134,11 @@
   - [ ] Bilder: Baileys-Foto? (optional)
   - [ ] Featured Products Sektion (später entfernen für Production)
 
-- [ ] **Leistungen (leistungen.php)**
-  - [ ] Alle Dienstleistungen beschrieben
-  - [ ] Preise angegeben? (optional)
-  - [ ] Icons/Bilder vorhanden?
-  - [ ] Links zu Terminbuchung funktionieren
+- [x] **Leistungen (leistungen.php)**
+  - [x] Alle Dienstleistungen beschrieben
+  - [x] Preise angegeben? (optional)
+  - [x] Icons/Bilder vorhanden?
+  - [x] Links zu Terminbuchung funktionieren
 
 - [x] **Kontaktformular (kontakt.php)**
   - [x] Formular durchspielen
