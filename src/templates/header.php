@@ -77,13 +77,16 @@
                     <ul>
                         <li><a href="<?= BASE_URL ?>" class="<?= ($current_page ?? '') === 'home' ? 'active' : '' ?>">Start</a></li>
                         <li><a href="<?= BASE_URL ?>/leistungen" class="<?= ($current_page ?? '') === 'leistungen' ? 'active' : '' ?>">Leistungen</a></li>
-                        <li><a href="<?= BASE_URL ?>/shop" class="<?= ($current_page ?? '') === 'shop' ? 'active' : '' ?>">Shop</a></li>
+                        <!-- PRODUCTION: Shop ausgeblendet, wird später aktiviert -->
+                        <!-- <li><a href="<?= BASE_URL ?>/shop" class="<?= ($current_page ?? '') === 'shop' ? 'active' : '' ?>">Shop</a></li> -->
                         <li><a href="<?= BASE_URL ?>/blog" class="<?= ($current_page ?? '') === 'blog' ? 'active' : '' ?>">Blog</a></li>
                         <li><a href="<?= BASE_URL ?>/termin" class="<?= ($current_page ?? '') === 'termin' ? 'active' : '' ?>">Termin buchen</a></li>
                         <li><a href="<?= BASE_URL ?>/kontakt" class="<?= ($current_page ?? '') === 'kontakt' ? 'active' : '' ?>">Kontakt</a></li>
                     </ul>
                 </nav>
 
+                <!-- PRODUCTION: Warenkorb ausgeblendet, wird später aktiviert -->
+                <?php /*
                 <!-- Warenkorb -->
                 <?php
                 $cart_instance = new Cart();
@@ -95,6 +98,7 @@
                         <span class="cart-badge"><?= $cart_count ?></span>
                     <?php endif; ?>
                 </a>
+                */ ?>
 
                 <!-- Darkmode-Toggle -->
                 <button class="darkmode-toggle" id="darkmode-toggle" aria-label="Farbmodus umschalten">

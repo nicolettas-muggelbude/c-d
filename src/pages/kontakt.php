@@ -121,16 +121,16 @@ include __DIR__ . '/../templates/header.php';
                             <h3><span aria-hidden="true">📍</span> Adresse</h3>
                             <p>
                                 PC-Wittfoot UG<br>
-                                Musterstraße 123<br>
-                                12345 Musterstadt
+                                Melkbrink 61<br>
+                                26121 Oldenburg
                             </p>
                         </div>
 
                         <div class="contact-item">
                             <h3><span aria-hidden="true">📞</span> Telefon</h3>
                             <p>
-                                <a href="tel:+49123456789">+49 (0) 123 456789</a><br>
-                                <span class="text-muted">Mo-Fr: 09:00 - 18:00 Uhr<br>Sa: 10:00 - 14:00 Uhr</span>
+                                <a href="tel:+4944140576020">+49 (0) 441 40576020</a><br>
+                                <span class="text-muted">Di-Fr: 14:00 - 17:00 Uhr<br>Sa: 12:00 - 16:00 Uhr</span>
                             </p>
                         </div>
 
@@ -144,7 +144,7 @@ include __DIR__ . '/../templates/header.php';
                         <div class="contact-item">
                             <h3><span aria-hidden="true">💬</span> Messenger</h3>
                             <p>
-                                <a href="https://wa.me/49123456789" target="_blank" rel="noopener">WhatsApp Business</a><br>
+                                <a href="https://wa.me/4944140576020" target="_blank" rel="noopener">WhatsApp Business</a><br>
                                 Telegram • Signal
                             </p>
                         </div>
@@ -152,9 +152,9 @@ include __DIR__ . '/../templates/header.php';
                         <div class="contact-item">
                             <h3><span aria-hidden="true">🕐</span> Öffnungszeiten</h3>
                             <p>
-                                <strong>Montag - Freitag:</strong> 09:00 - 18:00 Uhr<br>
-                                <strong>Samstag:</strong> 10:00 - 14:00 Uhr<br>
-                                <strong>Sonntag:</strong> Geschlossen
+                                <strong>Dienstag - Freitag:</strong> 14:00 - 17:00 Uhr<br>
+                                <strong>Samstag:</strong> 12:00 - 16:00 Uhr<br>
+                                <strong>Montag:</strong> Geschlossen
                             </p>
                             <p class="text-muted">
                                 Termine außerhalb der Öffnungszeiten nach Vereinbarung möglich.

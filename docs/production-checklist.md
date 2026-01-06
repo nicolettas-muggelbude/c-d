@@ -299,7 +299,8 @@
 
 - [ ] **Datenbank-Setup**
   - [ ] Schema importieren: `mysql -u user -p dbname < database/schema.sql`
-  - [ ] Test-Daten importieren (optional): `mysql -u user -p dbname < database/test-data.sql`
+  - [ ] ⚠️ **NICHT** test-data.sql importieren! (nur für Entwicklung)
+  - [ ] Admin-User manuell anlegen (SICHERES Passwort!)
   - [ ] Datenbank-Verbindung testen
 
 - [ ] **Deployment-Script erstellen (optional)**

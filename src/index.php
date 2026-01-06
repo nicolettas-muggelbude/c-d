@@ -10,6 +10,8 @@ start_session_safe();
 // Datenbank-Instanz
 $db = Database::getInstance();
 
+// PRODUCTION: Featured Produkte ausgeblendet
+/*
 // Featured Produkte laden
 $featured_products = $db->query("
     SELECT p.*, c.name as category_name
@@ -19,6 +21,7 @@ $featured_products = $db->query("
     ORDER BY p.created_at DESC
     LIMIT 6
 ");
+*/
 
 // Neueste Blog-Posts laden
 $blog_posts = $db->query("
@@ -30,6 +33,8 @@ $blog_posts = $db->query("
     LIMIT 3
 ");
 
+// PRODUCTION: Kategorien ausgeblendet
+/*
 // Kategorien für Showcase laden
 $categories = $db->query("
     SELECT *
@@ -38,6 +43,7 @@ $categories = $db->query("
     ORDER BY sort_order
     LIMIT 4
 ");
+*/
 
 // Page-Meta für Template
 $page_title = 'PC-Wittfoot UG - IT-Fachbetrieb mit Herz';
@@ -58,7 +64,8 @@ include __DIR__ . '/templates/header.php';
                 Von der Diagnose über die Reparatur bis zum Verkauf - bei uns sind Sie in guten Händen.
             </p>
             <div class="btn-group">
-                <a href="<?= BASE_URL ?>/shop" class="btn btn-primary">Zum Shop</a>
+                <!-- PRODUCTION: Shop-Button ausgeblendet -->
+                <!-- <a href="<?= BASE_URL ?>/shop" class="btn btn-primary">Zum Shop</a> -->
                 <a href="<?= BASE_URL ?>/termin" class="btn btn-warning">Termin buchen</a>
             </div>
         </div>
@@ -114,6 +121,8 @@ include __DIR__ . '/templates/header.php';
     </div>
 </section>
 
+<!-- PRODUCTION: Featured Products & Kategorien ausgeblendet -->
+<?php /*
 <!-- Featured Products -->
 <?php if (!empty($featured_products)): ?>
 <section class="section bg-secondary">
@@ -169,6 +178,7 @@ include __DIR__ . '/templates/header.php';
     </div>
 </section>
 <?php endif; ?>
+*/ ?>
 
 <!-- Blog Preview -->
 <?php if (!empty($blog_posts)): ?>
@@ -257,6 +267,8 @@ include __DIR__ . '/templates/header.php';
     </div>
 </section>
 
+<!-- PRODUCTION: Produkt-Card JavaScript ausgeblendet -->
+<?php /*
 <script>
 // Produkt-Cards klickbar machen (mit Keyboard-Support)
 document.querySelectorAll('.product-card[data-href]').forEach(card => {
@@ -282,6 +294,7 @@ document.querySelectorAll('.product-card[data-href]').forEach(card => {
     card.style.cursor = 'pointer';
 });
 </script>
+*/ ?>
 
 <?php
 // Footer includen
