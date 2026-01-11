@@ -362,3 +362,55 @@ Detaillierte Entwicklungs-Logs wurden in separate Dateien ausgelagert:
 - **[2026-01-11](docs/session-logs/2026-01-11.md)** - Production Deployment & Performance-Optimierung
 
 ---
+
+## 🔧 Session 2026-01-11 (Fortsetzung): Cronjob-Fixes Production
+
+### Problem
+Nach Production-Deployment funktionierten die Cronjobs nicht:
+- ❌ HelloCash-Sync lief nicht (Kunden wurden nicht synchronisiert)
+- ❌ 24h-Erinnerungs-Mails kamen nicht an
+- ❌ 1h-Erinnerungs-Mails kamen nicht an
+- ✅ Bestätigungs-Mails funktionierten (werden sofort versendet)
+
+### Ursache
+**Falscher PHP-Pfad im Cronjob:**
+- Konfiguriert: `/usr/bin/php` ❌
+- Korrekt: `/usr/local/bin/php` ✅
+
+**Fehlende Cronjobs:**
+- 24h-Erinnerungs-Cronjob nicht eingerichtet
+- 1h-Erinnerungs-Cronjob nicht eingerichtet
+
+### Lösung
+
+**Cronjob-Konfiguration auf Production (korrekt):**
+
+```cron
+# HelloCash-Sync (alle 5 Minuten)
+*/5 * * * * /usr/local/bin/php /home/www/doc/28552/dcp285520007/pc-wittfoot.de/www/cronjobs/sync-hellocash.php >> /home/www/doc/28552/dcp285520007/pc-wittfoot.de/www/logs/cronjob.log 2>&1
+
+# 24-Stunden Erinnerung (täglich um 10:00 Uhr)
+0 10 * * * /usr/local/bin/php /home/www/doc/28552/dcp285520007/pc-wittfoot.de/www/src/cron/send-reminder-24h.php >> /home/www/doc/28552/dcp285520007/pc-wittfoot.de/www/logs/cronjob.log 2>&1
+
+# 1-Stunde Erinnerung (stündlich zur vollen Stunde)
+0 * * * * /usr/local/bin/php /home/www/doc/28552/dcp285520007/pc-wittfoot.de/www/src/cron/send-reminder-1h.php >> /home/www/doc/28552/dcp285520007/pc-wittfoot.de/www/logs/cronjob.log 2>&1
+```
+
+### Ergebnis
+
+✅ **Alle Cronjobs funktionieren:**
+1. HelloCash-Sync läuft alle 5 Minuten
+2. 24h-Erinnerungen werden täglich um 10:00 Uhr versendet
+3. 1h-Erinnerungen werden stündlich versendet
+
+✅ **Mail-System funktioniert korrekt:**
+- Bestätigungs-Mails (Kunde + Admin) → **sofort**
+- HelloCash-Sync → **verzögert (max. 5 Min.)**
+- Erinnerungs-Mails → **automatisch per Cronjob**
+
+### Testing
+- ✅ Manuelle Tests aller 3 Cronjobs erfolgreich
+- ✅ User-Tests für Terminbuchung erfolgreich
+- ✅ Production-System vollständig funktionsfähig
+
+---
