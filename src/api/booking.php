@@ -184,8 +184,9 @@ if ($data['booking_type'] === 'fixed') {
 
 error_log('Availability check passed - proceeding to booking');
 
-// HelloCash-Sync wird NACH der Bestätigung im Hintergrund gemacht
+// HelloCash-Sync wird später im Admin gemacht (für schnelle Response)
 $hellocashUserId = null;
+error_log('HelloCash sync deferred to background process');
 
 // Token für Kundenverwaltung generieren
 $manageToken = bin2hex(random_bytes(32)); // 64 Zeichen Hex-String
@@ -305,57 +306,15 @@ try {
             'message' => 'Termin erfolgreich gebucht'
         ]);
 
-        // Response sofort zum Client senden
-        if (ob_get_level() > 0) {
-            ob_end_flush();
-        }
-        flush();
-
-        if (function_exists('fastcgi_finish_request')) {
-            fastcgi_finish_request();
-        }
-
-        // Ab hier läuft im Hintergrund - Client hat bereits Response erhalten
-        ignore_user_abort(true);
-        set_time_limit(0);
-
-        // HelloCash-Sync im Hintergrund
-        $hellocashClient = new HelloCashClient();
-        if ($hellocashClient->isConfigured()) {
-            $customerData = [
-                'firstname' => trim($data['customer_firstname']),
-                'lastname' => trim($data['customer_lastname']),
-                'email' => trim($data['customer_email']),
-                'phone_country' => $data['customer_phone_country'] ?? '+49',
-                'phone_mobile' => trim($data['customer_phone_mobile']),
-                'phone_landline' => isset($data['customer_phone_landline']) && !empty($data['customer_phone_landline']) ? trim($data['customer_phone_landline']) : null,
-                'company' => isset($data['customer_company']) && !empty($data['customer_company']) ? trim($data['customer_company']) : null,
-                'street' => trim($data['customer_street']),
-                'house_number' => trim($data['customer_house_number']),
-                'postal_code' => trim($data['customer_postal_code']),
-                'city' => trim($data['customer_city'])
-            ];
-
-            $result = $hellocashClient->findOrCreateUser($customerData);
-
-            if ($result['user_id']) {
-                // HelloCash-ID in Buchung nachtragen
-                $db->update("UPDATE bookings SET hellocash_customer_id = :hc_id WHERE id = :id", [
-                    ':hc_id' => $result['user_id'],
-                    ':id' => $bookingId
-                ]);
-                error_log('HelloCash User: ' . ($result['is_new'] ? 'Neu erstellt' : 'Gefunden') . ' - ID: ' . $result['user_id']);
-            } else if ($result['error']) {
-                error_log('HelloCash Error: ' . $result['error']);
-            }
-        }
-
         // Email-Bestätigung an Kunden senden (inkl. Management-Link)
         $emailService = new EmailService();
         $emailService->sendBookingEmail($bookingId, 'confirmation');
 
         // Admin-Benachrichtigung senden
         $emailService->sendBookingNotification($bookingId);
+
+        // HelloCash-Sync wird später per Cronjob gemacht (siehe /admin/sync-hellocash.php)
+        error_log('Booking saved - HelloCash sync will be done by background job');
 
     } else {
         throw new Exception('Fehler beim Speichern in der Datenbank');
