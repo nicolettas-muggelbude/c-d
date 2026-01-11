@@ -24,9 +24,20 @@ composer.phar
 .DS_Store
 Thumbs.db
 
-# Config (sollte nicht committed werden, aber hier ist es für Entwicklung)
-# src/core/config.php
+# Production-spezifische Konfiguration (NIEMALS committen!)
+src/core/config.php
+.htaccess
+src/core/Security.php
 
 # Deployment-System
 /backups/
 /src/MAINTENANCE
+
+# Test- und Migrations-Scripts (nur lokal)
+run-migration-*.php
+update-signature-default.php
+export-database.php
+migrate-production-*.php
+
+# Server-Dateien
+.server.pid
