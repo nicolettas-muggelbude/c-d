@@ -63,9 +63,10 @@ $serviceLabels = [
 ];
 
 $statusColors = [
-    'pending' => '#ffc107',
-    'confirmed' => '#28a745',
-    'completed' => '#6c757d'
+    'pending' => '#d39e00', // dunkleres Gelb
+    'confirmed' => '#1e7e34', // dunkleres Grün
+    'completed' => '#545b62', // Grau
+    'cancelled' => '#999999' // wird ausgeblendet, aber falls doch angezeigt
 ];
 
 $page_title = 'Termin-Kalender | Admin | PC-Wittfoot UG';
@@ -166,9 +167,11 @@ include __DIR__ . '/../templates/header.php';
                         <?php if (!empty($dayBookings)): ?>
                             <div class="bookings-list">
                                 <?php foreach ($dayBookings as $booking): ?>
+                                    <?php if ($booking['status'] === 'cancelled') continue; // Stornierte ausblenden ?>
+                                    <?php $textColor = ($booking['status'] === 'pending') ? '#000' : '#fff'; ?>
                                     <a href="<?= BASE_URL ?>/admin/booking-detail?id=<?= $booking['id'] ?>"
                                        class="booking-item"
-                                       style="background-color: <?= $statusColors[$booking['status']] ?? '#ccc' ?>;">
+                                       style="background-color: <?= $statusColors[$booking['status']] ?? '#ccc' ?>; color: <?= $textColor ?>;">
                                         <span class="booking-type-badge">
                                             <?= $booking['booking_type'] === 'fixed' ? 'F' : 'W' ?>
                                         </span>

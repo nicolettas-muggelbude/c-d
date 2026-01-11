@@ -126,11 +126,12 @@ include __DIR__ . '/../templates/header.php';
         <div class="card mb-lg" style="padding: 0.75rem;">
             <div style="display: flex; gap: 1.5rem; flex-wrap: wrap; align-items: center; font-size: 0.85rem;">
                 <strong>Legende:</strong>
-                <span><span class="legend-box" style="background: #28a745;"></span> Bestätigt</span>
-                <span><span class="legend-box" style="background: #ffc107;"></span> Ausstehend</span>
-                <span><span class="legend-box" style="background: #6c757d;"></span> Abgeschlossen</span>
-                <span><span class="legend-box" style="background: #dc3545;"></span> Gesperrt</span>
-                <span><span class="legend-box" style="background: #17a2b8;"></span> Intern</span>
+                <span><span class="legend-box" style="background: #1e7e34;"></span> Bestätigt</span>
+                <span><span class="legend-box" style="background: #d39e00; color: #000;"></span> Ausstehend</span>
+                <span><span class="legend-box" style="background: #545b62;"></span> Abgeschlossen</span>
+                <span><span class="legend-box" style="background: #c82333;"></span> Gesperrt</span>
+                <span><span class="legend-box" style="background: #117a8b;"></span> Intern</span>
+                <span style="opacity: 0.7;"><em>(Stornierte ausgeblendet)</em></span>
             </div>
         </div>
 
@@ -275,9 +276,14 @@ include __DIR__ . '/../templates/header.php';
                         foreach ($dayBookings as $booking):
                             if ($booking['_start_hour'] !== $currentHour) continue;
                             if ($booking['booking_type'] === 'walkin') continue; // Walk-ins werden separat angezeigt
+                            if ($booking['status'] === 'cancelled') continue; // Stornierte ausblenden
 
                             $bgColor = '#1e7e34'; // confirmed (dunkler)
-                            if ($booking['status'] === 'pending') $bgColor = '#e0a800';
+                            $textColor = '#ffffff'; // weiß (standard)
+                            if ($booking['status'] === 'pending') {
+                                $bgColor = '#d39e00'; // dunkleres Gelb
+                                $textColor = '#000000'; // schwarze Schrift für bessere Lesbarkeit
+                            }
                             if ($booking['status'] === 'completed') $bgColor = '#545b62';
                             if ($booking['booking_type'] === 'blocked') $bgColor = '#c82333';
                             if ($booking['booking_type'] === 'internal') $bgColor = '#117a8b';
@@ -286,7 +292,7 @@ include __DIR__ . '/../templates/header.php';
                             $heightPixels = ($durationHours * 60) - 4; // 60px pro Stunde minus 4px für Border (2px oben + 2px unten)
                             ?>
                             <div class="week-booking week-booking-multi"
-                                 style="background-color: <?= $bgColor ?>; height: <?= $heightPixels ?>px; position: absolute; left: 2px; right: 2px; top: 2px; z-index: 10;"
+                                 style="background-color: <?= $bgColor ?>; color: <?= $textColor ?>; height: <?= $heightPixels ?>px; position: absolute; left: 2px; right: 2px; top: 2px; z-index: 10;"
                                  onclick="event.stopPropagation(); openEditModal(<?= $booking['id'] ?>)"
                                  title="<?= $booking['_display_start'] ?> - <?= $booking['_display_end'] ?>">
 

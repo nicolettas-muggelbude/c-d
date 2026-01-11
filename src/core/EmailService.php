@@ -54,11 +54,12 @@ class EmailService {
         $subject = $this->replacePlaceholders($template['subject'], $booking);
         $body = $this->replacePlaceholders($template['body'], $booking);
 
-        // HTML-Body mit HTML-Signatur
-        $fullBodyHtml = $body . "\n\n" . $signature['html'];
+        // HTML-Body: Plaintext-Template in HTML konvertieren + HTML-Signatur
+        $bodyHtml = nl2br(htmlspecialchars($body, ENT_QUOTES, 'UTF-8'));
+        $fullBodyHtml = $bodyHtml . "\n\n" . $signature['html'];
 
-        // Plaintext-Fallback (HTML-Tags entfernen)
-        $fullBodyPlain = strip_tags($body) . "\n\n" . $signature['plaintext'];
+        // Plaintext-Fallback
+        $fullBodyPlain = $body . "\n\n" . $signature['plaintext'];
 
         // Email versenden
         $success = $this->sendMail($booking['customer_email'], $subject, $fullBodyHtml, $fullBodyPlain);
@@ -291,11 +292,12 @@ class EmailService {
         $subject = $this->replacePlaceholders($template['subject'], $booking);
         $body = $this->replacePlaceholders($template['body'], $booking);
 
-        // HTML-Body mit HTML-Signatur
-        $fullBodyHtml = $body . "\n\n" . $signature['html'];
+        // HTML-Body: Plaintext-Template in HTML konvertieren + HTML-Signatur
+        $bodyHtml = nl2br(htmlspecialchars($body, ENT_QUOTES, 'UTF-8'));
+        $fullBodyHtml = $bodyHtml . "\n\n" . $signature['html'];
 
-        // Plaintext-Fallback (HTML-Tags entfernen)
-        $fullBodyPlain = strip_tags($body) . "\n\n" . $signature['plaintext'];
+        // Plaintext-Fallback
+        $fullBodyPlain = $body . "\n\n" . $signature['plaintext'];
 
         // Email an Admin versenden
         $success = $this->sendMail(MAIL_ADMIN, $subject, $fullBodyHtml, $fullBodyPlain);
@@ -681,9 +683,10 @@ class EmailService {
             <p>" . nl2br(htmlspecialchars($data['message'])) . "</p>
 
             <hr>
-            <p><em>Diese E-Mail wurde automatisch über das Kontaktformular versendet.</em></p>";
+            <p><em>Diese E-Mail wurde automatisch über das Kontaktformular versendet.</em></p>
+            " . $signature['html'];
 
-        $adminBodyPlain = strip_tags($adminBodyHtml);
+        $adminBodyPlain = strip_tags($adminBodyHtml) . "\n\n" . $signature['plaintext'];
         $adminSent = $this->sendMail(MAIL_ADMIN, $adminSubject, $adminBodyHtml, $adminBodyPlain);
 
         if ($customerSent) {
