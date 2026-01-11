@@ -266,47 +266,47 @@
 
 ## 🚀 Phase 3: Deployment vorbereiten (SSH/Git)
 
-- [ ] **Server-Vorbereitung via SSH**
-  - [ ] SSH-Zugang testen: `ssh username@server-address`
-  - [ ] Git auf Server verfügbar prüfen: `git --version`
-  - [ ] Composer auf Server verfügbar prüfen: `composer --version`
-  - [ ] Web-Root identifizieren (z.B. `~/public_html`, `/var/www/html`)
-  - [ ] Datenbank anlegen (MySQL)
-  - [ ] Datenbank-User mit Rechten anlegen
-  - [ ] PHP 8.2 aktivieren (falls nicht Standard)
+- [x] **Server-Vorbereitung via SSH**
+  - [x] SSH-Zugang testen: `ssh username@server-address`
+  - [x] Git auf Server verfügbar prüfen: `git --version`
+  - [x] Composer auf Server verfügbar prüfen: `composer --version`
+  - [x] Web-Root identifizieren (z.B. `~/public_html`, `/var/www/html`)
+  - [x] Datenbank anlegen (MySQL)
+  - [x] Datenbank-User mit Rechten anlegen
+  - [x] PHP 8.2 aktivieren (falls nicht Standard)
   - [ ] SSL-Zertifikat (Let's Encrypt oder Shared SSL)
 
-- [ ] **Repository auf Server clonen**
-  - [ ] SSH-Key für GitHub/GitLab hinterlegen (optional, aber empfohlen)
-  - [ ] Repository clonen: `git clone <repo-url> .`
-  - [ ] Production Branch auschecken: `git checkout production`
+- [x] **Repository auf Server clonen**
+  - [x] SSH-Key für GitHub/GitLab hinterlegen (optional, aber empfohlen)
+  - [x] Repository clonen: `git clone <repo-url> .`
+  - [x] Production Branch auschecken: `git checkout production`
   - [ ] Composer Dependencies installieren: `composer install --no-dev`
 
-- [ ] **Config auf Server erstellen**
-  - [ ] `config.production.php` auf Server kopieren zu `config.php`
-  - [ ] `config.php` mit echten Daten füllen:
-    - [ ] DB: Host, Name, User, Passwort
-    - [ ] SMTP: Host, Port, User, Passwort
-    - [ ] HelloCash: API-Key (Produktiv-Umgebung!)
-    - [ ] BASE_URL auf echte Domain setzen
-  - [ ] `.env` Datei erstellen (falls genutzt)
+- [x] **Config auf Server erstellen**
+  - [x] `config.production.php` auf Server kopieren zu `config.php`
+  - [x] `config.php` mit echten Daten füllen:
+    - [x] DB: Host, Name, User, Passwort
+    - [x] SMTP: Host, Port, User, Passwort
+    - [x] HelloCash: API-Key (Produktiv-Umgebung!)
+    - [x] BASE_URL auf echte Domain setzen
+  - [ ] `.env` Datei erstellen (falls genutzt - NICHT verwendet)
 
-- [ ] **Berechtigungen setzen**
-  - [ ] `chmod -R 755 .` (alle Dateien)
-  - [ ] `chmod -R 777 logs/` (Log-Verzeichnis beschreibbar)
-  - [ ] `chmod -R 777 uploads/` (Upload-Verzeichnis beschreibbar)
-  - [ ] `chmod 644 config.php` (Config lesbar, nicht ausführbar)
+- [x] **Berechtigungen setzen**
+  - [x] `chmod -R 755 .` (alle Dateien)
+  - [x] `chmod -R 777 logs/` (Log-Verzeichnis beschreibbar)
+  - [x] `chmod -R 777 uploads/` (Upload-Verzeichnis beschreibbar)
+  - [x] `chmod 644 config.php` (Config lesbar, nicht ausführbar)
 
-- [ ] **Datenbank-Setup**
-  - [ ] Schema importieren: `mysql -u user -p dbname < database/schema.sql`
-  - [ ] ⚠️ **NICHT** test-data.sql importieren! (nur für Entwicklung)
-  - [ ] Admin-User manuell anlegen (SICHERES Passwort!)
-  - [ ] Datenbank-Verbindung testen
+- [x] **Datenbank-Setup**
+  - [x] Schema importieren: `mysql -u user -p dbname < database/schema-production.sql`
+  - [x] Test-Daten importieren (optional): NICHT benötigt (Production)
+  - [x] Datenbank-Verbindung testen - 9 Tabellen erfolgreich erstellt
 
 - [ ] **Deployment-Script erstellen (optional)**
   - [ ] `deploy-ssh.sh` Script lokal erstellen
   - [ ] SSH-Credentials konfigurieren
   - [ ] Testen mit Dry-Run
+  - ⚠️ Optional - kann später gemacht werden
 
 - [x] **SEO & Meta**
   - [x] Meta-Tags: Title, Description für alle Seiten (inkl. Open Graph & Twitter Cards)
