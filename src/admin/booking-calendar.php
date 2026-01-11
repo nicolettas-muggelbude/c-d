@@ -173,13 +173,13 @@ include __DIR__ . '/../templates/header.php';
                                             <?= $booking['booking_type'] === 'fixed' ? 'F' : 'W' ?>
                                         </span>
                                         <?php if ($booking['booking_type'] === 'fixed'): ?>
-                                            <strong><?= substr($booking['booking_time'], 0, 5) ?></strong>
+                                            <strong><?= $booking['booking_time'] ? substr($booking['booking_time'], 0, 5) : '??:??' ?></strong>
                                         <?php endif; ?>
                                         <span class="booking-service">
                                             <?= e($serviceLabels[$booking['service_type']] ?? $booking['service_type']) ?>
                                         </span>
                                         <span class="booking-customer">
-                                            <?= e($booking['customer_firstname'] . ' ' . substr($booking['customer_lastname'], 0, 1)) ?>.
+                                            <?= e($booking['customer_firstname'] . ' ' . ($booking['customer_lastname'] ? substr($booking['customer_lastname'], 0, 1) : '')) ?>.
                                         </span>
                                     </a>
                                 <?php endforeach; ?>

@@ -224,10 +224,10 @@ include __DIR__ . '/../templates/header.php';
                                                 <div onclick="event.stopPropagation(); openEditModal(<?= $walkin['id'] ?>)"
                                                      style="cursor: pointer; padding: 0.3rem; margin-bottom: 0.3rem; background: rgba(255,255,255,0.1); border-radius: 3px; border-left: 2px solid rgba(255,255,255,0.4);">
                                                     <div style="font-weight: bold;">
-                                                        <?= e($walkin['customer_firstname'] . ' ' . substr($walkin['customer_lastname'], 0, 1)) ?>.
+                                                        <?= e($walkin['customer_firstname'] . ' ' . ($walkin['customer_lastname'] ? substr($walkin['customer_lastname'], 0, 1) : '')) ?>.
                                                     </div>
                                                     <div style="opacity: 0.9; font-size: 0.9em;">
-                                                        ⏰ <?= substr($walkin['booking_time'], 0, 5) ?> | 📋 <?= e($service) ?>
+                                                        ⏰ <?= $walkin['booking_time'] ? substr($walkin['booking_time'], 0, 5) : '??:??' ?> | 📋 <?= e($service) ?>
                                                     </div>
                                                     <?php if (!empty($walkin['customer_notes'])): ?>
                                                         <div style="opacity: 0.85; font-size: 0.85em; font-style: italic; margin-top: 0.2rem;">
@@ -257,10 +257,10 @@ include __DIR__ . '/../templates/header.php';
                                                 <div onclick="event.stopPropagation(); openEditModal(<?= $walkin['id'] ?>)"
                                                      style="cursor: pointer; padding: 0.25rem; margin-bottom: 0.25rem; background: rgba(255,255,255,0.08); border-radius: 2px; border-left: 2px solid rgba(255,255,255,0.3);">
                                                     <div style="font-weight: bold; font-size: 0.95em;">
-                                                        <?= e($walkin['customer_firstname'] . ' ' . substr($walkin['customer_lastname'], 0, 1)) ?>.
+                                                        <?= e($walkin['customer_firstname'] . ' ' . ($walkin['customer_lastname'] ? substr($walkin['customer_lastname'], 0, 1) : '')) ?>.
                                                     </div>
                                                     <div style="opacity: 0.85; font-size: 0.88em;">
-                                                        ⏰ <?= substr($walkin['booking_time'], 0, 5) ?> | <?= e($service) ?>
+                                                        ⏰ <?= $walkin['booking_time'] ? substr($walkin['booking_time'], 0, 5) : '??:??' ?> | <?= e($service) ?>
                                                     </div>
                                                 </div>
                                             <?php endforeach; ?>
@@ -307,7 +307,7 @@ include __DIR__ . '/../templates/header.php';
                                             </div>
                                         <?php endif; ?>
                                     <?php else: ?>
-                                        <strong><?= e($booking['customer_firstname'] . ' ' . substr($booking['customer_lastname'], 0, 1)) ?>.</strong>
+                                        <strong><?= e($booking['customer_firstname'] . ' ' . ($booking['customer_lastname'] ? substr($booking['customer_lastname'], 0, 1) : '')) ?>.</strong>
                                         <div style="font-size: 0.75em; margin-top: 0.2rem; opacity: 0.9;">
                                             <?= $booking['_display_start'] ?> - <?= $booking['_display_end'] ?>
                                         </div>
