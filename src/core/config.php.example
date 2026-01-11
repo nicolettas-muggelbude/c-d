@@ -1,10 +1,12 @@
 <?php
 /**
- * Konfigurationsdatei
+ * Konfigurationsdatei - TEMPLATE
  * PC-Wittfoot
  *
- * WICHTIG: Diese Datei NICHT in Git committen!
- * Enthält sensible Zugangsdaten.
+ * ANLEITUNG:
+ * 1. Kopiere diese Datei nach config.php
+ * 2. Passe alle Werte mit "YOUR_..." an
+ * 3. Committen Sie NIEMALS config.php (steht in .gitignore)
  */
 
 // =============================================
@@ -36,9 +38,9 @@ date_default_timezone_set('Europe/Berlin');
 // =============================================
 
 define('DB_HOST', 'localhost');
-define('DB_NAME', 'pc_wittfoot');
-define('DB_USER', 'pc_wittfoot');    // Eigener User
-define('DB_PASS', 'dev123');         // Passwort (ÄNDERN in Produktion!)
+define('DB_NAME', 'YOUR_DATABASE_NAME');
+define('DB_USER', 'YOUR_DATABASE_USER');
+define('DB_PASS', 'YOUR_DATABASE_PASSWORD');  // ÄNDERN!
 define('DB_CHARSET', 'utf8mb4');
 
 // =============================================
@@ -116,7 +118,7 @@ define('SMTP_DEBUG', 0);                          // 0 = aus, 1 = Fehler, 2 = ve
 define('GOOGLE_PLACES_API_KEY', '');
 
 // hellocash API
-define('HELLOCASH_API_KEY', 'eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpYXQiOjE3NjcyMjgyOTkuNzE2OTk3LCJjcmlkIjoiMjIxODM0In0.9RFUF-Fgo32eNmjREIkUY7WW_abdkWQEMbTd6gg9u8Y');
+define('HELLOCASH_API_KEY', 'YOUR_HELLOCASH_API_KEY');  // JWT-Token von HelloCash Dashboard
 define('HELLOCASH_API_URL', 'https://api.hellocash.business/api/v1/');
 define('HELLOCASH_LANDLINE_FIELD', 'Festnetz'); // Name des Custom Fields für Festnetznummer
 
