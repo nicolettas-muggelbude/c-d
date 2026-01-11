@@ -1,0 +1,34 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 500 180" width="500" height="180">
+  <!-- Moderne Monitore (flach, 16:9, dünne Rahmen) -->
+
+  <!-- Monitor 1 (Orange, klein, oben) -->
+  <g>
+    <rect x="180" y="10" width="70" height="45" rx="8" fill="none" stroke="#FF9800" stroke-width="4"/>
+    <circle cx="215" cy="65" r="2" fill="#FF9800"/>
+  </g>
+
+  <!-- Monitor 2 (Grün, groß, links unten) -->
+  <g>
+    <rect x="20" y="50" width="120" height="75" rx="12" fill="none" stroke="#8BC34A" stroke-width="5"/>
+    <rect x="60" y="125" width="40" height="8" rx="2" fill="#8BC34A"/>
+    <rect x="35" y="133" width="90" height="4" rx="2" fill="#8BC34A"/>
+    <circle cx="65" cy="115" r="3" fill="#8BC34A"/>
+    <circle cx="80" cy="115" r="3" fill="#8BC34A"/>
+    <circle cx="95" cy="115" r="3" fill="#8BC34A"/>
+  </g>
+
+  <!-- Monitor 3 (Grau, groß, rechts) -->
+  <g>
+    <rect x="270" y="40" width="140" height="90" rx="14" fill="none" stroke="#666" stroke-width="5"/>
+    <rect x="315" y="130" width="50" height="10" rx="2" fill="#666"/>
+    <rect x="285" y="140" width="110" height="5" rx="2" fill="#666"/>
+    <circle cx="385" cy="118" r="3.5" fill="#666"/>
+  </g>
+
+  <!-- Schriftzug "wittfoot" (modern, schlank) -->
+  <text x="0" y="170" font-family="Arial, sans-serif" font-weight="600" font-size="48" letter-spacing="-1">
+    <tspan fill="#555">w</tspan>
+    <tspan fill="#8BC34A">it</tspan>
+    <tspan fill="#555">tfoot</tspan>
+  </text>
+</svg>

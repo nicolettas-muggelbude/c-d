@@ -47,21 +47,18 @@ class EmailService {
             return false;
         }
 
-        // Signatur laden
+        // Signatur laden (HTML + Plaintext)
         $signature = $this->getSignature();
 
         // Platzhalter ersetzen
         $subject = $this->replacePlaceholders($template['subject'], $booking);
         $body = $this->replacePlaceholders($template['body'], $booking);
 
-        // Signatur für HTML konvertieren (Zeilenumbrüche → <br>)
-        $signatureHtml = nl2br($signature);
-
-        // HTML-Body mit Signatur
-        $fullBodyHtml = $body . "\n\n" . $signatureHtml;
+        // HTML-Body mit HTML-Signatur
+        $fullBodyHtml = $body . "\n\n" . $signature['html'];
 
         // Plaintext-Fallback (HTML-Tags entfernen)
-        $fullBodyPlain = strip_tags($body) . "\n\n" . $signature;
+        $fullBodyPlain = strip_tags($body) . "\n\n" . $signature['plaintext'];
 
         // Email versenden
         $success = $this->sendMail($booking['customer_email'], $subject, $fullBodyHtml, $fullBodyPlain);
@@ -84,10 +81,40 @@ class EmailService {
 
     /**
      * Signatur aus Datenbank laden
+     *
+     * @return array ['html' => string, 'plaintext' => string]
      */
     private function getSignature() {
-        $sig = $this->db->querySingle("SELECT signature_text FROM email_signature WHERE id = 1");
-        return $sig['signature_text'] ?? '';
+        $sig = $this->db->querySingle("SELECT signature_html, signature_plaintext, signature_text, logo_filename FROM email_signature WHERE id = 1");
+
+        if (!$sig) {
+            return ['html' => '', 'plaintext' => ''];
+        }
+
+        // Logo-URL generieren wenn vorhanden
+        $logoUrl = '';
+        if (!empty($sig['logo_filename'])) {
+            $logoUrl = BASE_URL . '/assets/images/email/' . $sig['logo_filename'];
+        }
+
+        // HTML-Signatur mit Logo-URL ersetzen
+        $html = $sig['signature_html'] ?? '';
+        if (!empty($html) && !empty($logoUrl)) {
+            $html = str_replace('{logo_url}', $logoUrl, $html);
+        }
+
+        // Fallback auf alte signature_text wenn neue Felder leer
+        $plaintext = $sig['signature_plaintext'] ?? $sig['signature_text'] ?? '';
+
+        // Wenn keine HTML-Signatur, dann Plaintext mit nl2br konvertieren
+        if (empty($html)) {
+            $html = nl2br($plaintext);
+        }
+
+        return [
+            'html' => $html,
+            'plaintext' => $plaintext
+        ];
     }
 
     /**
@@ -257,21 +284,18 @@ class EmailService {
             return false;
         }
 
-        // Signatur laden
+        // Signatur laden (HTML + Plaintext)
         $signature = $this->getSignature();
 
         // Platzhalter ersetzen
         $subject = $this->replacePlaceholders($template['subject'], $booking);
         $body = $this->replacePlaceholders($template['body'], $booking);
 
-        // Signatur für HTML konvertieren (Zeilenumbrüche → <br>)
-        $signatureHtml = nl2br($signature);
-
-        // HTML-Body mit Signatur
-        $fullBodyHtml = $body . "\n\n" . $signatureHtml;
+        // HTML-Body mit HTML-Signatur
+        $fullBodyHtml = $body . "\n\n" . $signature['html'];
 
         // Plaintext-Fallback (HTML-Tags entfernen)
-        $fullBodyPlain = strip_tags($body) . "\n\n" . $signature;
+        $fullBodyPlain = strip_tags($body) . "\n\n" . $signature['plaintext'];
 
         // Email an Admin versenden
         $success = $this->sendMail(MAIL_ADMIN, $subject, $fullBodyHtml, $fullBodyPlain);
@@ -534,21 +558,24 @@ class EmailService {
             SELECT * FROM order_items WHERE order_id = :id
         ", [':id' => $orderId]);
 
-        // Signatur laden
+        // Signatur laden (HTML + Plaintext)
         $signature = $this->getSignature();
 
         // Platzhalter ersetzen
         $subject = $this->replaceOrderPlaceholders($template['subject'], $order, $items);
         $body = $this->replaceOrderPlaceholders($template['body'], $order, $items);
 
-        // Signatur anhängen
-        $fullBody = $body . "\n\n" . $signature;
+        // HTML-Body mit HTML-Signatur
+        $fullBodyHtml = $body . "\n\n" . $signature['html'];
+
+        // Plaintext-Fallback
+        $fullBodyPlain = strip_tags($body) . "\n\n" . $signature['plaintext'];
 
         // Email versenden
-        $success = $this->sendMail($order['customer_email'], $subject, $fullBody);
+        $success = $this->sendMail($order['customer_email'], $subject, $fullBodyHtml, $fullBodyPlain);
 
         // Log-Eintrag erstellen
-        $this->logEmail($orderId, 'order_confirmation', $order['customer_email'], $subject, $fullBody, $success);
+        $this->logEmail($orderId, 'order_confirmation', $order['customer_email'], $subject, $fullBodyHtml, $success);
 
         return $success;
     }
@@ -587,21 +614,24 @@ class EmailService {
             SELECT * FROM order_items WHERE order_id = :id
         ", [':id' => $orderId]);
 
-        // Signatur laden
+        // Signatur laden (HTML + Plaintext)
         $signature = $this->getSignature();
 
         // Platzhalter ersetzen
         $subject = $this->replaceOrderPlaceholders($template['subject'], $order, $items);
         $body = $this->replaceOrderPlaceholders($template['body'], $order, $items);
 
-        // Signatur anhängen
-        $fullBody = $body . "\n\n" . $signature;
+        // HTML-Body mit HTML-Signatur
+        $fullBodyHtml = $body . "\n\n" . $signature['html'];
+
+        // Plaintext-Fallback
+        $fullBodyPlain = strip_tags($body) . "\n\n" . $signature['plaintext'];
 
         // Email versenden
-        $success = $this->sendMail(MAIL_ADMIN, $subject, $fullBody);
+        $success = $this->sendMail(MAIL_ADMIN, $subject, $fullBodyHtml, $fullBodyPlain);
 
         // Log-Eintrag erstellen
-        $this->logEmail($orderId, 'order_notification', MAIL_ADMIN, $subject, $fullBody, $success);
+        $this->logEmail($orderId, 'order_notification', MAIL_ADMIN, $subject, $fullBodyHtml, $success);
 
         return $success;
     }
@@ -614,7 +644,6 @@ class EmailService {
      */
     public function sendContactFormEmails($data) {
         $signature = $this->getSignature();
-        $signatureHtml = nl2br($signature);
 
         // E-Mail an Kunden (Bestätigung)
         $customerSubject = "Ihre Kontaktanfrage: " . $data['subject'];
@@ -628,9 +657,9 @@ class EmailService {
             <p>" . nl2br(htmlspecialchars($data['message'])) . "</p>
 
             <hr>
-            " . $signatureHtml;
+            " . $signature['html'];
 
-        $customerBodyPlain = strip_tags($customerBodyHtml) . "\n\n" . $signature;
+        $customerBodyPlain = strip_tags($customerBodyHtml) . "\n\n" . $signature['plaintext'];
         $customerSent = $this->sendMail($data['email'], $customerSubject, $customerBodyHtml, $customerBodyPlain);
 
         // E-Mail an Admin (Benachrichtigung)
