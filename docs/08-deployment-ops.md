@@ -862,3 +862,200 @@ ls -la backups/
 bash -x backup.sh
 ```
 
+---
+
+## ⚠️ KRITISCHE DEPLOYMENT-LESSONS LEARNED (2026-01-11)
+
+### Production-Server-Spezifikationen
+
+**SSH-Zugang:** `dcp285520007@pc-wittfoot.de`
+**Production-Pfad:** `/home/www/doc/28552/dcp285520007/pc-wittfoot.de/www`
+**PHP-Binary:** `/usr/local/bin/php` (NICHT /usr/bin/php!)
+**Git-Status:** Git ist auf Production installiert und funktioniert
+
+### Incident Report: HTML-Signatur Deployment Disaster
+
+**Datum:** 2026-01-11
+**Dauer:** ~3 Stunden Downtime
+**Impact:** Kompletter Website-Ausfall, Admin-Bereich nicht erreichbar
+
+#### Was ist passiert?
+
+1. **Versuch:** HTML-Signatur-Feature von master nach production deployen
+2. **Fehler 1:** `git pull` auf Production OHNE Backup
+3. **Fehler 2:** Production-spezifische Dateien wurden überschrieben:
+   - `src/core/config.php` → DB-Verbindung verloren
+   - `.htaccess` → Fehlerhafte Version mit EOF am Ende → 500 Error
+4. **Fehler 3:** Mehrere Wiederherstellungsversuche schlugen fehl
+5. **Lösung:** `git reset --hard fef6dae` zurück zum letzten funktionierenden Stand
+
+#### Root Causes
+
+1. **Keine Backups vor Deployment**
+   - Weder config.php noch .htaccess gesichert
+   - Keine Datenbank-Snapshots
+
+2. **Production-spezifische Dateien nicht in .gitignore**
+   - config.php war nicht geschützt
+   - .htaccess war nicht geschützt
+   - Beide wurden bei git pull überschrieben
+
+3. **Merge ohne Prüfung**
+   - master wurde direkt in production gemerged
+   - Keine Validierung der Änderungen
+   - Kein Test-Deployment
+
+4. **Fehlerhafte .htaccess-Generierung**
+   - HEREDOC-Delimiter `EOF` landete IN der .htaccess-Datei
+   - Verursachte 500 Internal Server Error
+   - Mehrere Wiederherstellungsversuche schlugen fehl
+
+#### Funktionierende .htaccess (Production)
+
+```apache
+RewriteEngine On
+
+# HTTPS Redirect
+RewriteCond %{HTTPS} off
+RewriteRule ^(.*)$ https://%{HTTP_HOST}%{REQUEST_URI} [L,R=301]
+
+# Statische Assets ZUERST (WICHTIG!)
+RewriteRule ^assets/(.*)$ src/assets/$1 [L]
+RewriteRule ^favicon\.(.*)$ src/favicon.$1 [L]
+
+# Router NUR für nicht-existierende Dateien
+RewriteCond %{REQUEST_FILENAME} !-f
+RewriteCond %{REQUEST_FILENAME} !-d
+RewriteRule ^(.*)$ src/router.php?route=$1 [L,QSA]
+
+DirectoryIndex src/router.php
+Options -Indexes
+```
+
+**WICHTIG:** Diese .htaccess hat KEINE `src/`-Blocking-Regel! Jede Version MIT Blocking führte zu "Forbidden" beim Admin-Zugriff.
+
+### SICHERES DEPLOYMENT-PROTOKOLL (ZWINGEND)
+
+#### VOR jedem Production-Deployment
+
+```bash
+# 1. SSH-Login
+ssh dcp285520007@pc-wittfoot.de
+cd /home/www/doc/28552/dcp285520007/pc-wittfoot.de/www
+
+# 2. BACKUPS ERSTELLEN (ZWINGEND!)
+cp src/core/config.php src/core/config.php.backup-$(date +%Y%m%d-%H%M%S)
+cp .htaccess .htaccess.backup-$(date +%Y%m%d-%H%M%S)
+
+# 3. Git-Status prüfen
+git status
+git log --oneline -5
+
+# 4. Aktuelle Änderungen sichern (falls vorhanden)
+git stash push -m "Production-Änderungen vor Deployment $(date)"
+
+# 5. Commits EINZELN prüfen bevor Pull
+git fetch origin
+git log HEAD..origin/production --oneline
+git diff HEAD..origin/production src/core/config.php  # Config-Änderungen?
+git diff HEAD..origin/production .htaccess            # .htaccess-Änderungen?
+```
+
+#### WÄHREND Deployment
+
+```bash
+# 6. Pull NUR wenn Config/htaccess unverändert
+git pull origin production
+
+# 7. SOFORT Config/htaccess wiederherstellen
+cp src/core/config.php.backup-TIMESTAMP src/core/config.php
+
+# 8. Syntax-Check für .htaccess
+cat .htaccess | grep -i "EOF\|ENDSSH\|HEREDOC"  # Darf NICHTS finden!
+
+# 9. Datenbank-Migration (falls nötig)
+/usr/local/bin/php migrate-production-FEATURE.php
+
+# 10. Test
+curl -I https://pc-wittfoot.de/ | head -3
+curl -I https://pc-wittfoot.de/admin | head -3
+```
+
+#### NACH Deployment
+
+```bash
+# 11. Funktionstests
+# - Hauptseite lädt
+# - Admin-Login funktioniert
+# - Terminbuchung funktioniert
+# - Keine PHP-Fehler in Logs
+
+tail -20 logs/error.log
+
+# 12. Cleanup (nur bei Erfolg!)
+rm src/core/config.php.backup-TIMESTAMP
+git stash drop  # nur wenn git stash verwendet wurde
+```
+
+### Deployment-Checkliste für HTML-Signatur
+
+#### Lokale Vorbereitung
+
+- [ ] Feature ist lokal getestet
+- [ ] Database Migration existiert: `database/migrations/019_email_signature_html.sql`
+- [ ] EmailService.php Änderungen dokumentiert
+- [ ] Admin-Interface email-templates.php aktualisiert
+- [ ] Logo-Verzeichnis `/assets/images/email/` angelegt
+- [ ] Alle Änderungen sind committed auf master
+
+#### Production-Deployment
+
+- [ ] SSH-Login auf Production
+- [ ] cd `/home/www/doc/28552/dcp285520007/pc-wittfoot.de/www`
+- [ ] **BACKUP:** config.php + .htaccess + Datenbank
+- [ ] git stash (falls lokale Änderungen)
+- [ ] git fetch && git diff HEAD..origin/production
+- [ ] git checkout production
+- [ ] git merge master (oder cherry-pick specific commits)
+- [ ] **SOFORT:** config.php wiederherstellen
+- [ ] Datenbank-Migration ausführen
+- [ ] Logo-Verzeichnis erstellen: `mkdir -p src/assets/images/email && chmod 755 src/assets/images/email`
+- [ ] Test: Hauptseite, Admin, Email-Preview
+- [ ] Error-Log prüfen
+- [ ] Bei Erfolg: Backups aufräumen
+
+#### Rollback-Plan bei Problemen
+
+```bash
+# Option 1: Letzten Commit rückgängig
+git reset --hard HEAD~1
+cp src/core/config.php.backup-TIMESTAMP src/core/config.php
+
+# Option 2: Zu spezifischem funktionierenden Commit
+git reset --hard fef6dae  # Letzter funktionierender Stand
+cp src/core/config.php.backup-TIMESTAMP src/core/config.php
+
+# Option 3: Datenbank-Rollback
+mysql -u USER -p DBNAME < backup_TIMESTAMP.sql
+```
+
+### Geschützte Dateien (.gitignore)
+
+Diese Dateien MÜSSEN in `.gitignore` stehen:
+
+```gitignore
+# Production-spezifische Konfiguration (NIEMALS committen!)
+src/core/config.php
+.htaccess
+src/core/Security.php
+
+# Deployment-System
+/backups/
+/src/MAINTENANCE
+```
+
+### config.example.php als Template
+
+Verwende `src/core/config.example.php` als Template für neue Umgebungen.
+Die echte `config.php` wird NIEMALS committed.
+
