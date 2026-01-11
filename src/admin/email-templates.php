@@ -27,8 +27,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
     if ($action === 'update_signature') {
         $signatureHtml = trim($_POST['signature_html']);
-        $signaturePlaintext = trim($_POST['signature_plaintext']);
         $logoFilename = trim($_POST['logo_filename']);
+
+        // Automatische Plaintext-Generierung aus HTML (wie bei Email-Templates)
+        $signaturePlaintext = strip_tags($signatureHtml);
+        $signaturePlaintext = html_entity_decode($signaturePlaintext, ENT_QUOTES | ENT_HTML5, 'UTF-8');
+        $signaturePlaintext = preg_replace('/\n\s*\n\s*\n/', "\n\n", $signaturePlaintext); // Max 2 Leerzeilen
+        $signaturePlaintext = trim($signaturePlaintext);
 
         $sql = "UPDATE email_signature SET
                 signature_html = :html,
@@ -216,8 +221,7 @@ include __DIR__ . '/../templates/header.php';
                     <label><strong>Logo für Signatur</strong></label>
                     <select name="logo_filename" class="form-control" id="logoSelect">
                         <option value="">Kein Logo</option>
-                        <option value="logo-modern.svg" <?= ($signature['logo_filename'] ?? '') === 'logo-modern.svg' ? 'selected' : '' ?>>logo-modern.svg</option>
-                        <option value="logo-square.svg" <?= ($signature['logo_filename'] ?? '') === 'logo-square.svg' ? 'selected' : '' ?>>logo-square.svg</option>
+                        <option value="logo-square.svg" <?= ($signature['logo_filename'] ?? '') === 'logo-square.svg' ? 'selected' : '' ?>>logo-square.svg (Empfohlen)</option>
                     </select>
                     <small class="text-muted">
                         Logo wird in der HTML-Signatur über den Platzhalter {logo_url} eingebunden.<br>
@@ -231,16 +235,8 @@ include __DIR__ . '/../templates/header.php';
                     <textarea name="signature_html" class="form-control" rows="15" style="font-family: monospace; font-size: 12px;"><?= e($signature['signature_html'] ?? '') ?></textarea>
                     <small class="text-muted">
                         <strong>Verfügbare Platzhalter:</strong> {logo_url}<br>
-                        <strong>Beispiel:</strong> &lt;img src="{logo_url}" alt="Logo" style="max-width: 120px;" /&gt;
-                    </small>
-                </div>
-
-                <!-- Plaintext-Signatur -->
-                <div class="form-group">
-                    <label><strong>Plaintext-Signatur (Fallback)</strong></label>
-                    <textarea name="signature_plaintext" class="form-control" rows="8"><?= e($signature['signature_plaintext'] ?? $signature['signature_text'] ?? '') ?></textarea>
-                    <small class="text-muted">
-                        Diese Version wird in Plaintext-Emails verwendet (ohne Logo).
+                        <strong>Beispiel:</strong> &lt;img src="{logo_url}" alt="Logo" style="max-width: 120px;" /&gt;<br>
+                        <strong>Plaintext-Version:</strong> Wird automatisch aus HTML generiert (siehe Vorschau)
                     </small>
                 </div>
 
@@ -252,46 +248,35 @@ include __DIR__ . '/../templates/header.php';
                 <button type="submit" class="btn btn-primary">Signatur speichern</button>
             </form>
 
-            <!-- Vorschau-Bereich -->
-            <div id="signaturePreview" style="display: none; margin-top: 2rem; padding: 1.5rem; background: var(--bg-secondary); border-radius: 8px;">
-                <h3 class="mb-md">Vorschau</h3>
-                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem;">
-                    <div>
-                        <h4 style="color: var(--accent); margin-bottom: 0.5rem;">HTML-Version</h4>
-                        <div id="htmlPreview" style="border: 2px solid var(--accent); padding: 1rem; background: white; border-radius: 4px; min-height: 200px;"></div>
-                    </div>
-                    <div>
-                        <h4 style="color: var(--accent); margin-bottom: 0.5rem;">Plaintext-Version</h4>
-                        <div id="plaintextPreview" style="border: 2px solid var(--accent); padding: 1rem; background: white; border-radius: 4px; white-space: pre-wrap; font-family: monospace; font-size: 12px; min-height: 200px;"></div>
-                    </div>
-                </div>
-            </div>
         </div>
-
-        <script>
-        function previewSignature() {
-            const logoSelect = document.getElementById('logoSelect');
-            const htmlSignature = document.querySelector('textarea[name="signature_html"]').value;
-            const plaintextSignature = document.querySelector('textarea[name="signature_plaintext"]').value;
-            const logoFilename = logoSelect.value;
-
-            // Logo-URL generieren
-            const logoUrl = logoFilename ? '<?= BASE_URL ?>/assets/images/email/' + logoFilename : '';
-
-            // HTML-Signatur mit Logo-URL ersetzen
-            const htmlWithLogo = htmlSignature.replace(/{logo_url}/g, logoUrl);
-
-            // Vorschau anzeigen
-            document.getElementById('htmlPreview').innerHTML = htmlWithLogo;
-            document.getElementById('plaintextPreview').textContent = plaintextSignature;
-            document.getElementById('signaturePreview').style.display = 'block';
-
-            // Scroll zur Vorschau
-            document.getElementById('signaturePreview').scrollIntoView({ behavior: 'smooth', block: 'nearest' });
-        }
-        </script>
     </div>
 </section>
+
+<!-- Signatur-Vorschau Modal -->
+<div id="signaturePreviewModal" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.7); z-index: 9999; padding: 20px; overflow: auto;">
+    <div style="max-width: 1400px; margin: 0 auto; background: white; border-radius: 8px; padding: 30px;">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+            <h2 style="margin: 0;">✍️ Signatur-Vorschau</h2>
+            <button onclick="closeSignaturePreview()" class="btn btn-outline">✕ Schließen</button>
+        </div>
+
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px;">
+            <div>
+                <h3 style="margin-bottom: 15px; padding-bottom: 10px; border-bottom: 2px solid #8BC34A; color: #8BC34A;">
+                    🎨 HTML-Version
+                </h3>
+                <iframe id="signatureHtmlPreview" style="width: 100%; min-height: 300px; max-height: 500px; border: 2px solid #8BC34A; border-radius: 4px; background: #ffffff; box-shadow: 0 2px 8px rgba(0,0,0,0.1);"></iframe>
+            </div>
+
+            <div>
+                <h3 style="margin-bottom: 15px; padding-bottom: 10px; border-bottom: 2px solid #8BC34A; color: #8BC34A;">
+                    📄 Plaintext-Version
+                </h3>
+                <div id="signaturePlainPreview" style="border: 2px solid #8BC34A; padding: 20px; background: #ffffff; border-radius: 4px; white-space: pre-wrap; font-family: 'Courier New', monospace; font-size: 14px; line-height: 1.6; min-height: 300px; max-height: 500px; overflow-y: auto; color: #000000; box-shadow: 0 2px 8px rgba(0,0,0,0.1);"></div>
+            </div>
+        </div>
+    </div>
+</div>
 
 <!-- Email-Vorschau Modal -->
 <div id="previewModal" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.7); z-index: 9999; padding: 20px; overflow: auto;">
@@ -411,6 +396,58 @@ document.addEventListener('keydown', function(e) {
 document.getElementById('previewModal').addEventListener('click', function(e) {
     if (e.target === this) {
         closePreview();
+    }
+});
+
+// Signatur-Vorschau Funktionen
+function previewSignature() {
+    const logoSelect = document.getElementById('logoSelect');
+    const htmlSignature = document.querySelector('textarea[name="signature_html"]').value;
+    const logoFilename = logoSelect.value;
+
+    // Logo-URL generieren
+    const logoUrl = logoFilename ? '<?= BASE_URL ?>/assets/images/email/' + logoFilename : '';
+
+    // HTML-Signatur mit Logo-URL ersetzen
+    const htmlWithLogo = htmlSignature.replace(/{logo_url}/g, logoUrl);
+
+    // Automatische Plaintext-Generierung aus HTML (wie bei Email-Templates)
+    const tempDiv = document.createElement('div');
+    tempDiv.innerHTML = htmlWithLogo;
+    let plaintextSignature = tempDiv.textContent || tempDiv.innerText || '';
+    plaintextSignature = plaintextSignature.trim();
+
+    // HTML in iframe schreiben (isoliert vom Admin-CSS/Dark-Mode)
+    const iframe = document.getElementById('signatureHtmlPreview');
+    const iframeDoc = iframe.contentDocument || iframe.contentWindow.document;
+    iframeDoc.open();
+    iframeDoc.write('<!DOCTYPE html><html><head><meta charset="UTF-8"></head><body style="margin: 20px; font-family: Arial, sans-serif; font-size: 14px; line-height: 1.6; color: #000000;">' + htmlWithLogo + '</body></html>');
+    iframeDoc.close();
+
+    // Plaintext anzeigen
+    document.getElementById('signaturePlainPreview').textContent = plaintextSignature;
+
+    // Modal anzeigen
+    document.getElementById('signaturePreviewModal').style.display = 'block';
+    document.body.style.overflow = 'hidden';
+}
+
+function closeSignaturePreview() {
+    document.getElementById('signaturePreviewModal').style.display = 'none';
+    document.body.style.overflow = 'auto';
+}
+
+// ESC-Taste zum Schließen (Signatur)
+document.addEventListener('keydown', function(e) {
+    if (e.key === 'Escape' && document.getElementById('signaturePreviewModal').style.display === 'block') {
+        closeSignaturePreview();
+    }
+});
+
+// Click außerhalb des Modals zum Schließen (Signatur)
+document.getElementById('signaturePreviewModal').addEventListener('click', function(e) {
+    if (e.target === this) {
+        closeSignaturePreview();
     }
 });
 </script>
