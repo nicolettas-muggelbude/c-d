@@ -1059,3 +1059,214 @@ src/core/Security.php
 Verwende `src/core/config.example.php` als Template für neue Umgebungen.
 Die echte `config.php` wird NIEMALS committed.
 
+---
+
+## ✅ LÖSUNG: config.php aus Git-Tracking entfernt (2026-01-11)
+
+**Datum:** 2026-01-11, 21:30 Uhr
+**Commit:** `61682ed - Security: config.php aus Git-Tracking entfernt`
+
+### Was wurde geändert?
+
+**Problem:** `config.php` stand zwar in `.gitignore`, war aber bereits im Git-Index (früher committed).
+Jeder `git pull` überschrieb die Production-Config mit der lokalen Entwicklungs-Config.
+
+**Lösung:**
+```bash
+# Lokal durchgeführt:
+git rm --cached src/core/config.php
+git add src/core/config.php.example
+git commit -m "Security: config.php aus Git-Tracking entfernt"
+```
+
+**Ergebnis:**
+- ✅ `config.php` ist jetzt komplett aus Git entfernt
+- ✅ `config.php.example` dient als Template (ohne sensible Daten)
+- ✅ Ab jetzt wird `config.php` **NIE MEHR** von Git überschrieben
+
+### Einmaliges Production-Update (BEREITS DURCHGEFÜHRT)
+
+**Dieses Update wurde bereits am 2026-01-11 durchgeführt!**
+
+Für die Dokumentation, falls es in Zukunft nochmal nötig ist:
+
+```bash
+# 1. SSH auf Production
+ssh dcp285520007@pc-wittfoot.de
+cd /home/www/doc/28552/dcp285520007/pc-wittfoot.de/www
+
+# 2. PERMANENT-Backup erstellen (wichtig!)
+cp src/core/config.php src/core/config.php.PERMANENT-BACKUP-$(date +%Y%m%d-%H%M%S)
+
+# 3. Git stash (config.php sichern)
+git stash push -m "Config backup before pull" src/core/config.php
+
+# 4. Git pull (Git wird versuchen config.php zu löschen, aber Stash schützt sie)
+git pull origin production
+
+# 5. Config aus Stash wiederherstellen
+git stash pop
+
+# FALLS Merge-Konflikt in config.php.example:
+git checkout --theirs src/core/config.php.example
+git add src/core/config.php.example
+git reset HEAD src/core/config.php.example  # Unstage (brauchen wir nicht zu committen)
+
+# 6. Alte Stashes aufräumen
+git stash list
+git stash drop stash@{0}  # Falls mehrere vorhanden
+
+# 7. Prüfen dass config.php NICHT in git status auftaucht
+git status src/core/config.php
+# Ausgabe sollte sein: "nothing to commit, working tree clean"
+
+# 8. Website testen
+curl -s https://pc-wittfoot.de | grep -o "<title>.*</title>"
+```
+
+### Neues Deployment-Protokoll (AB SOFORT)
+
+#### VOR jedem Deployment
+
+```bash
+# 1. SSH auf Production
+ssh dcp285520007@pc-wittfoot.de
+cd /home/www/doc/28552/dcp285520007/pc-wittfoot.de/www
+
+# 2. Nur noch .htaccess sichern (config.php wird automatisch ignoriert!)
+cp .htaccess .htaccess.backup-$(date +%Y%m%d-%H%M%S)
+
+# 3. Git Status prüfen
+git status  # config.php sollte NICHT auftauchen!
+```
+
+#### WÄHREND Deployment
+
+```bash
+# 4. Git pull (config.php wird NICHT mehr überschrieben!)
+git pull origin production
+
+# 5. .htaccess prüfen (falls es Änderungen gab)
+cat .htaccess | grep -i "EOF\|ENDSSH\|HEREDOC"  # Darf NICHTS finden!
+
+# 6. Testen
+curl -I https://pc-wittfoot.de/ | head -3
+curl -I https://pc-wittfoot.de/admin | head -3
+```
+
+#### NACH Deployment
+
+```bash
+# 7. Error-Logs prüfen
+tail -10 logs/error.log
+
+# 8. Fertig!
+exit
+```
+
+### Vorteile des neuen Systems
+
+✅ **Kein config.php-Restore mehr nötig** - Git ignoriert die Datei komplett
+✅ **Schnellere Deployments** - Ein Schritt weniger
+✅ **Weniger Fehleranfällig** - Keine versehentliche Überschreibung mehr möglich
+✅ **Bessere Security** - Production-Credentials werden nie gepusht
+✅ **Sauberer Git-Status** - config.php taucht nie in `git status` auf
+
+### Was bei direkten Server-Edits zu beachten ist
+
+**Frage:** "Gibt es Konflikte wenn ich Rechtschreibfehler direkt auf dem Server korrigiere?"
+
+**Antwort:** JA, bei den meisten Dateien! ⚠️
+
+**Konflikt-Risiko:**
+- ❌ **PHP-Dateien** (*.php) → Git-Konflikt bei nächstem Pull
+- ❌ **CSS/JS** → Git-Konflikt bei nächstem Pull
+- ❌ **Templates** → Git-Konflikt bei nächstem Pull
+- ✅ **config.php** → KEIN Konflikt mehr (in .gitignore!)
+- ✅ **.htaccess** → Kein Konflikt (in .gitignore)
+- ✅ **logs/error.log** → Kein Konflikt (in .gitignore)
+
+**Empfohlener Workflow:**
+
+**OPTION 1 - Lokal bearbeiten (EMPFOHLEN):**
+```bash
+# Lokal
+1. Fehler korrigieren in z.B. src/pages/termin.php
+2. git add src/pages/termin.php
+3. git commit -m "Fix: Tippfehler in Terminbuchung"
+4. git push origin master
+5. git checkout production && git merge master && git push origin production
+
+# Production
+6. ssh auf Server
+7. git pull origin production
+8. Fertig!
+```
+
+**OPTION 2 - Direkt auf Server (NUR für schnelle Typo-Fixes):**
+```bash
+# Production
+1. Datei auf Server bearbeiten (z.B. nano src/pages/termin.php)
+2. Sofort testen: curl https://pc-wittfoot.de/termin
+3. SOFORT lokal nachziehen:
+
+# Lokal
+4. Gleiche Änderung in lokaler Datei machen
+5. git commit -m "Fix: Tippfehler (synced from production)"
+6. git push origin master && production
+
+# Resultat: Lokal und Production sind wieder synchron
+```
+
+**OPTION 3 - Production-Änderung pullen (für größere Edits):**
+```bash
+# Falls auf Production mehrere Änderungen gemacht wurden:
+
+# Production
+1. git add .
+2. git commit -m "Fix: Mehrere Änderungen direkt auf Production"
+3. git push origin production
+
+# Lokal
+4. git checkout production
+5. git pull origin production
+6. git checkout master
+7. git merge production
+8. git push origin master
+
+# Resultat: Production-Änderungen sind jetzt auch lokal
+```
+
+**Was passiert bei Konflikten:**
+```bash
+# Szenario: Datei auf Production UND lokal geändert
+git pull origin production
+# → "error: Your local changes would be overwritten"
+
+# Lösung:
+git stash  # Server-Änderungen sichern
+git pull   # Neue Version holen
+git stash pop  # Änderungen wieder anwenden
+# → Git zeigt Konflikt-Marker in Datei
+# → Manuell lösen und committen
+```
+
+### Zusammenfassung
+
+**Alte Situation (bis 2026-01-11):**
+- ❌ config.php wurde bei jedem `git pull` überschrieben
+- ❌ Manuelles Restore nach JEDEM Deployment nötig
+- ❌ Mehrfache Incidents mit DB-Verbindungsverlust
+
+**Neue Situation (ab 2026-01-11):**
+- ✅ config.php wird von Git komplett ignoriert
+- ✅ Kein Restore mehr nötig
+- ✅ Production-Config bleibt immer erhalten
+- ✅ Schnellere und sicherere Deployments
+
+**Geschützte Dateien (werden NIE von Git überschrieben):**
+- `src/core/config.php` ← NEU seit 2026-01-11
+- `.htaccess`
+- `src/core/Security.php`
+- `logs/error.log`
+
