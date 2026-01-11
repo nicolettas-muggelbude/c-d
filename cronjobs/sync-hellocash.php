@@ -12,7 +12,7 @@
  */
 
 require_once __DIR__ . '/../src/core/config.php';
-require_once __DIR__ . '/../src/core/Database.php';
+require_once __DIR__ . '/../src/core/database.php';
 require_once __DIR__ . '/../src/core/HelloCashClient.php';
 
 echo "[" . date('Y-m-d H:i:s') . "] HelloCash Sync gestartet\n";
