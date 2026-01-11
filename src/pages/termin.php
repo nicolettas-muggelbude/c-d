@@ -945,6 +945,12 @@ document.addEventListener('DOMContentLoaded', function() {
 document.getElementById('booking-form').addEventListener('submit', async function(e) {
     e.preventDefault();
 
+    // Button deaktivieren und Loading-State zeigen
+    const submitBtn = this.querySelector('button[type="submit"]');
+    const originalText = submitBtn.textContent;
+    submitBtn.disabled = true;
+    submitBtn.textContent = 'Wird gebucht...';
+
     const formDataObj = new FormData(this);
     const data = Object.fromEntries(formDataObj);
 
@@ -981,6 +987,10 @@ document.getElementById('booking-form').addEventListener('submit', async functio
 
             window.scrollTo({ top: 0, behavior: 'smooth' });
         } else {
+            // Button wieder aktivieren bei Fehler
+            submitBtn.disabled = false;
+            submitBtn.textContent = originalText;
+
             // Spezielle Behandlung für ausgebuchte Slots
             if (result.error_code === 'SLOT_FULL') {
                 alert(result.error + '\n\nWir leiten Sie zurück zur Zeitauswahl.');
@@ -991,6 +1001,10 @@ document.getElementById('booking-form').addEventListener('submit', async functio
             }
         }
     } catch (error) {
+        // Button wieder aktivieren bei Fehler
+        submitBtn.disabled = false;
+        submitBtn.textContent = originalText;
+
         alert('Fehler bei der Buchung. Bitte versuchen Sie es später erneut.');
         console.error(error);
     }
