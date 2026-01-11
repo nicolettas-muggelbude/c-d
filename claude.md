@@ -363,6 +363,411 @@ Detaillierte Entwicklungs-Logs wurden in separate Dateien ausgelagert:
 
 ---
 
+## 📡 Production-Server Details
+
+**Host:** www116.c.artfiles.de
+**User:** dcp285520007
+**Web Root:** `/home/www/doc/28552/dcp285520007/pc-wittfoot.de/www`
+**Database:** sql116.c.artfiles.de / db285520001
+**Live URL:** https://pc-wittfoot.de
+**PHP-Pfad:** `/usr/local/bin/php`
+
+**Git Workflow:**
+```bash
+# Lokale Änderungen committen und pushen
+git add .
+git commit -m "Message"
+git push origin master
+
+# Production Branch aktualisieren
+git checkout production
+git merge master
+git push origin production
+git checkout master
+
+# Auf Production-Server deployen
+ssh dcp285520007@www116.c.artfiles.de
+cd /home/www/doc/28552/dcp285520007/pc-wittfoot.de/www
+git pull origin production
+```
+
+---
+
+## 🚨 SICHERES DEPLOYMENT-KONZEPT (nach Incident 2026-01-11)
+
+### Was ist schiefgelaufen?
+
+**Incident:** HTML-Signatur-Feature-Deployment hat Production zerstört:
+- ❌ `config.php` wurde überschrieben → DB-Verbindung verloren
+- ❌ `.htaccess` wurde überschrieben → Internal Server Error
+- ❌ `Security.php` wurde überschrieben → CSP-Probleme
+- ❌ Mehrere Stunden Downtime
+- ❌ Mehrfache Rollback-Versuche fehlgeschlagen
+
+**Root Cause:** Production-spezifische Konfigurationsdateien wurden nicht von Code getrennt.
+
+---
+
+### ✅ NEUE DEPLOYMENT-STRATEGIE
+
+## 1. Trennung: Code vs. Konfiguration
+
+**Prinzip:** Production-spezifische Dateien dürfen NIE in Git committed werden!
+
+### Production-spezifische Dateien (NICHT in Git):
+
+```
+.htaccess                           # Apache-Konfiguration (Server-spezifisch)
+src/core/config.php                 # DB-Credentials & URLs (Environment-spezifisch)
+src/core/Security.php (teilweise)   # CSP mit Domain-Namen
+logs/                              # Log-Dateien
+```
+
+### Code-Dateien (IN Git):
+
+```
+src/**/*.php                        # Alle Logik-Dateien
+database/migrations/                # DB-Migrationen
+assets/                            # CSS, JS, Images
+```
+
+---
+
+## 2. .gitignore einrichten
+
+**Datei:** `/.gitignore`
+
+```gitignore
+# Production-spezifische Konfiguration
+.htaccess
+src/core/config.php
+src/core/Security.php
+
+# Logs
+logs/*.log
+*.log
+
+# Temporary files
+.server.pid
+*.tmp
+*.cache
+
+# Session files
+/tmp/
+
+# Backups
+*.backup
+*.bak
+```
+
+---
+
+## 3. Separate Config-Dateien
+
+### Struktur:
+
+```
+src/core/
+├── config.php              # NICHT in Git (Production-spezifisch)
+├── config.example.php      # IN Git (Template für neue Umgebungen)
+├── config.local.php        # NICHT in Git (Lokale Entwicklung)
+└── config.template.php     # IN Git (Dokumentation aller Optionen)
+```
+
+### config.example.php (Template):
+
+```php
+<?php
+// ===================================
+// BEISPIEL-KONFIGURATION
+// Diese Datei kopieren nach config.php
+// und mit echten Credentials füllen
+// ===================================
+
+// Datenbank
+define('DB_HOST', 'localhost');        // Production: sql116.c.artfiles.de
+define('DB_NAME', 'your_database');
+define('DB_USER', 'your_user');
+define('DB_PASS', 'your_password');
+
+// URLs
+define('BASE_URL', 'http://localhost:8000');  // Production: https://pc-wittfoot.de
+
+// Email
+define('MAIL_FROM', 'noreply@example.com');
+define('MAIL_ADMIN', 'admin@example.com');
+```
+
+---
+
+## 4. SICHERER DEPLOYMENT-WORKFLOW
+
+### Phase 1: Lokale Entwicklung
+
+```bash
+# 1. Feature entwickeln
+git checkout -b feature/neue-funktion
+
+# 2. Testen (WICHTIG!)
+php -S localhost:8000 server.php
+# → Manuell testen im Browser
+# → Alle Funktionen durchklicken
+
+# 3. Commit
+git add src/
+git commit -m "Feature: Beschreibung"
+
+# 4. Merge zu master
+git checkout master
+git merge feature/neue-funktion
+```
+
+### Phase 2: Vorbereitung für Production
+
+```bash
+# 1. Production Branch aktualisieren
+git checkout production
+git merge master
+
+# 2. STOPP - Nicht sofort pushen!
+
+# 3. Prüfen welche Dateien sich geändert haben
+git diff origin/production --name-only
+
+# 4. WICHTIG: Falls config.php, .htaccess oder Security.php dabei sind:
+git reset HEAD src/core/config.php
+git reset HEAD .htaccess
+git reset HEAD src/core/Security.php
+
+# 5. Erst JETZT pushen
+git push origin production
+git checkout master
+```
+
+### Phase 3: Production Deployment
+
+```bash
+# SSH auf Production-Server
+ssh dcp285520007@www116.c.artfiles.de
+cd /home/www/doc/28552/dcp285520007/pc-wittfoot.de/www
+
+# BACKUP ERSTELLEN (WICHTIG!)
+cp src/core/config.php ../backups/config.php.$(date +%Y%m%d_%H%M%S)
+cp .htaccess ../backups/.htaccess.$(date +%Y%m%d_%H%M%S)
+
+# Git Status prüfen
+git status
+
+# Falls lokale Änderungen an Production-Dateien:
+git stash push -m "Production-Config vor Pull $(date)"
+
+# Code pullen
+git pull origin production
+
+# Production-Config wiederherstellen
+git stash pop
+
+# Falls Konflikte: Manuell lösen (Production-Werte behalten!)
+
+# Testen
+curl https://pc-wittfoot.de/src/router.php | head -20
+```
+
+### Phase 4: Datenbank-Migration (falls erforderlich)
+
+```bash
+# NUR wenn DB-Schema-Änderungen:
+
+# 1. Migration-Script hochladen (bereits in Git)
+ls -la database/migrations/
+
+# 2. BACKUP der Production-DB erstellen
+# (über phpMyAdmin oder Hosting-Panel)
+
+# 3. Migration ausführen
+/usr/local/bin/php migrate-production-XXX.php
+
+# 4. Verifizieren
+/usr/local/bin/php -r "
+require_once 'src/core/config.php';
+\$db = Database::getInstance();
+\$tables = \$db->query('SHOW TABLES');
+print_r(\$tables);
+"
+```
+
+---
+
+## 5. ROLLBACK-STRATEGIE
+
+### Wenn etwas schiefgeht:
+
+```bash
+# AUF DEM PRODUCTION-SERVER:
+
+# Schritt 1: Letzten funktionierenden Commit identifizieren
+git log --oneline -10
+
+# Schritt 2: Rollback (Hard Reset)
+git reset --hard COMMIT_HASH  # z.B. fef6dae
+
+# Schritt 3: Production-Config aus Backup wiederherstellen
+cp ../backups/config.php.TIMESTAMP src/core/config.php
+cp ../backups/.htaccess.TIMESTAMP .htaccess
+
+# Schritt 4: Testen
+curl https://pc-wittfoot.de | head -20
+
+# Schritt 5: Falls DB-Migration durchgeführt wurde:
+# → DB-Backup wiederherstellen (über Hosting-Panel)
+```
+
+---
+
+## 6. DEPLOYMENT-CHECKLISTE
+
+### VOR jedem Production-Deployment:
+
+- [ ] **Lokale Tests:** Feature vollständig getestet?
+- [ ] **Git Status:** Nur relevante Dateien staged?
+- [ ] **Production-Dateien:** config.php, .htaccess NICHT in Commit?
+- [ ] **Backup erstellt:** Production-Config gesichert?
+- [ ] **Migration vorbereitet:** DB-Änderungen dokumentiert?
+- [ ] **Rollback-Plan:** Letzter funktionierender Commit bekannt?
+
+### NACH jedem Production-Deployment:
+
+- [ ] **Website lädt:** https://pc-wittfoot.de erreichbar?
+- [ ] **CSS/JS laden:** Assets werden korrekt ausgeliefert?
+- [ ] **Login funktioniert:** Admin-Bereich erreichbar?
+- [ ] **DB-Verbindung:** Keine Datenbankfehler?
+- [ ] **Logs prüfen:** `tail -20 logs/error.log` - neue Fehler?
+
+---
+
+## 7. LESSONS LEARNED
+
+### Was NICHT funktioniert hat:
+
+❌ **Direktes `git pull` ohne Stash/Backup**
+- Überschreibt Production-Config
+- Verlust von DB-Credentials
+- Website-Downtime
+
+❌ **Experimentieren direkt auf Production**
+- Mehrfache .htaccess-Änderungen ohne Test
+- Keine Möglichkeit zurückzugehen
+- Zeitverschwendung
+
+❌ **Keine Trennung Code/Config**
+- Production-spezifische Dateien in Git
+- Merge-Konflikte bei jedem Deployment
+
+### Was FUNKTIONIERT:
+
+✅ **Separate Config-Dateien**
+- `config.example.php` in Git
+- `config.php` auf Server (nicht in Git)
+- Klar dokumentierte Unterschiede
+
+✅ **Git Stash vor Pull**
+- Production-Änderungen sichern
+- Pull durchführen
+- Production-Werte wiederherstellen
+
+✅ **Backup vor Änderungen**
+- Immer Kopie der funktionierenden Version
+- Schneller Rollback möglich
+
+✅ **Lokales Testing**
+- Alle Features lokal testen
+- Production nur für fertige Features
+
+---
+
+## 8. PRODUCTION-DATEIEN DOKUMENTATION
+
+### .htaccess (funktionierende Version)
+
+```apache
+RewriteEngine On
+
+# HTTPS Redirect
+RewriteCond %{HTTPS} off
+RewriteRule ^(.*)$ https://%{HTTP_HOST}%{REQUEST_URI} [L,R=301]
+
+# Statische Assets ZUERST
+RewriteRule ^assets/(.*)$ src/assets/$1 [L]
+RewriteRule ^favicon\.(.*)$ src/favicon.$1 [L]
+
+# Router nur für nicht-existierende Dateien
+RewriteCond %{REQUEST_FILENAME} !-f
+RewriteCond %{REQUEST_FILENAME} !-d
+RewriteRule ^(.*)$ src/router.php?route=$1 [L,QSA]
+
+DirectoryIndex src/router.php
+Options -Indexes
+```
+
+### config.php (Production-Template)
+
+```php
+<?php
+// Production Database
+define('DB_HOST', 'sql116.c.artfiles.de');
+define('DB_NAME', 'db285520001');
+define('DB_USER', 'dcp285520007');
+define('DB_PASS', 'SECRET');  // Aus Hosting-Panel
+
+// Production URLs
+define('BASE_URL', 'https://pc-wittfoot.de');
+define('MAIL_FROM', 'noreply@pc-wittfoot.de');
+define('MAIL_ADMIN', 'admin@pc-wittfoot.de');
+
+// Rest aus config.example.php kopieren
+```
+
+---
+
+## 9. ZUKÜNFTIGE DEPLOYMENTS
+
+### Neue Features implementieren:
+
+1. **Lokal entwickeln** (auf Feature-Branch)
+2. **Lokal testen** (alle Funktionen prüfen)
+3. **Zu master mergen**
+4. **Auf production mergen** (Production-Dateien ausschließen!)
+5. **GitHub pushen**
+6. **Production-Backup erstellen**
+7. **Git stash auf Production**
+8. **Git pull auf Production**
+9. **Production-Config wiederherstellen**
+10. **Testen**
+11. **Bei Fehler: Rollback mit git reset**
+
+### HTML-Signatur Feature (Retry nach Fix):
+
+**NICHT mehr direkt deployen!**
+
+Stattdessen:
+1. Lokal vollständig testen
+2. Migration-Script lokal testen
+3. Backup auf Production
+4. Code deployen (OHNE config.php zu überschreiben!)
+5. Migration auf Production ausführen
+6. Testen
+7. Bei Fehler: Rollback + DB-Restore
+
+---
+
+**NIEMALS WIEDER:**
+- ❌ Direkt auf Production experimentieren
+- ❌ Mehrfache Änderungen ohne Backup
+- ❌ Production-Config überschreiben
+- ❌ Deployment ohne lokale Tests
+
+---
+
 ## 🔧 Session 2026-01-11 (Fortsetzung): Cronjob-Fixes Production
 
 ### Problem
