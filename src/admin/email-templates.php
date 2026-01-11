@@ -26,10 +26,22 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     }
 
     if ($action === 'update_signature') {
-        $signature = trim($_POST['signature']);
+        $signatureHtml = trim($_POST['signature_html']);
+        $signaturePlaintext = trim($_POST['signature_plaintext']);
+        $logoFilename = trim($_POST['logo_filename']);
 
-        $sql = "UPDATE email_signature SET signature_text = :signature, updated_at = NOW() WHERE id = 1";
-        $db->update($sql, [':signature' => $signature]);
+        $sql = "UPDATE email_signature SET
+                signature_html = :html,
+                signature_plaintext = :plaintext,
+                logo_filename = :logo,
+                updated_at = NOW()
+                WHERE id = 1";
+
+        $db->update($sql, [
+            ':html' => $signatureHtml,
+            ':plaintext' => $signaturePlaintext,
+            ':logo' => $logoFilename
+        ]);
 
         $success = "Signatur erfolgreich aktualisiert";
     }
@@ -193,22 +205,91 @@ include __DIR__ . '/../templates/header.php';
 
         <!-- Email-Signatur -->
         <div class="card">
-            <h2 class="mb-lg">Email-Signatur (global)</h2>
+            <h2 class="mb-lg">📧 Email-Signatur (global)</h2>
+            <p class="text-muted mb-lg">Diese Signatur wird automatisch an alle Emails angehängt (HTML + Plaintext-Fallback).</p>
 
             <form method="POST">
                 <input type="hidden" name="action" value="update_signature">
 
+                <!-- Logo-Auswahl -->
                 <div class="form-group">
-                    <label>Signatur-Text</label>
-                    <textarea name="signature" class="form-control" rows="12" required><?= e($signature['signature_text'] ?? '') ?></textarea>
+                    <label><strong>Logo für Signatur</strong></label>
+                    <select name="logo_filename" class="form-control" id="logoSelect">
+                        <option value="">Kein Logo</option>
+                        <option value="logo-modern.svg" <?= ($signature['logo_filename'] ?? '') === 'logo-modern.svg' ? 'selected' : '' ?>>logo-modern.svg</option>
+                        <option value="logo-square.svg" <?= ($signature['logo_filename'] ?? '') === 'logo-square.svg' ? 'selected' : '' ?>>logo-square.svg</option>
+                    </select>
                     <small class="text-muted">
-                        Diese Signatur wird automatisch an alle Emails angehängt.
+                        Logo wird in der HTML-Signatur über den Platzhalter {logo_url} eingebunden.<br>
+                        Logos liegen in: /src/assets/images/email/
                     </small>
+                </div>
+
+                <!-- HTML-Signatur -->
+                <div class="form-group">
+                    <label><strong>HTML-Signatur</strong></label>
+                    <textarea name="signature_html" class="form-control" rows="15" style="font-family: monospace; font-size: 12px;"><?= e($signature['signature_html'] ?? '') ?></textarea>
+                    <small class="text-muted">
+                        <strong>Verfügbare Platzhalter:</strong> {logo_url}<br>
+                        <strong>Beispiel:</strong> &lt;img src="{logo_url}" alt="Logo" style="max-width: 120px;" /&gt;
+                    </small>
+                </div>
+
+                <!-- Plaintext-Signatur -->
+                <div class="form-group">
+                    <label><strong>Plaintext-Signatur (Fallback)</strong></label>
+                    <textarea name="signature_plaintext" class="form-control" rows="8"><?= e($signature['signature_plaintext'] ?? $signature['signature_text'] ?? '') ?></textarea>
+                    <small class="text-muted">
+                        Diese Version wird in Plaintext-Emails verwendet (ohne Logo).
+                    </small>
+                </div>
+
+                <!-- Vorschau -->
+                <div class="form-group">
+                    <button type="button" class="btn btn-outline" onclick="previewSignature()">👁️ Vorschau</button>
                 </div>
 
                 <button type="submit" class="btn btn-primary">Signatur speichern</button>
             </form>
+
+            <!-- Vorschau-Bereich -->
+            <div id="signaturePreview" style="display: none; margin-top: 2rem; padding: 1.5rem; background: var(--bg-secondary); border-radius: 8px;">
+                <h3 class="mb-md">Vorschau</h3>
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem;">
+                    <div>
+                        <h4 style="color: var(--accent); margin-bottom: 0.5rem;">HTML-Version</h4>
+                        <div id="htmlPreview" style="border: 2px solid var(--accent); padding: 1rem; background: white; border-radius: 4px; min-height: 200px;"></div>
+                    </div>
+                    <div>
+                        <h4 style="color: var(--accent); margin-bottom: 0.5rem;">Plaintext-Version</h4>
+                        <div id="plaintextPreview" style="border: 2px solid var(--accent); padding: 1rem; background: white; border-radius: 4px; white-space: pre-wrap; font-family: monospace; font-size: 12px; min-height: 200px;"></div>
+                    </div>
+                </div>
+            </div>
         </div>
+
+        <script>
+        function previewSignature() {
+            const logoSelect = document.getElementById('logoSelect');
+            const htmlSignature = document.querySelector('textarea[name="signature_html"]').value;
+            const plaintextSignature = document.querySelector('textarea[name="signature_plaintext"]').value;
+            const logoFilename = logoSelect.value;
+
+            // Logo-URL generieren
+            const logoUrl = logoFilename ? '<?= BASE_URL ?>/assets/images/email/' + logoFilename : '';
+
+            // HTML-Signatur mit Logo-URL ersetzen
+            const htmlWithLogo = htmlSignature.replace(/{logo_url}/g, logoUrl);
+
+            // Vorschau anzeigen
+            document.getElementById('htmlPreview').innerHTML = htmlWithLogo;
+            document.getElementById('plaintextPreview').textContent = plaintextSignature;
+            document.getElementById('signaturePreview').style.display = 'block';
+
+            // Scroll zur Vorschau
+            document.getElementById('signaturePreview').scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+        }
+        </script>
     </div>
 </section>
 
