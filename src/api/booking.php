@@ -306,12 +306,18 @@ try {
         ]);
 
         // Response sofort zum Client senden
+        if (ob_get_level() > 0) {
+            ob_end_flush();
+        }
+        flush();
+
         if (function_exists('fastcgi_finish_request')) {
             fastcgi_finish_request();
         }
 
         // Ab hier läuft im Hintergrund - Client hat bereits Response erhalten
         ignore_user_abort(true);
+        set_time_limit(0);
 
         // HelloCash-Sync im Hintergrund
         $hellocashClient = new HelloCashClient();
