@@ -182,39 +182,10 @@ if ($data['booking_type'] === 'fixed') {
     error_log("Slot available ({$currentBookings}/{$maxBookingsPerSlot})");
 }
 
-error_log('Availability check passed - preparing HelloCash integration');
+error_log('Availability check passed - proceeding to booking');
 
-// HelloCash API Integration
+// HelloCash-Sync wird NACH der Bestätigung im Hintergrund gemacht
 $hellocashUserId = null;
-$hellocashClient = new HelloCashClient();
-
-if ($hellocashClient->isConfigured()) {
-    $customerData = [
-        'firstname' => trim($data['customer_firstname']),
-        'lastname' => trim($data['customer_lastname']),
-        'email' => trim($data['customer_email']),
-        'phone_country' => $data['customer_phone_country'] ?? '+49',
-        'phone_mobile' => trim($data['customer_phone_mobile']),
-        'phone_landline' => isset($data['customer_phone_landline']) && !empty($data['customer_phone_landline']) ? trim($data['customer_phone_landline']) : null,
-        'company' => isset($data['customer_company']) && !empty($data['customer_company']) ? trim($data['customer_company']) : null,
-        // Adresse
-        'street' => trim($data['customer_street']),
-        'house_number' => trim($data['customer_house_number']),
-        'postal_code' => trim($data['customer_postal_code']),
-        'city' => trim($data['customer_city'])
-    ];
-
-    $result = $hellocashClient->findOrCreateUser($customerData);
-
-    if ($result['user_id']) {
-        $hellocashUserId = $result['user_id'];
-        error_log('HelloCash User: ' . ($result['is_new'] ? 'Neu erstellt' : 'Gefunden') . ' - ID: ' . $hellocashUserId);
-    } else if ($result['error']) {
-        error_log('HelloCash Error: ' . $result['error']);
-    }
-} else {
-    error_log('HelloCash API not configured');
-}
 
 // Token für Kundenverwaltung generieren
 $manageToken = bin2hex(random_bytes(32)); // 64 Zeichen Hex-String
@@ -333,6 +304,45 @@ try {
             'manage_token' => $manageToken,
             'message' => 'Termin erfolgreich gebucht'
         ]);
+
+        // Response sofort zum Client senden
+        if (function_exists('fastcgi_finish_request')) {
+            fastcgi_finish_request();
+        }
+
+        // Ab hier läuft im Hintergrund - Client hat bereits Response erhalten
+        ignore_user_abort(true);
+
+        // HelloCash-Sync im Hintergrund
+        $hellocashClient = new HelloCashClient();
+        if ($hellocashClient->isConfigured()) {
+            $customerData = [
+                'firstname' => trim($data['customer_firstname']),
+                'lastname' => trim($data['customer_lastname']),
+                'email' => trim($data['customer_email']),
+                'phone_country' => $data['customer_phone_country'] ?? '+49',
+                'phone_mobile' => trim($data['customer_phone_mobile']),
+                'phone_landline' => isset($data['customer_phone_landline']) && !empty($data['customer_phone_landline']) ? trim($data['customer_phone_landline']) : null,
+                'company' => isset($data['customer_company']) && !empty($data['customer_company']) ? trim($data['customer_company']) : null,
+                'street' => trim($data['customer_street']),
+                'house_number' => trim($data['customer_house_number']),
+                'postal_code' => trim($data['customer_postal_code']),
+                'city' => trim($data['customer_city'])
+            ];
+
+            $result = $hellocashClient->findOrCreateUser($customerData);
+
+            if ($result['user_id']) {
+                // HelloCash-ID in Buchung nachtragen
+                $db->update("UPDATE bookings SET hellocash_customer_id = :hc_id WHERE id = :id", [
+                    ':hc_id' => $result['user_id'],
+                    ':id' => $bookingId
+                ]);
+                error_log('HelloCash User: ' . ($result['is_new'] ? 'Neu erstellt' : 'Gefunden') . ' - ID: ' . $result['user_id']);
+            } else if ($result['error']) {
+                error_log('HelloCash Error: ' . $result['error']);
+            }
+        }
 
         // Email-Bestätigung an Kunden senden (inkl. Management-Link)
         $emailService = new EmailService();
