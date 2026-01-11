@@ -224,11 +224,12 @@ include __DIR__ . '/../templates/header.php';
         <div class="card mb-lg" style="padding: 1rem;">
             <div style="display: flex; gap: 1.5rem; flex-wrap: wrap; align-items: center; font-size: 0.9rem;">
                 <strong>Legende:</strong>
-                <span><span class="legend-box" style="background: #28a745;"></span> Bestätigt</span>
-                <span><span class="legend-box" style="background: #ffc107;"></span> Ausstehend</span>
+                <span><span class="legend-box" style="background: #1e7e34;"></span> Bestätigt</span>
+                <span><span class="legend-box" style="background: #d39e00;"></span> Ausstehend</span>
                 <span><span class="legend-box" style="background: #6c757d;"></span> Abgeschlossen</span>
                 <span><span class="legend-box" style="background: #dc3545;"></span> Gesperrt</span>
                 <span><span class="legend-box" style="background: #17a2b8;"></span> Intern</span>
+                <span style="opacity: 0.7;"><em>(Stornierte ausgeblendet)</em></span>
             </div>
         </div>
 
@@ -290,15 +291,20 @@ include __DIR__ . '/../templates/header.php';
                                 // Andere Buchungen (fixed, blocked, internal)
                                 foreach ($dayBookings as $booking):
                                     if ($booking['booking_type'] === 'walkin') continue; // Walk-ins werden gruppiert angezeigt
+                                    if ($booking['status'] === 'cancelled') continue; // Stornierte ausblenden
 
-                                    $bgColor = '#28a745'; // confirmed
-                                    if ($booking['status'] === 'pending') $bgColor = '#ffc107';
+                                    $bgColor = '#1e7e34'; // confirmed (dunkleres Grün)
+                                    $textColor = '#ffffff'; // weiß (Standard)
+                                    if ($booking['status'] === 'pending') {
+                                        $bgColor = '#d39e00'; // dunkleres Gelb
+                                        $textColor = '#000000'; // schwarz für bessere Lesbarkeit
+                                    }
                                     if ($booking['status'] === 'completed') $bgColor = '#6c757d';
                                     if ($booking['booking_type'] === 'blocked') $bgColor = '#dc3545';
                                     if ($booking['booking_type'] === 'internal') $bgColor = '#17a2b8';
                                     ?>
                                     <div class="booking-item"
-                                         style="background-color: <?= $bgColor ?>;"
+                                         style="background-color: <?= $bgColor ?>; color: <?= $textColor ?>;"
                                          onclick="openEditModal(<?= $booking['id'] ?>)">
                                         <?php if ($booking['booking_type'] === 'fixed' && $booking['booking_time']): ?>
                                             <strong><?= substr($booking['booking_time'], 0, 5) ?></strong>
@@ -308,7 +314,7 @@ include __DIR__ . '/../templates/header.php';
                                         <?php elseif ($booking['booking_type'] === 'internal'): ?>
                                             <span>📝 <?= e($booking['admin_notes'] ?: 'Interne Notiz') ?></span>
                                         <?php else: ?>
-                                            <span><?= e($booking['customer_firstname'] . ' ' . substr($booking['customer_lastname'], 0, 1)) ?>.</span>
+                                            <span><?= e($booking['customer_firstname'] . ' ' . ($booking['customer_lastname'] ? substr($booking['customer_lastname'], 0, 1) : '')) ?>.</span>
                                         <?php endif; ?>
                                     </div>
                                 <?php endforeach; ?>
