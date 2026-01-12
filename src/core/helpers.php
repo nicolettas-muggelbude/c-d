@@ -159,7 +159,7 @@ function is_admin() {
 function require_login() {
     if (!is_logged_in()) {
         set_flash('error', 'Bitte melden Sie sich an.');
-        redirect(BASE_URL . '/admin/login.php');
+        redirect(BASE_URL . '/admin/login');
     }
 }
 
