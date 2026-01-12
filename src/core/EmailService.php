@@ -54,9 +54,8 @@ class EmailService {
         $subject = $this->replacePlaceholders($template['subject'], $booking);
         $body = $this->replacePlaceholders($template['body'], $booking);
 
-        // HTML-Body: Template enthält bereits HTML, nur Zeilenumbrüche konvertieren
-        $bodyHtml = nl2br($body);
-        $fullBodyHtml = $bodyHtml . "\n\n" . $signature['html'];
+        // HTML-Body: Template enthält bereits vollständiges HTML
+        $fullBodyHtml = $body . "\n\n" . $signature['html'];
 
         // Plaintext-Fallback
         $fullBodyPlain = $body . "\n\n" . $signature['plaintext'];
@@ -292,9 +291,8 @@ class EmailService {
         $subject = $this->replacePlaceholders($template['subject'], $booking);
         $body = $this->replacePlaceholders($template['body'], $booking);
 
-        // HTML-Body: Template enthält bereits HTML, nur Zeilenumbrüche konvertieren
-        $bodyHtml = nl2br($body);
-        $fullBodyHtml = $bodyHtml . "\n\n" . $signature['html'];
+        // HTML-Body: Template enthält bereits vollständiges HTML
+        $fullBodyHtml = $body . "\n\n" . $signature['html'];
 
         // Plaintext-Fallback
         $fullBodyPlain = $body . "\n\n" . $signature['plaintext'];
