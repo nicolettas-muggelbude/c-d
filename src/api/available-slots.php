@@ -92,11 +92,12 @@ try {
         $currentTime->modify("+{$intervalMinutes} minutes");
     }
 
-    // Gebuchte Slots zählen
+    // Gebuchte Slots zählen (fixed + blocked)
+    // blocked = Admin-Blockierung (nimmt den ganzen Slot ein)
     $sql = "SELECT TIME_FORMAT(booking_time, '%H:%i') as time_slot, COUNT(*) as count
             FROM bookings
             WHERE booking_date = :date
-            AND booking_type = 'fixed'
+            AND booking_type IN ('fixed', 'blocked')
             AND status != 'cancelled'
             GROUP BY time_slot";
 

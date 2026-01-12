@@ -59,11 +59,12 @@ try {
 
     // Ausgebuchte Tage finden
     // Ein Tag ist ausgebucht wenn: Anzahl Buchungen >= maxBookingsPerDay
+    // Zählt fixed + blocked (Admin-Blockierungen)
     $sql = "SELECT booking_date, COUNT(*) as booking_count
             FROM bookings
             WHERE booking_date >= :start_date
             AND booking_date < :end_date
-            AND booking_type = 'fixed'
+            AND booking_type IN ('fixed', 'blocked')
             AND status != 'cancelled'
             GROUP BY booking_date
             HAVING booking_count >= :max_bookings";

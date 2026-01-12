@@ -153,12 +153,13 @@ if ($data['booking_type'] === 'fixed') {
     $settingRow = $db->querySingle("SELECT setting_value FROM booking_settings WHERE setting_key = 'max_bookings_per_slot'");
     $maxBookingsPerSlot = (int)($settingRow['setting_value'] ?? 1);
 
-    // Aktuelle Buchungen für diesen Slot zählen
+    // Aktuelle Buchungen für diesen Slot zählen (fixed + blocked)
+    // blocked = Admin-Blockierung, verhindert Kundenbuchungen
     $sql = "SELECT COUNT(*) as count
             FROM bookings
             WHERE booking_date = :date
             AND TIME_FORMAT(booking_time, '%H:%i') = :time
-            AND booking_type = 'fixed'
+            AND booking_type IN ('fixed', 'blocked')
             AND status != 'cancelled'";
 
     $result = $db->querySingle($sql, [
