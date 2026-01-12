@@ -233,7 +233,7 @@ include __DIR__ . '/templates/header.php';
             <div class="text-center">
                 <div class="icon-large" aria-hidden="true">🗣️</div>
                 <h3>Verständlich erklärt</h3>
-                <p>Keine Fachchinesisch. Wir erklären IT so, dass jeder es versteht.</p>
+                <p>Kein Fachchinesisch. Wir erklären IT so, dass jeder es versteht.</p>
             </div>
 
             <div class="text-center">
