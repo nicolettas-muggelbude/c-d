@@ -858,8 +858,83 @@ Co-Authored-By: Claude Sonnet 4.5 <noreply@anthropic.com>
 ```
 
 ### Nächste Schritte
-- Production-Deployment der Fixes
-- Überwachung der Cronjob-Logs auf weitere Fehler
-- Test der HelloCash-Synchronisation mit echten Buchungen
+- ✅ Production-Deployment der Fixes (erfolgreich)
+- ✅ HelloCash-Synchronisation funktioniert (62 Buchungen synchronisiert)
+- ⚠️ Admin-Login-Problem entdeckt und behoben
+
+---
+
+## 🔧 Session 2026-01-12 (Fortsetzung): Admin-Login Session-Problem
+
+### Problem
+Nach dem HelloCash-Bugfix-Deployment funktionierte der Admin-Login nicht mehr:
+- Redirect-Loop: `/admin` → `/admin/login.php` → `/admin/login.php` → ...
+- "Ungültiger Sicherheitstoken" bei Login-Versuchen
+- Sessions wurden nicht gespeichert
+
+### Root Cause Analysis
+
+**Problem 1: Redirect-Loop**
+- `/admin/login.php` wurde vom Router als `param='login.php'` geparst
+- Router matched nur auf `param === 'login'` (ohne .php)
+- Landete im else-Block → lud `index.php` → `require_admin()` → redirect zu `/admin/login.php`
+- Loop!
+
+**Problem 2: Sessions nicht gespeichert**
+- `session.save_path` war NICHT gesetzt in config.php
+- PHP versuchte in `/var/lib/php/sessions` zu schreiben → Permission denied
+- CSRF-Token konnte nicht in Session gespeichert werden
+- Login schlug fehl auch mit korrektem Passwort
+
+### Lösung
+
+**1. Session Save Path konfiguriert** (`src/core/config.php`)
+```php
+// Zeile 64: Absoluter Pfad zu logs/
+ini_set('session.save_path', '/home/www/doc/28552/dcp285520007/pc-wittfoot.de/www/logs');
+```
+
+**2. Redirect-Loop behoben** (`src/core/helpers.php`)
+```php
+// Vorher: redirect(BASE_URL . '/admin/login.php');
+// Nachher: redirect(BASE_URL . '/admin/login');
+```
+
+**3. logs/ Permissions gesetzt**
+```bash
+chmod 777 logs/
+```
+
+**4. Admin-Passwort zurückgesetzt**
+```bash
+# Neues Passwort: admin123
+password_hash('admin123', PASSWORD_DEFAULT)
+```
+
+### Ergebnis
+
+✅ **Admin-Login funktioniert:**
+- Sessions werden in `logs/sess_*` gespeichert
+- CSRF-Token funktioniert korrekt
+- Login erfolgreich
+- Kein Redirect-Loop mehr
+
+✅ **Production-System vollständig funktionsfähig:**
+- HelloCash-Sync läuft (62 Buchungen synchronisiert)
+- Admin-Login funktioniert
+- Alle Bugfixes deployed
+
+### Offene Punkte
+
+⚠️ **Fehlende Datenbank-Tabelle:**
+- `rate_limits` Tabelle existiert nicht
+- Rate-Limiting funktioniert nicht
+- TODO: Tabelle erstellen oder Feature deaktivieren
+
+### Commits
+```
+a4f58b3 Fix: Admin-Login Redirect zu /admin/login statt /admin/login.php
+f9a8b88 Fix: Admin-Login Session-Problem behoben (Production)
+```
 
 ---
