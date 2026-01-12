@@ -73,11 +73,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['ajax_action'])) {
                         booking_type, service_type, booking_date, booking_time, booking_end_time,
                         customer_firstname, customer_lastname, customer_email,
                         customer_phone_country, customer_phone_mobile,
+                        customer_street, customer_house_number, customer_postal_code, customer_city,
                         customer_notes, admin_notes, status, created_at
                         ) VALUES (
                         :type, :service, :date, :time, :end_time,
                         :firstname, :lastname, :email,
                         '+49', :phone,
+                        '', '', '', '',
                         :customer_notes, :admin_notes, :status, NOW()
                         )";
 
