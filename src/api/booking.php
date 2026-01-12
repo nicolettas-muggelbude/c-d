@@ -174,12 +174,13 @@ if ($data['booking_type'] === 'fixed') {
                     WHERE booking_date = :date
                     AND booking_type = 'blocked'
                     AND status != 'cancelled'
-                    AND TIME_FORMAT(booking_time, '%H:%i') <= :time
-                    AND (booking_end_time IS NULL OR TIME_FORMAT(booking_end_time, '%H:%i') > :time)";
+                    AND TIME_FORMAT(booking_time, '%H:%i') <= :time_start
+                    AND (booking_end_time IS NULL OR TIME_FORMAT(booking_end_time, '%H:%i') > :time_end)";
 
     $blockingResult = $db->querySingle($blockingSql, [
         ':date' => $data['booking_date'],
-        ':time' => $data['booking_time']
+        ':time_start' => $data['booking_time'],
+        ':time_end' => $data['booking_time']
     ]);
 
     $blockingCount = (int)($blockingResult['count'] ?? 0);
