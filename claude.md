@@ -819,3 +819,47 @@ Nach Production-Deployment funktionierten die Cronjobs nicht:
 - ✅ Production-System vollständig funktionsfähig
 
 ---
+
+## 🔧 Session 2026-01-12: Kritische Bugfixes nach Terminal-Absturz
+
+### Behobene Fehler
+
+**1. booking_end_time: Leerer String zu NULL konvertiert**
+- **Problem:** Leere Strings ('') für `booking_end_time` verursachten MySQL-Fehler
+- **Fehler:** `SQLSTATE[22007]: Invalid datetime format: 1292 Incorrect time value: ''`
+- **Lösung:** `!empty()` Check in `src/admin/admin/booking-calendar-v2.php` (Zeile 24-25)
+- **Datei:** `src/admin/admin/booking-calendar-v2.php`
+
+**2. hellocash_user_id zu hellocash_customer_id umbenannt**
+- **Problem:** Code verwendete falsche Spaltenbezeichnung (`hellocash_user_id` statt `hellocash_customer_id`)
+- **Fehler:** `SQLSTATE[42S22]: Column not found: 1054 Unknown column 'hellocash_user_id'`
+- **Betroffene Dateien:**
+  - `src/admin/booking-calendar-v2.php` (SQL + HTML + JavaScript)
+  - `src/admin/booking-week.php` (HTML + JavaScript)
+  - `src/admin/admin/booking-calendar-v2.php` (HTML + JavaScript)
+  - `src/admin/admin/booking-week.php` (HTML + JavaScript)
+
+**3. HelloCash Cronjob: Fallback für fehlende Nachnamen**
+- **Problem:** Cronjob schlug alle 5 Minuten fehl bei Kunden ohne Nachname
+- **Fehler:** `HelloCash createUser Error: user_surname oder user_company ist erforderlich`
+- **Lösung:** Fallback-Platzhalter '.' wenn weder Nachname noch Firma vorhanden
+- **Datei:** `cronjobs/sync-hellocash.php` (Zeile 50-57)
+- **Auswirkung:** Alle ausstehenden HelloCash-Synchronisationen werden nun erfolgreich durchgeführt
+
+### Commit
+```
+Fix: HelloCash-Synchronisation - Drei kritische Fehler behoben
+
+1. booking_end_time: Leere Strings werden nun zu NULL konvertiert
+2. hellocash_user_id zu hellocash_customer_id umbenannt
+3. HelloCash Cronjob: Fallback für fehlende Nachnamen
+
+Co-Authored-By: Claude Sonnet 4.5 <noreply@anthropic.com>
+```
+
+### Nächste Schritte
+- Production-Deployment der Fixes
+- Überwachung der Cronjob-Logs auf weitere Fehler
+- Test der HelloCash-Synchronisation mit echten Buchungen
+
+---
