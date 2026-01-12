@@ -406,7 +406,7 @@ include __DIR__ . '/../templates/header.php';
                                placeholder="Name, Email oder Telefon eingeben...">
                         <button type="button" class="btn btn-outline" onclick="searchHelloCash()">Suchen</button>
                     </div>
-                    <input type="hidden" id="hellocash_user_id" name="hellocash_user_id">
+                    <input type="hidden" id="hellocash_customer_id" name="hellocash_customer_id">
                     <!-- Suchergebnisse Dropdown -->
                     <div id="hellocash_results" class="search-results-dropdown" style="display: none;"></div>
                 </div>
@@ -862,7 +862,7 @@ async function selectHelloCashUser(userId) {
         if (data.success && data.user) {
             // Kundendaten in Formular eintragen
             const user = data.user;
-            document.getElementById('hellocash_user_id').value = user.user_id;
+            document.getElementById('hellocash_customer_id').value = user.user_id;
             document.getElementById('customer_firstname').value = user.firstname;
             document.getElementById('customer_lastname').value = user.lastname;
             document.getElementById('customer_email').value = user.email;

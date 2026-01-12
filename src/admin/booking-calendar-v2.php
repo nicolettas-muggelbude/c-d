@@ -104,13 +104,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['ajax_action'])) {
                         customer_firstname, customer_lastname, customer_email,
                         customer_phone_country, customer_phone_mobile,
                         customer_street, customer_house_number, customer_postal_code, customer_city,
-                        customer_notes, admin_notes, status, hellocash_user_id, created_at
+                        customer_notes, admin_notes, status, hellocash_customer_id, created_at
                         ) VALUES (
                         :type, :service, :date, :time, :end_time,
                         :firstname, :lastname, :email,
                         '+49', :phone,
                         '', '', '', '',
-                        :customer_notes, :admin_notes, :status, :hellocash_user_id, NOW()
+                        :customer_notes, :admin_notes, :status, :hellocash_customer_id, NOW()
                         )";
 
                 $bookingId = $db->insert($sql, [
@@ -126,7 +126,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['ajax_action'])) {
                     ':customer_notes' => $customerNotes,
                     ':admin_notes' => $adminNotes,
                     ':status' => $status,
-                    ':hellocash_user_id' => $helloCashUserId
+                    ':hellocash_customer_id' => $helloCashUserId
                 ]);
 
                 // Email-Bestätigung senden (nur bei Kundenterminen mit Email)
@@ -417,7 +417,7 @@ include __DIR__ . '/../templates/header.php';
                                placeholder="Name, Email oder Telefon eingeben...">
                         <button type="button" class="btn btn-outline" onclick="searchHelloCash()">Suchen</button>
                     </div>
-                    <input type="hidden" id="hellocash_user_id" name="hellocash_user_id">
+                    <input type="hidden" id="hellocash_customer_id" name="hellocash_customer_id">
                     <!-- Suchergebnisse Dropdown -->
                     <div id="hellocash_results" class="search-results-dropdown" style="display: none;"></div>
                 </div>
@@ -864,7 +864,7 @@ async function selectHelloCashUser(userId) {
         if (data.success && data.user) {
             // Kundendaten in Formular eintragen
             const user = data.user;
-            document.getElementById('hellocash_user_id').value = user.user_id;
+            document.getElementById('hellocash_customer_id').value = user.user_id;
             document.getElementById('customer_firstname').value = user.firstname;
             document.getElementById('customer_lastname').value = user.lastname;
             document.getElementById('customer_email').value = user.email;

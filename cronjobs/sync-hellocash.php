@@ -47,14 +47,23 @@ $errors = 0;
 foreach ($bookings as $booking) {
     echo "[SYNC] Buchung #{$booking['id']} ({$booking['customer_firstname']} {$booking['customer_lastname']})... ";
 
+    // Nachname und Firma validieren (HelloCash benötigt mindestens eins davon)
+    $lastname = trim($booking['customer_lastname'] ?? '');
+    $company = !empty($booking['customer_company']) ? trim($booking['customer_company']) : null;
+
+    // Fallback: Wenn weder Nachname noch Firma vorhanden, Platzhalter setzen
+    if (empty($lastname) && empty($company)) {
+        $lastname = '.';  // Minimal-Platzhalter für HelloCash
+    }
+
     $customerData = [
         'firstname' => trim($booking['customer_firstname']),
-        'lastname' => trim($booking['customer_lastname']),
+        'lastname' => $lastname,
         'email' => trim($booking['customer_email']),
         'phone_country' => $booking['customer_phone_country'] ?? '+49',
         'phone_mobile' => trim($booking['customer_phone_mobile']),
         'phone_landline' => !empty($booking['customer_phone_landline']) ? trim($booking['customer_phone_landline']) : null,
-        'company' => !empty($booking['customer_company']) ? trim($booking['customer_company']) : null,
+        'company' => $company,
         'street' => trim($booking['customer_street']),
         'house_number' => trim($booking['customer_house_number']),
         'postal_code' => trim($booking['customer_postal_code']),
