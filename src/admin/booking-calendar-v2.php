@@ -172,7 +172,7 @@ foreach ($bookings as $booking) {
 $walkinsByDate = [];
 foreach ($bookingsByDate as $date => $dayBookings) {
     $walkins = array_filter($dayBookings, function($b) {
-        return $b['booking_type'] === 'walkin';
+        return $b['booking_type'] === 'walkin' && $b['status'] !== 'cancelled';
     });
     if (!empty($walkins)) {
         $walkinsByDate[$date] = array_values($walkins);
