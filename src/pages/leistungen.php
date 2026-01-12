@@ -54,7 +54,7 @@ include __DIR__ . '/../templates/header.php';
                     <li>Custom Gaming PC</li>
                     <li>NAS / (Home)Server</li>
                 </ul>
-                <a href="<?= BASE_URL ?>/shop" class="btn btn-primary">Zum Shop</a>
+                <!-- Shop-Button ausgeblendet - Shop noch nicht fertig -->
             </div>
 
             <!-- Beratung & Planung -->
