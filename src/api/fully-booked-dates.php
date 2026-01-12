@@ -124,8 +124,18 @@ try {
             }
         }
 
-        // Tag ist ausgebucht wenn alle Slots voll sind
-        if ($bookedSlotsCount >= $slotsPerDay) {
+        // Tag ist ausgebucht wenn alle Fixed-Slots voll sind
+        // ABER: Di-Sa sind nie fully booked weil Walk-ins immer möglich sind
+        $dateObj = new DateTime($date);
+        $dayOfWeek = (int)$dateObj->format('N'); // 1=Mo, 2=Di, ..., 7=So
+
+        // Walk-ins sind möglich: Di-Sa (2-6)
+        $walkinPossible = ($dayOfWeek >= 2 && $dayOfWeek <= 6);
+
+        // Tag nur als fully booked markieren wenn:
+        // - Alle Fixed-Slots voll UND
+        // - Keine Walk-ins möglich (So, Mo)
+        if ($bookedSlotsCount >= $slotsPerDay && !$walkinPossible) {
             $fullyBookedDates[] = $date;
         }
     }
