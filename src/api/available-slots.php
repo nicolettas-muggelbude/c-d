@@ -92,12 +92,11 @@ try {
         $currentTime->modify("+{$intervalMinutes} minutes");
     }
 
-    // Gebuchte Slots zählen (fixed + blocked)
-    // blocked = Admin-Blockierung (nimmt den ganzen Slot ein)
+    // Feste Termine zählen (exact time match)
     $sql = "SELECT TIME_FORMAT(booking_time, '%H:%i') as time_slot, COUNT(*) as count
             FROM bookings
             WHERE booking_date = :date
-            AND booking_type IN ('fixed', 'blocked')
+            AND booking_type = 'fixed'
             AND status != 'cancelled'
             GROUP BY time_slot";
 
@@ -108,10 +107,31 @@ try {
         $bookedSlots[$row['time_slot']] = (int)$row['count'];
     }
 
+    // Blockierungen mit Zeitspannen holen
+    $blockingSql = "SELECT booking_time, booking_end_time
+                    FROM bookings
+                    WHERE booking_date = :date
+                    AND booking_type = 'blocked'
+                    AND status != 'cancelled'";
+    $blockings = $db->query($blockingSql, [':date' => $date]);
+
     // Verfügbare Slots filtern
     $availableSlots = [];
     foreach ($slots as $slot) {
         $bookedCount = $bookedSlots[$slot] ?? 0;
+
+        // Prüfen ob Slot in einer Blockierungs-Zeitspanne liegt
+        foreach ($blockings as $blocking) {
+            $blockStart = substr($blocking['booking_time'], 0, 5); // HH:MM
+            $blockEnd = $blocking['booking_end_time'] ? substr($blocking['booking_end_time'], 0, 5) : null;
+
+            // Slot ist geblockt wenn: slot >= blockStart UND (kein Ende ODER slot < blockEnd)
+            if ($slot >= $blockStart && ($blockEnd === null || $slot < $blockEnd)) {
+                $bookedCount = $maxBookingsPerSlot; // Komplett blocken
+                break;
+            }
+        }
+
         $available = $bookedCount < $maxBookingsPerSlot;
 
         $availableSlots[] = [

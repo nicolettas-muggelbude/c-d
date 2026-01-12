@@ -57,27 +57,77 @@ try {
     $endDate = clone $today;
     $endDate->modify("+{$weeks} weeks");
 
-    // Ausgebuchte Tage finden
-    // Ein Tag ist ausgebucht wenn: Anzahl Buchungen >= maxBookingsPerDay
-    // Zählt fixed + blocked (Admin-Blockierungen)
-    $sql = "SELECT booking_date, COUNT(*) as booking_count
+    // Alle Buchungen für den Zeitraum holen (inkl. Zeitspannen)
+    $sql = "SELECT booking_date, booking_type, booking_time, booking_end_time
             FROM bookings
             WHERE booking_date >= :start_date
             AND booking_date < :end_date
             AND booking_type IN ('fixed', 'blocked')
-            AND status != 'cancelled'
-            GROUP BY booking_date
-            HAVING booking_count >= :max_bookings";
+            AND status != 'cancelled'";
 
-    $result = $db->query($sql, [
+    $bookings = $db->query($sql, [
         ':start_date' => $today->format('Y-m-d'),
-        ':end_date' => $endDate->format('Y-m-d'),
-        ':max_bookings' => $maxBookingsPerDay
+        ':end_date' => $endDate->format('Y-m-d')
     ]);
 
+    // Buchungen nach Datum gruppieren
+    $bookingsByDate = [];
+    foreach ($bookings as $booking) {
+        $date = $booking['booking_date'];
+        if (!isset($bookingsByDate[$date])) {
+            $bookingsByDate[$date] = [];
+        }
+        $bookingsByDate[$date][] = $booking;
+    }
+
+    // Alle verfügbaren Slots generieren
+    $allSlots = [];
+    $currentTime = DateTime::createFromFormat('H:i', $startTime);
+    $endTimeObj = DateTime::createFromFormat('H:i', $endTime);
+    while ($currentTime < $endTimeObj) {
+        $allSlots[] = $currentTime->format('H:i');
+        $currentTime->modify("+{$intervalMinutes} minutes");
+    }
+
+    // Für jeden Tag prüfen ob ausgebucht
     $fullyBookedDates = [];
-    foreach ($result as $row) {
-        $fullyBookedDates[] = $row['booking_date'];
+    foreach ($bookingsByDate as $date => $dayBookings) {
+        $bookedSlotsCount = 0;
+
+        // Für jeden Slot prüfen ob er belegt ist
+        foreach ($allSlots as $slot) {
+            $slotBookedCount = 0;
+
+            foreach ($dayBookings as $booking) {
+                if ($booking['booking_type'] === 'fixed') {
+                    // Feste Termine: Exact match
+                    $bookingTime = substr($booking['booking_time'], 0, 5);
+                    if ($bookingTime === $slot) {
+                        $slotBookedCount++;
+                    }
+                } else if ($booking['booking_type'] === 'blocked') {
+                    // Blockierungen: Zeitspannen-Check
+                    $blockStart = substr($booking['booking_time'], 0, 5);
+                    $blockEnd = $booking['booking_end_time'] ? substr($booking['booking_end_time'], 0, 5) : null;
+
+                    if ($slot >= $blockStart && ($blockEnd === null || $slot < $blockEnd)) {
+                        // Slot ist geblockt - als voll zählen
+                        $slotBookedCount = $maxBookingsPerSlot;
+                        break;
+                    }
+                }
+            }
+
+            // Wenn Slot voll ist, als belegt zählen
+            if ($slotBookedCount >= $maxBookingsPerSlot) {
+                $bookedSlotsCount++;
+            }
+        }
+
+        // Tag ist ausgebucht wenn alle Slots voll sind
+        if ($bookedSlotsCount >= $slotsPerDay) {
+            $fullyBookedDates[] = $date;
+        }
     }
 
     http_response_code(200);
