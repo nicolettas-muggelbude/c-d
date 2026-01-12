@@ -48,6 +48,9 @@ try {
     // Max. Buchungen pro Tag
     $maxBookingsPerDay = $slotsPerDay * $maxBookingsPerSlot;
 
+    // Termintyp-Parameter (optional)
+    $bookingType = $_GET['booking_type'] ?? null; // 'fixed', 'walkin', oder null
+
     // Zeitraum festlegen (nächste X Wochen)
     $weeks = (int)($_GET['weeks'] ?? 4);
     $weeks = min(max($weeks, 1), 12); // Zwischen 1 und 12 Wochen
@@ -89,9 +92,25 @@ try {
         $currentTime->modify("+{$intervalMinutes} minutes");
     }
 
+    // Für Walk-ins: Alle Tage im Zeitraum generieren (um So+Mo zu markieren)
+    $allDates = [];
+    if ($bookingType === 'walkin') {
+        $currentDate = clone $today;
+        while ($currentDate < $endDate) {
+            $allDates[] = $currentDate->format('Y-m-d');
+            $currentDate->modify('+1 day');
+        }
+    }
+
     // Für jeden Tag prüfen ob ausgebucht
     $fullyBookedDates = [];
-    foreach ($bookingsByDate as $date => $dayBookings) {
+
+    // Bei Walk-ins: Alle Tage prüfen (inkl. Tage ohne Buchungen)
+    // Sonst: Nur Tage mit Buchungen prüfen
+    $datesToCheck = ($bookingType === 'walkin') ? $allDates : array_keys($bookingsByDate);
+
+    foreach ($datesToCheck as $date) {
+        $dayBookings = $bookingsByDate[$date] ?? [];
         $bookedSlotsCount = 0;
 
         // Für jeden Slot prüfen ob er belegt ist
@@ -124,18 +143,30 @@ try {
             }
         }
 
-        // Tag ist ausgebucht wenn alle Fixed-Slots voll sind
-        // ABER: Di-Sa sind nie fully booked weil Walk-ins immer möglich sind
+        // Entscheidung ob Tag fully booked ist (abhängig vom Termintyp)
         $dateObj = new DateTime($date);
         $dayOfWeek = (int)$dateObj->format('N'); // 1=Mo, 2=Di, ..., 7=So
+        $walkinPossible = ($dayOfWeek >= 2 && $dayOfWeek <= 6); // Di-Sa
 
-        // Walk-ins sind möglich: Di-Sa (2-6)
-        $walkinPossible = ($dayOfWeek >= 2 && $dayOfWeek <= 6);
+        $isFullyBooked = false;
 
-        // Tag nur als fully booked markieren wenn:
-        // - Alle Fixed-Slots voll UND
-        // - Keine Walk-ins möglich (So, Mo)
-        if ($bookedSlotsCount >= $slotsPerDay && !$walkinPossible) {
+        if ($bookingType === 'fixed') {
+            // FIXED: Tag ist voll wenn alle Fixed-Slots belegt sind
+            // (unabhängig von Walk-in Verfügbarkeit)
+            $isFullyBooked = ($bookedSlotsCount >= $slotsPerDay);
+
+        } else if ($bookingType === 'walkin') {
+            // WALK-IN: Di-Sa sind NIE fully booked (Walk-ins unbegrenzt)
+            // Nur So+Mo können fully booked sein
+            $isFullyBooked = !$walkinPossible;
+
+        } else {
+            // DEFAULT (kein booking_type): Wie bisher
+            // Tag ist fully booked wenn Fixed-Slots voll UND keine Walk-ins möglich
+            $isFullyBooked = ($bookedSlotsCount >= $slotsPerDay && !$walkinPossible);
+        }
+
+        if ($isFullyBooked) {
             $fullyBookedDates[] = $date;
         }
     }
