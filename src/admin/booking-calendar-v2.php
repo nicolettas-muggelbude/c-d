@@ -21,8 +21,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['ajax_action'])) {
         $bookingType = $_POST['booking_type'] ?? 'fixed';
         $serviceType = $_POST['service_type'] ?? 'sonstiges';
         $bookingDate = $_POST['booking_date'] ?? '';
-        $bookingTime = $_POST['booking_time'] ?? null;
-        $bookingEndTime = $_POST['booking_end_time'] ?? null;
+        $bookingTime = !empty($_POST['booking_time']) ? $_POST['booking_time'] : null;
+        $bookingEndTime = !empty($_POST['booking_end_time']) ? $_POST['booking_end_time'] : null;
         $customerFirstname = $_POST['customer_firstname'] ?? '';
         $customerLastname = $_POST['customer_lastname'] ?? '';
         $customerEmail = $_POST['customer_email'] ?? '';
