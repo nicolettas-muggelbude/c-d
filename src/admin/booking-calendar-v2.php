@@ -69,18 +69,48 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['ajax_action'])) {
                 echo json_encode(['success' => true, 'message' => 'Termin aktualisiert']);
             } else {
                 // Insert
+                // HelloCash: Kunde anlegen/suchen (nur bei Kundenterminen)
+                $helloCashUserId = null;
+                if (in_array($bookingType, ['fixed', 'walkin']) && !empty($customerEmail)) {
+                    $hellocash = new HelloCashClient();
+                    if ($hellocash->isConfigured()) {
+                        $result = $hellocash->findOrCreateUser([
+                            'firstname' => $customerFirstname,
+                            'lastname' => $customerLastname,
+                            'email' => $customerEmail,
+                            'phone_country' => '+49',
+                            'phone_mobile' => $customerPhone,
+                            'street' => '',
+                            'house_number' => '',
+                            'postal_code' => '',
+                            'city' => ''
+                        ]);
+
+                        if ($result['user_id']) {
+                            $helloCashUserId = $result['user_id'];
+                            if ($result['is_new']) {
+                                error_log("HelloCash: Neuer User erstellt (ID: {$helloCashUserId}) für Buchung");
+                            } else {
+                                error_log("HelloCash: Existierender User gefunden (ID: {$helloCashUserId}) für Buchung");
+                            }
+                        } elseif ($result['error']) {
+                            error_log("HelloCash Fehler: {$result['error']}");
+                        }
+                    }
+                }
+
                 $sql = "INSERT INTO bookings (
                         booking_type, service_type, booking_date, booking_time, booking_end_time,
                         customer_firstname, customer_lastname, customer_email,
                         customer_phone_country, customer_phone_mobile,
                         customer_street, customer_house_number, customer_postal_code, customer_city,
-                        customer_notes, admin_notes, status, created_at
+                        customer_notes, admin_notes, status, hellocash_user_id, created_at
                         ) VALUES (
                         :type, :service, :date, :time, :end_time,
                         :firstname, :lastname, :email,
                         '+49', :phone,
                         '', '', '', '',
-                        :customer_notes, :admin_notes, :status, NOW()
+                        :customer_notes, :admin_notes, :status, :hellocash_user_id, NOW()
                         )";
 
                 $bookingId = $db->insert($sql, [
@@ -95,7 +125,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['ajax_action'])) {
                     ':phone' => $customerPhone,
                     ':customer_notes' => $customerNotes,
                     ':admin_notes' => $adminNotes,
-                    ':status' => $status
+                    ':status' => $status,
+                    ':hellocash_user_id' => $helloCashUserId
                 ]);
 
                 // Email-Bestätigung senden (nur bei Kundenterminen mit Email)
