@@ -518,11 +518,17 @@ let formData = {
 
 console.log('Variables initialized');
 
-// Ausgebuchte Tage laden
-async function loadFullyBookedDates() {
-    console.log('loadFullyBookedDates() called');
+// Ausgebuchte Tage laden (optional mit Termintyp-Filter)
+async function loadFullyBookedDates(bookingType = null) {
+    console.log('loadFullyBookedDates() called with bookingType:', bookingType);
     try {
-        const response = await fetch('<?= BASE_URL ?>/api/fully-booked-dates?weeks=8');
+        // API-URL mit optionalem booking_type Parameter
+        let url = '<?= BASE_URL ?>/api/fully-booked-dates?weeks=8';
+        if (bookingType) {
+            url += `&booking_type=${bookingType}`;
+        }
+
+        const response = await fetch(url);
         console.log('API response:', response);
         const result = await response.json();
         console.log('API result:', result);
@@ -662,6 +668,9 @@ function setupStep3() {
     document.getElementById('step3-title').textContent = isFixed
         ? 'Wann möchten Sie kommen?'
         : 'An welchem Tag möchten Sie vorbeikommen?';
+
+    // Fully-booked-dates mit Termintyp neu laden
+    loadFullyBookedDates(formData.booking_type);
 
     // Datum-Validierung hinzufügen
     setupDateValidation();

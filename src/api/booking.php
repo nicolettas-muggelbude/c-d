@@ -153,7 +153,7 @@ if ($data['booking_type'] === 'fixed') {
     $settingRow = $db->querySingle("SELECT setting_value FROM booking_settings WHERE setting_key = 'max_bookings_per_slot'");
     $maxBookingsPerSlot = (int)($settingRow['setting_value'] ?? 1);
 
-    // Aktuelle Buchungen für diesen Slot zählen
+    // Feste Termine für diesen Slot zählen (exact time match)
     $sql = "SELECT COUNT(*) as count
             FROM bookings
             WHERE booking_date = :date
@@ -167,6 +167,28 @@ if ($data['booking_type'] === 'fixed') {
     ]);
 
     $currentBookings = (int)($result['count'] ?? 0);
+
+    // Prüfen ob Slot durch Blockierung gesperrt ist (Zeitspannen-Check)
+    $blockingSql = "SELECT COUNT(*) as count
+                    FROM bookings
+                    WHERE booking_date = :date
+                    AND booking_type = 'blocked'
+                    AND status != 'cancelled'
+                    AND TIME_FORMAT(booking_time, '%H:%i') <= :time_start
+                    AND (booking_end_time IS NULL OR TIME_FORMAT(booking_end_time, '%H:%i') > :time_end)";
+
+    $blockingResult = $db->querySingle($blockingSql, [
+        ':date' => $data['booking_date'],
+        ':time_start' => $data['booking_time'],
+        ':time_end' => $data['booking_time']
+    ]);
+
+    $blockingCount = (int)($blockingResult['count'] ?? 0);
+
+    // Wenn geblockt, Slot als voll markieren
+    if ($blockingCount > 0) {
+        $currentBookings = $maxBookingsPerSlot;
+    }
 
     if ($currentBookings >= $maxBookingsPerSlot) {
         error_log("Booking rejected - slot full ({$currentBookings}/{$maxBookingsPerSlot})");
