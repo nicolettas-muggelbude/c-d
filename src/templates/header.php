@@ -13,7 +13,7 @@
     <meta property="og:url" content="<?= e($page_url ?? 'https://pc-wittfoot.de' . $_SERVER['REQUEST_URI']) ?>">
     <meta property="og:title" content="<?= e($page_title ?? 'PC-Wittfoot UG') ?>">
     <meta property="og:description" content="<?= e($page_description ?? 'PC-Wittfoot UG - IT-Fachbetrieb mit Herz. Beratung, Verkauf, Reparatur, Softwareentwicklung. Refurbished Hardware & exone Neugeräte.') ?>">
-    <meta property="og:image" content="<?= e($page_image ?? 'https://pc-wittfoot.de' . asset('images/og-image.png')) ?>">
+    <meta property="og:image" content="<?= e($page_image ?? asset('images/og-image.png')) ?>">
     <meta property="og:image:width" content="1200">
     <meta property="og:image:height" content="630">
     <meta property="og:locale" content="de_DE">
@@ -27,7 +27,7 @@
     <meta name="twitter:url" content="<?= e($page_url ?? 'https://pc-wittfoot.de' . $_SERVER['REQUEST_URI']) ?>">
     <meta name="twitter:title" content="<?= e($page_title ?? 'PC-Wittfoot UG') ?>">
     <meta name="twitter:description" content="<?= e($page_description ?? 'PC-Wittfoot UG - IT-Fachbetrieb mit Herz. Beratung, Verkauf, Reparatur, Softwareentwicklung. Refurbished Hardware & exone Neugeräte.') ?>">
-    <meta name="twitter:image" content="<?= e($page_image ?? 'https://pc-wittfoot.de' . asset('images/og-image.png')) ?>">
+    <meta name="twitter:image" content="<?= e($page_image ?? asset('images/og-image.png')) ?>">
 
     <!-- Canonical URL -->
     <link rel="canonical" href="<?= e($page_url ?? 'https://pc-wittfoot.de' . $_SERVER['REQUEST_URI']) ?>">
