@@ -69,6 +69,14 @@
   - Production-Server: www116.c.artfiles.de
   - Live-URL: https://pc-wittfoot.de
 
+- **[10 - Git-Workflow](docs/10-git-workflow.md)**
+  - master vs. production Branch
+  - Standard-Workflow (Entwicklung → Production)
+  - Häufige Fehler und Lösungen
+  - Cherry-pick vs. Merge
+  - Deployment-Checkliste
+  - Rollback-Strategie
+
 ### Verlauf
 - **[09 - Session-Log](docs/09-session-log.md)**
   - Chronologische Dokumentation aller Entwicklungs-Sessions
@@ -373,22 +381,29 @@ Detaillierte Entwicklungs-Logs wurden in separate Dateien ausgelagert:
 **PHP-Pfad:** `/usr/local/bin/php`
 
 **Git Workflow:**
+> **⚠️ WICHTIG:** Siehe **[Git-Workflow Dokumentation](docs/10-git-workflow.md)** für detaillierte Anweisungen!
+
+Kurzversion:
 ```bash
-# Lokale Änderungen committen und pushen
-git add .
-git commit -m "Message"
-git push origin master
-
-# Production Branch aktualisieren
-git checkout production
-git merge master
-git push origin production
+# 1. Auf master entwickeln und committen
 git checkout master
+git add src/pfad/zur/datei.php
+git commit -m "Feature: Beschreibung"
 
-# Auf Production-Server deployen
+# 2. Nach production übertragen
+git checkout production
+git merge master  # oder: git cherry-pick COMMIT_HASH
+
+# 3. Beide Branches pushen
+git push origin master
+git push origin production
+
+# 4. Auf Production-Server deployen
 ssh dcp285520007@www116.c.artfiles.de
 cd /home/www/doc/28552/dcp285520007/pc-wittfoot.de/www
-git pull origin production
+git stash push -m "Production-Config"
+git pull --no-rebase --no-edit origin production
+git stash pop
 ```
 
 ---
@@ -936,5 +951,116 @@ password_hash('admin123', PASSWORD_DEFAULT)
 a4f58b3 Fix: Admin-Login Redirect zu /admin/login statt /admin/login.php
 f9a8b88 Fix: Admin-Login Session-Problem behoben (Production)
 ```
+
+---
+
+## 🔧 Session 2026-01-13: Git-Workflow Fixes & Social Media Meta-Tags
+
+### Behobene Probleme
+
+**1. Health-Check während Wartungsmodus**
+- **Problem:** Health-Check Endpoint `/api/health-check` wurde im Wartungsmodus blockiert
+- **Symptom:** Pre-Push-Hook Tests schlugen fehl (16/17, Test #12 failed)
+- **Ursache:** `/api/health-check` war nicht in der Wartungsmodus-Whitelist
+- **Lösung:** `/api/health-check` zu `src/core/maintenance.php` Whitelist hinzugefügt (Zeile 18)
+- **Commit:** `b8d7eda` - Fix: Health-Check Endpoint während Wartungsmodus ermöglichen
+- **Ergebnis:** ✅ Alle 17 Tests bestehen (100%)
+
+**2. Fehlende Commits auf production Branch**
+- **Problem:** OG-Image und LinkedIn Meta-Tags waren auf `master`, fehlten aber auf `production`
+- **Symptom:**
+  - `og-image.png` nicht auf Produktionsserver
+  - `article:published_time` Tags fehlten im HTML
+  - Doppelte Domain in og:image URL
+- **Fehlende Commits:**
+  - `b4ca840` - Add: Open Graph Image für Social Media Previews
+  - `ea9a72b` - Add: LinkedIn Open Graph Meta-Tags
+- **Ursache:** Commits wurden nur auf `master` erstellt, nicht nach `production` übertragen
+- **Lösung:** `git cherry-pick` auf production Branch
+- **Ergebnis:** ✅ Alle Features auf production verfügbar
+
+**3. Doppelte Domain in OG-Image URL**
+- **Problem:** `og:image` URL war `https://pc-wittfoot.dehttps://pc-wittfoot.de/assets/images/og-image.png`
+- **Ursache:** `asset()` Funktion gibt bereits vollständige URL zurück, wurde aber mit Domain konkateniert
+- **Lösung:** `'https://pc-wittfoot.de' . asset(...)` zu `asset(...)` geändert
+- **Betroffene Dateien:**
+  - `src/templates/header.php` (Zeile 16: og:image)
+  - `src/templates/header.php` (Zeile 30: twitter:image)
+- **Commit:** `c73fb6a` - Fix: Doppelte Domain in OG-Image URL entfernt
+- **Ergebnis:** ✅ Korrekte URLs in Meta-Tags
+
+### Deployment-Workflow
+
+**Lokales System:**
+```bash
+# 1. Health-Check Fix auf production cherry-picken
+git checkout production
+git cherry-pick 2b368c0
+
+# 2. OG-Image und LinkedIn Commits cherry-picken
+git cherry-pick b4ca840  # OG-Image
+git cherry-pick ea9a72b  # LinkedIn Meta-Tags
+
+# 3. Doppelte Domain fixen
+# ... Edit src/templates/header.php ...
+git commit -m "Fix: Doppelte Domain in OG-Image URL entfernt"
+
+# 4. Push
+git push origin production
+```
+
+**Produktionsserver:**
+```bash
+cd /home/www/doc/28552/dcp285520007/pc-wittfoot.de/www
+git pull --no-rebase --no-edit origin production
+```
+
+### Verifizierung auf Production
+
+**og-image.png:**
+```bash
+$ ls -lh src/assets/images/og-image.png
+-rw-r--r-- 1 dcp285520007 a28552 430K Jan 13 09:52 src/assets/images/og-image.png
+```
+
+**Meta-Tags:**
+```bash
+$ curl -s https://pc-wittfoot.de | grep -E "og:image|article:published_time"
+<meta property="og:image" content="https://pc-wittfoot.de/assets/images/og-image.png?v=30">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="article:published_time" content="2024-01-01T00:00:00+01:00">
+<meta property="article:modified_time" content="2026-01-13T10:46:04+01:00">
+<meta property="article:author" content="PC-Wittfoot UG">
+```
+
+✅ **Alle Features funktionieren korrekt!**
+
+### Neue Dokumentation
+
+**[docs/10-git-workflow.md](docs/10-git-workflow.md)** erstellt:
+- Standard-Workflow (master → production → deploy)
+- Häufige Fehler und Lösungen
+- Cherry-pick vs. Merge Strategien
+- Deployment-Checkliste
+- Rollback-Strategie
+- Troubleshooting-Guide
+
+### Commits
+```
+b8d7eda Fix: Health-Check Endpoint während Wartungsmodus ermöglichen
+9ff7179 Add: Open Graph Image für Social Media Previews (cherry-picked)
+85acdef Add: LinkedIn Open Graph Meta-Tags (cherry-picked)
+c73fb6a Fix: Doppelte Domain in OG-Image URL entfernt
+```
+
+### Lessons Learned
+
+⚠️ **Wichtige Erkenntnisse:**
+1. **Beide Branches müssen aktuell gehalten werden** - Commits auf `master` automatisch auch auf `production` übertragen (merge oder cherry-pick)
+2. **Pre-Push-Hook ist essentiell** - Fängt Fehler vor dem Deployment
+3. **Whitelist für Wartungsmodus beachten** - Monitoring-Endpoints müssen auch im Wartungsmodus funktionieren
+4. **URL-Helpers verstehen** - `asset()` gibt bereits vollständige URLs zurück
+5. **Git-Workflow dokumentieren** - Vermeidet zukünftige Verwirrung
 
 ---
