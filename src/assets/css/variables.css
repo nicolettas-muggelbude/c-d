@@ -37,7 +37,7 @@
   --text-inverse: var(--color-white);
 
   /* Hintergrund-Farben */
-  --bg-primary: var(--color-white);
+  --bg-primary: #f4f2ef;
   --bg-secondary: var(--color-lighter-gray);
   --bg-tertiary: var(--color-light-gray);
 
