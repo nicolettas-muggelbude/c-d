@@ -14,8 +14,13 @@
     <meta property="og:title" content="<?= e($page_title ?? 'PC-Wittfoot UG') ?>">
     <meta property="og:description" content="<?= e($page_description ?? 'PC-Wittfoot UG - IT-Fachbetrieb mit Herz. Beratung, Verkauf, Reparatur, Softwareentwicklung. Refurbished Hardware & exone Neugeräte.') ?>">
     <meta property="og:image" content="<?= e($page_image ?? 'https://pc-wittfoot.de' . asset('images/og-image.png')) ?>">
+    <meta property="og:image:width" content="1200">
+    <meta property="og:image:height" content="630">
     <meta property="og:locale" content="de_DE">
     <meta property="og:site_name" content="PC-Wittfoot UG">
+    <meta property="article:published_time" content="<?= e($page_published ?? '2024-01-01T00:00:00+01:00') ?>">
+    <meta property="article:modified_time" content="<?= e($page_modified ?? date('c')) ?>">
+    <meta property="article:author" content="PC-Wittfoot UG">
 
     <!-- Twitter / X -->
     <meta name="twitter:card" content="summary_large_image">
