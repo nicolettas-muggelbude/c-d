@@ -18,7 +18,7 @@
     <meta property="og:image:height" content="630">
     <meta property="og:locale" content="de_DE">
     <meta property="og:site_name" content="PC-Wittfoot UG">
-    <meta property="article:published_time" content="<?= e($page_published ?? '2024-01-01T00:00:00+01:00') ?>">
+    <meta property="article:published_time" content="<?= e($page_published ?? '2026-01-11T00:00:00+01:00') ?>">
     <meta property="article:modified_time" content="<?= e($page_modified ?? date('c')) ?>">
     <meta property="article:author" content="PC-Wittfoot UG">
 
