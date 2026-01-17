@@ -47,7 +47,7 @@ $categories = $db->query("
 
 // Page-Meta für Template
 $page_title = 'PC-Wittfoot UG - IT-Fachbetrieb mit Herz';
-$page_description = 'IT-Fachbetrieb in [Ort]. Beratung, Verkauf, Reparatur & Softwareentwicklung. Refurbished Hardware & exone Neugeräte. Persönlicher Service mit Kaffee!';
+$page_description = 'IT-Fachbetrieb in Oldenburg. Beratung, Verkauf, Reparatur & Softwareentwicklung. Refurbished Hardware & exone Neugeräte. Persönlicher Service mit Kaffee! ☕ Mit Bürohund Baileys.';
 $current_page = 'home';
 
 // Header includen

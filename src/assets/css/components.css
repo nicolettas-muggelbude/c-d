@@ -303,6 +303,33 @@
     transform: scale(1.1);
 }
 
+/* Dark-Mode: Social Media Icons - besserer Kontrast */
+@media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) .social-links a {
+        background: rgba(0, 0, 0, 0.3);
+        color: white;
+        border: 2px solid rgba(255, 255, 255, 0.3);
+    }
+
+    :root:not([data-theme="light"]) .social-links a:hover {
+        background: var(--color-primary);
+        color: white;
+        border-color: var(--color-primary);
+    }
+}
+
+[data-theme="dark"] .social-links a {
+    background: rgba(0, 0, 0, 0.3);
+    color: white;
+    border: 2px solid rgba(255, 255, 255, 0.3);
+}
+
+[data-theme="dark"] .social-links a:hover {
+    background: var(--color-primary);
+    color: white;
+    border-color: var(--color-primary);
+}
+
 /* ============================================= */
 /* FOOTER */
 /* ============================================= */
@@ -339,14 +366,37 @@ footer h3 {
     margin-bottom: var(--space-md);
 }
 
+/* Footer Text - alle Texte weiß für Lesbarkeit (Light & Dark Mode) */
+footer p {
+    color: white !important;
+}
+
+footer p strong {
+    color: white !important;
+}
+
 footer a {
-    color: var(--color-light-gray);
+    color: white !important;
     text-decoration: none;
     transition: var(--transition-base);
 }
 
 footer a:hover {
-    color: var(--color-primary);
+    color: var(--color-primary) !important;
+}
+
+/* Text-muted im Footer - heller für bessere Lesbarkeit */
+footer .text-muted {
+    color: rgba(255, 255, 255, 0.7) !important;
+}
+
+/* Footer Links in Kontakt-Block - explizit weiß */
+footer .footer-col p a {
+    color: white !important;
+}
+
+footer .footer-col p a:hover {
+    color: var(--color-primary) !important;
 }
 
 .footer-links {
@@ -369,7 +419,7 @@ footer a:hover {
 /* ============================================= */
 
 header {
-    background: var(--bg-primary);
+    background: var(--color-white);
     border-bottom: 1px solid var(--border-color);
     position: fixed;
     top: 0;
@@ -1865,4 +1915,18 @@ nav a.active {
 
 [data-theme="dark"] .footer-bottom {
     border-top-color: #404040;
+}
+
+/* ============================================= */
+/* BOT-SCHUTZ: HONEYPOT */
+/* ============================================= */
+
+/* Honeypot-Feld verstecken (für Bots unsichtbar) */
+.honeypot {
+    position: absolute;
+    left: -9999px;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    opacity: 0;
 }
