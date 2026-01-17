@@ -4,7 +4,7 @@
  */
 
 $page_title = 'Unsere Leistungen | PC-Wittfoot UG';
-$page_description = 'Beratung, Verkauf, Reparatur, Softwareentwicklung - Ihr IT-Partner in [Ort]';
+$page_description = 'IT-Dienstleistungen in Oldenburg: Diagnose & Reparatur, Refurbished Hardware mit 24 Monaten Garantie, Beratung, Softwareentwicklung, Wartung & Support. Persönlicher Service im Systemhäuschen.';
 $current_page = 'leistungen';
 
 include __DIR__ . '/../templates/header.php';
@@ -12,6 +12,13 @@ include __DIR__ . '/../templates/header.php';
 
 <section class="section">
     <div class="container">
+        <!-- Header-Bild für SEO (Platzhalter - später durch Werkstatt/Service-Foto ersetzen) -->
+        <div style="text-align: center; margin-bottom: var(--space-xl);">
+            <img src="<?= asset('images/logo-square.svg') ?>"
+                 alt="PC-Wittfoot IT-Dienstleistungen - Reparatur, Beratung, Hardware-Verkauf in Oldenburg"
+                 style="width: 150px; height: auto;">
+        </div>
+
         <h1>Unsere Leistungen</h1>
         <p class="lead">
             Als IT-Fachbetrieb bieten wir umfassende Dienstleistungen rund um Computer, Notebooks, Tablets und Smartphones.

@@ -40,6 +40,11 @@
     <link rel="icon" type="image/svg+xml" href="<?= asset('images/logo-square.svg') ?>">
     <link rel="alternate icon" type="image/png" href="<?= asset('images/favicon.png') ?>")
 
+    <!-- Emoji Font (einheitliche Emojis auf allen Geräten) -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Color+Emoji&display=swap" rel="stylesheet">
+
     <!-- CSS -->
     <link rel="stylesheet" href="<?= asset('css/variables.css') ?>">
     <link rel="stylesheet" href="<?= asset('css/reset.css') ?>">
@@ -70,7 +75,7 @@
                 <!-- Logo -->
                 <div class="logo">
                     <a href="<?= BASE_URL ?>">
-                        <img src="<?= asset('images/logo-square.svg') ?>" alt="PC-Wittfoot - Zur Startseite">
+                        <img src="<?= asset('images/logo-square.svg') ?>" alt="PC-Wittfoot UG - IT-Fachbetrieb Oldenburg - Reparatur, Beratung, Hardware">
                     </a>
                 </div>
 
@@ -119,4 +124,4 @@
     </header>
 
     <!-- Main Content -->
-    <main id="main" role="main">
+    <main id="main" role="main" aria-label="Hauptinhalt der Seite">

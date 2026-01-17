@@ -4,7 +4,7 @@
  */
 
 $page_title = 'Impressum | PC-Wittfoot UG';
-$page_description = 'Impressum und Anbieterkennzeichnung';
+$page_description = 'Impressum der PC-Wittfoot UG - Anbieterkennzeichnung gemäß § 5 TMG. IT-Fachbetrieb in Oldenburg, Melkbrink 61.';
 $current_page = '';
 
 include __DIR__ . '/../templates/header.php';
@@ -12,6 +12,12 @@ include __DIR__ . '/../templates/header.php';
 
 <section class="section">
     <div class="container" style="max-width: 800px;">
+        <div style="text-align: center; margin-bottom: var(--space-xl);">
+            <img src="<?= asset('images/logo-square.svg') ?>"
+                 alt="PC-Wittfoot UG Logo - IT-Fachbetrieb Oldenburg"
+                 style="width: 120px; height: auto;">
+        </div>
+
         <h1>Impressum</h1>
 
         <h2>Angaben gemäß § 5 TMG</h2>

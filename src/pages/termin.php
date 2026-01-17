@@ -5,7 +5,7 @@
  */
 
 $page_title = 'Termin buchen | PC-Wittfoot UG';
-$page_description = 'Buchen Sie einen Termin bei PC-Wittfoot. Feste Termine oder spontane Besuche - wir sind für Sie da.';
+$page_description = 'Online-Terminbuchung bei PC-Wittfoot in Oldenburg. Wählen Sie zwischen festen Terminen oder spontanen Besuchen. Beratung, Reparatur, Abholung - persönlicher Service im Systemhäuschen.';
 $current_page = 'termin';
 $extra_css = ['css/booking.css', 'css/flatpickr.min.css'];
 
@@ -16,6 +16,13 @@ include __DIR__ . '/../templates/header.php';
 
 <section class="section">
     <div class="container">
+        <!-- Header-Bild für SEO - Eingangsbereich mit Bürohund Baileys -->
+        <div style="text-align: center; margin-bottom: var(--space-xl);">
+            <img src="<?= asset('images/pc-wittfoot-eingangsbereich.jpg') ?>"
+                 alt="PC-Wittfoot Eingangsbereich Oldenburg - Systemhäuschen mit Bürohund Baileys - Persönlicher IT-Service"
+                 style="width: 100%; max-width: 800px; height: auto; border-radius: var(--border-radius-md);">
+        </div>
+
         <h1>Termin buchen</h1>
         <p class="lead">Wählen Sie, wie Sie uns besuchen möchten: Mit festem Termin oder spontan</p>
 
