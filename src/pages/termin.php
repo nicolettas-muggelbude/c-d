@@ -20,7 +20,7 @@ include __DIR__ . '/../templates/header.php';
         <div style="text-align: center; margin-bottom: var(--space-xl);">
             <img src="<?= asset('images/pc-wittfoot-eingangsbereich.jpg') ?>"
                  alt="PC-Wittfoot Eingangsbereich Oldenburg - Systemhäuschen mit Bürohund Baileys - Persönlicher IT-Service"
-                 style="width: 100%; max-width: 800px; height: auto; border-radius: var(--border-radius-md);">
+                 style="width: 100%; max-width: 500px; height: auto; border-radius: var(--border-radius-md);">
         </div>
 
         <h1>Termin buchen</h1>
