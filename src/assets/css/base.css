@@ -16,12 +16,6 @@ body {
   padding-top: var(--header-height);
 }
 
-@media (min-width: 992px) {
-  body {
-    padding-top: var(--header-height-desktop);
-  }
-}
-
 /* Main Content Area */
 main {
   padding-bottom: var(--space-xxl);

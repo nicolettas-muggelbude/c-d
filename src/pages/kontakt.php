@@ -14,7 +14,23 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     // CSRF-Schutz
     if (!csrf_verify($_POST['csrf_token'] ?? '')) {
         $error = 'CSRF-Token ungültig. Bitte versuchen Sie es erneut.';
-    } else {
+    }
+    // Bot-Schutz 1: Honeypot (muss leer sein)
+    elseif (!empty($_POST['website'])) {
+        // Bot erkannt (hat verstecktes Feld ausgefüllt)
+        error_log('Contact form: Bot detected (honeypot filled)');
+        $error = 'Bitte versuchen Sie es erneut.';
+    }
+    // Bot-Schutz 2: Zeitstempel (mind. 3 Sekunden)
+    elseif (empty($_POST['form_timestamp']) || (time() - intval($_POST['form_timestamp'])) < 3) {
+        error_log('Contact form: Bot detected (too fast submission)');
+        $error = 'Bitte nehmen Sie sich etwas mehr Zeit zum Ausfüllen des Formulars.';
+    }
+    // Bot-Schutz 3: "Ich bin kein Roboter" Checkbox
+    elseif (empty($_POST['not_robot'])) {
+        $error = 'Bitte bestätigen Sie, dass Sie kein Roboter sind.';
+    }
+    else {
         // Daten validieren
         $name = sanitize($_POST['name'] ?? '');
         $email = sanitize($_POST['email'] ?? '');
@@ -86,7 +102,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 }
 
 $page_title = 'Kontakt | PC-Wittfoot UG';
-$page_description = 'Kontaktieren Sie uns per Telefon, E-Mail oder Formular.';
+$page_description = 'Kontaktieren Sie PC-Wittfoot in Oldenburg: Telefon +49 441 40576020, E-Mail info@pc-wittfoot.de. Melkbrink 61, 26121 Oldenburg. Öffnungszeiten Di-Fr 14-17 Uhr, Sa 12-16 Uhr.';
 $current_page = 'kontakt';
 
 include __DIR__ . '/../templates/header.php';
@@ -94,6 +110,13 @@ include __DIR__ . '/../templates/header.php';
 
 <section class="section">
     <div class="container">
+        <!-- Header-Bild für SEO - Außenansicht Melkbrink 61 -->
+        <div style="text-align: center; margin-bottom: var(--space-xl);">
+            <img src="<?= asset('images/shop_banner.png') ?>"
+                 alt="PC-Wittfoot Ladengeschäft Außenansicht - Melkbrink 61, 26121 Oldenburg"
+                 style="width: 100%; max-width: 800px; height: auto; border-radius: var(--border-radius-md);">
+        </div>
+
         <h1>Kontakt</h1>
         <p class="lead">
             Sie haben Fragen oder möchten einen Termin vereinbaren? Wir sind für Sie da!
@@ -177,6 +200,18 @@ include __DIR__ . '/../templates/header.php';
 
                         <form method="post" action="">
                             <input type="hidden" name="csrf_token" value="<?= csrf_token() ?>">
+                            <input type="hidden" name="form_timestamp" value="<?= time() ?>">
+
+                            <!-- Honeypot: Für Menschen unsichtbar, Bots füllen es aus -->
+                            <div class="honeypot" aria-hidden="true">
+                                <label for="website">Website (bitte leer lassen)</label>
+                                <input type="text"
+                                       id="website"
+                                       name="website"
+                                       value=""
+                                       tabindex="-1"
+                                       autocomplete="off">
+                            </div>
 
                             <div class="form-group">
                                 <label for="name">Name *</label>
@@ -227,6 +262,13 @@ include __DIR__ . '/../templates/header.php';
                                           rows="6"
                                           required><?= e($form_data['message'] ?? '') ?></textarea>
                                 <span class="form-help">Mindestens 10 Zeichen</span>
+                            </div>
+
+                            <div class="form-group">
+                                <label class="form-check">
+                                    <input type="checkbox" name="not_robot" required>
+                                    <span>Ich bin kein Roboter *</span>
+                                </label>
                             </div>
 
                             <div class="form-group">
