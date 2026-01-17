@@ -112,9 +112,9 @@ include __DIR__ . '/../templates/header.php';
     <div class="container">
         <!-- Header-Bild für SEO - Außenansicht Melkbrink 61 -->
         <div style="text-align: center; margin-bottom: var(--space-xl);">
-            <img src="<?= asset('images/shop_banner.png') ?>"
+            <img src="<?= asset('images/pc-wittfoot-kontakt.png') ?>"
                  alt="PC-Wittfoot Ladengeschäft Außenansicht - Melkbrink 61, 26121 Oldenburg"
-                 style="width: 100%; max-width: 800px; height: auto; border-radius: var(--border-radius-md);">
+                 style="width: 100%; max-width: 500px; height: auto; border-radius: var(--border-radius-md);">
         </div>
 
         <h1>Kontakt</h1>
