@@ -103,6 +103,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
 $page_title = 'Kontakt | PC-Wittfoot UG';
 $page_description = 'Kontaktieren Sie PC-Wittfoot in Oldenburg: Telefon +49 441 40576020, E-Mail info@pc-wittfoot.de. Melkbrink 61, 26121 Oldenburg. Öffnungszeiten Di-Fr 14-17 Uhr, Sa 12-16 Uhr.';
+$page_og_image = 'og-image-kontakt.png';
+$page_og_image_alt = 'PC-Wittfoot Kontakt - Melkbrink 61, Oldenburg - IT-Fachbetrieb';
 $current_page = 'kontakt';
 
 include __DIR__ . '/../templates/header.php';
