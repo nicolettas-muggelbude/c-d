@@ -176,8 +176,13 @@ include __DIR__ . '/../templates/header.php';
             <div class="grid grid-cols-1 grid-cols-md-2 grid-cols-lg-3 gap-lg">
                 <?php foreach ($posts as $post): ?>
                     <article class="card blog-card <?= $is_search ? 'search-result' : '' ?>" data-href="<?= BASE_URL ?>/blog/<?= e($post['slug']) ?>">
-                        <!-- Emoji -->
-                        <?php if (!empty($post['emoji'])): ?>
+                        <!-- Thumbnail -->
+                        <?php if (!empty($post['hero_image'])): ?>
+                            <div class="blog-card-thumbnail">
+                                <img src="<?= e($post['hero_image']) ?>" alt="<?= e($post['title']) ?>" loading="lazy">
+                            </div>
+                        <?php elseif (!empty($post['emoji'])): ?>
+                            <!-- Emoji als Fallback -->
                             <div class="blog-card-emoji">
                                 <?= e($post['emoji']) ?>
                             </div>
@@ -368,6 +373,19 @@ include __DIR__ . '/../templates/header.php';
 .blog-card:hover {
     transform: translateY(-2px);
     box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+}
+
+.blog-card-thumbnail {
+    margin: calc(-1 * var(--space-lg)) calc(-1 * var(--space-lg)) var(--space-md) calc(-1 * var(--space-lg));
+    border-radius: var(--border-radius-md) var(--border-radius-md) 0 0;
+    overflow: hidden;
+    height: 160px;
+}
+
+.blog-card-thumbnail img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
 }
 
 .blog-card-emoji {
