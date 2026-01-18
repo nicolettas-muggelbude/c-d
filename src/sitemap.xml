@@ -83,14 +83,6 @@
         <priority>0.7</priority>
     </url>
 
-    <!-- Über uns -->
-    <url>
-        <loc>https://pc-wittfoot.de/ueber-uns</loc>
-        <lastmod>2026-01-18</lastmod>
-        <changefreq>monthly</changefreq>
-        <priority>0.7</priority>
-    </url>
-
     <!-- Kontakt -->
     <url>
         <loc>https://pc-wittfoot.de/kontakt</loc>
