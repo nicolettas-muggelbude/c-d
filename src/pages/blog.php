@@ -22,34 +22,30 @@ $is_filtered = !empty($category_filter);
 
 // WHERE-Bedingungen aufbauen
 $where_conditions = ['published = 1'];
-$params = [];
+$count_params = [];
+$search_params = [];
 
 if ($is_search) {
-    $where_conditions[] = 'MATCH(title, excerpt, content, keywords) AGAINST(:search IN NATURAL LANGUAGE MODE)';
-    $params[':search'] = $search_query;
+    $where_conditions[] = 'MATCH(title, excerpt, content, keywords) AGAINST(:search_where IN NATURAL LANGUAGE MODE)';
+    $count_params[':search_where'] = $search_query;
+    $search_params[':search_where'] = $search_query;
+    $search_params[':search_select'] = $search_query;
 }
 
 if ($is_filtered) {
     $where_conditions[] = 'category = :category';
-    $params[':category'] = $category_filter;
+    $count_params[':category'] = $category_filter;
+    $search_params[':category'] = $category_filter;
 }
 
 $where_clause = implode(' AND ', $where_conditions);
 
 // Gesamtzahl Blog-Posts
-if ($is_search) {
-    $total_posts = $db->querySingle("
-        SELECT COUNT(*) as count
-        FROM blog_posts
-        WHERE {$where_clause}
-    ", $params);
-} else {
-    $total_posts = $db->querySingle("
-        SELECT COUNT(*) as count
-        FROM blog_posts
-        WHERE {$where_clause}
-    ", $params);
-}
+$total_posts = $db->querySingle("
+    SELECT COUNT(*) as count
+    FROM blog_posts
+    WHERE {$where_clause}
+", $count_params);
 
 $total_count = $total_posts['count'] ?? 0;
 
@@ -61,12 +57,12 @@ if ($is_search) {
     // FULLTEXT-Suche mit Relevanz-Scoring
     $posts = $db->query("
         SELECT *,
-        MATCH(title, excerpt, content, keywords) AGAINST(:search IN NATURAL LANGUAGE MODE) as relevance
+        MATCH(title, excerpt, content, keywords) AGAINST(:search_select IN NATURAL LANGUAGE MODE) as relevance
         FROM blog_posts
         WHERE {$where_clause}
         ORDER BY relevance DESC, published_at DESC
         LIMIT {$pagination['per_page']} OFFSET {$pagination['offset']}
-    ", $params);
+    ", $search_params);
 } else {
     // Normale Ansicht oder Kategorie-Filter
     $posts = $db->query("
@@ -75,7 +71,7 @@ if ($is_search) {
         WHERE {$where_clause}
         ORDER BY published_at DESC
         LIMIT {$pagination['per_page']} OFFSET {$pagination['offset']}
-    ", $params);
+    ", $count_params);
 }
 
 // Kategorie-Zählung für Filter-Buttons
