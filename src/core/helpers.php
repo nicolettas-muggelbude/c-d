@@ -109,7 +109,7 @@ function truncate($text, $length = 100, $suffix = '...') {
 function asset($path) {
     $url = ASSETS_URL . '/' . ltrim($path, '/');
     // Cache-Busting: Version-Parameter hinzufügen
-    $version = '43'; // Bei CSS-Änderungen erhöhen
+    $version = '44'; // Bei CSS-Änderungen erhöhen (Blog Markdown CSS)
     return $url . '?v=' . $version;
 }
 
@@ -306,4 +306,27 @@ function paginate($totalItems, $perPage, $currentPage = 1) {
         'has_prev' => $currentPage > 1,
         'has_next' => $currentPage < $totalPages
     ];
+}
+
+/**
+ * Markdown zu HTML konvertieren (mit Parsedown)
+ *
+ * @param string $markdown Markdown-Text
+ * @param bool $safeMode XSS-Schutz aktivieren (empfohlen für User-Input)
+ * @return string HTML-Output
+ */
+function markdown_to_html($markdown, $safeMode = true) {
+    static $parsedown = null;
+
+    // Parsedown lazy laden (nur einmal pro Request)
+    if ($parsedown === null) {
+        require_once __DIR__ . '/../lib/Parsedown.php';
+        $parsedown = new Parsedown();
+    }
+
+    // Safe Mode für XSS-Schutz
+    $parsedown->setSafeMode($safeMode);
+
+    // Markdown zu HTML
+    return $parsedown->text($markdown);
 }
