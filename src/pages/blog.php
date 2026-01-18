@@ -376,7 +376,7 @@ include __DIR__ . '/../templates/header.php';
 }
 
 .blog-card .card-meta {
-    font-size: 0.875rem;
+    font-size: 1rem;
     color: var(--text-muted);
     margin-bottom: var(--space-sm);
 }
@@ -396,7 +396,7 @@ include __DIR__ . '/../templates/header.php';
 
 .relevance-badge {
     margin-left: var(--space-xs);
-    font-size: 0.875rem;
+    font-size: 1rem;
 }
 
 .post-tags {
@@ -407,8 +407,8 @@ include __DIR__ . '/../templates/header.php';
 }
 
 .post-tags .tag {
-    font-size: 0.875rem;
-    padding: 4px 12px;
+    font-size: 1rem;
+    padding: 6px 14px;
     background: var(--color-primary);
     color: white;
     border-radius: 12px;

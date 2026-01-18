@@ -27,5 +27,13 @@ if (empty($markdown)) {
 // Markdown zu HTML konvertieren
 $html = markdown_to_html($markdown, true);
 
+// Relative Bild-URLs für Vorschau korrigieren
+// /uploads/... -> volle URL für korrektes Laden im AJAX-Kontext
+$html = preg_replace(
+    '/src="\/uploads\//',
+    'src="' . BASE_URL . '/uploads/',
+    $html
+);
+
 // HTML zurückgeben
 echo $html;

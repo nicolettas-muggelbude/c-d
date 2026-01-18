@@ -773,6 +773,7 @@ nav a.active {
 /* Blog Detail Section */
 .blog-detail-section {
     padding: 150px 0 var(--space-xxl) 0 !important;
+    background: #f8f6f3;
 }
 
 /* Blog Post */
@@ -802,7 +803,7 @@ nav a.active {
     gap: var(--space-sm);
     align-items: center;
     color: var(--text-muted);
-    font-size: var(--font-size-sm);
+    font-size: 1rem;
 }
 
 .blog-post-content {
@@ -2122,7 +2123,7 @@ nav a.active {
 
 .blog-post-meta {
     color: var(--text-muted);
-    font-size: 0.95rem;
+    font-size: 1rem;
 }
 
 /* Blog Post Footer */
