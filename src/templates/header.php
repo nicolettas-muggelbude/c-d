@@ -9,16 +9,22 @@
     <title><?= e($page_title ?? 'PC-Wittfoot UG') ?></title>
 
     <!-- Open Graph / Facebook / LinkedIn -->
+    <?php
+    // Dynamisches OG-Image je Seite
+    $og_image = $page_og_image ?? 'og-image.png';
+    $og_image_url = 'https://pc-wittfoot.de/assets/images/' . $og_image;
+    $og_image_alt = $page_og_image_alt ?? 'PC-Wittfoot UG - IT-Fachbetrieb mit Herz';
+    ?>
     <meta property="og:type" content="website">
     <meta property="og:url" content="<?= e($page_url ?? 'https://pc-wittfoot.de' . $_SERVER['REQUEST_URI']) ?>">
     <meta property="og:title" content="<?= e($page_title ?? 'PC-Wittfoot UG - IT-Fachbetrieb mit Herz') ?>">
     <meta property="og:description" content="<?= e($page_description ?? 'IT-Fachbetrieb in Oldenburg. Beratung, Verkauf, Reparatur & Softwareentwicklung. Refurbished Hardware & exone Neugeräte. Persönlicher Service mit Kaffee!') ?>">
-    <meta property="og:image" content="https://pc-wittfoot.de/assets/images/og-image.png">
-    <meta property="og:image:secure_url" content="https://pc-wittfoot.de/assets/images/og-image.png">
+    <meta property="og:image" content="<?= $og_image_url ?>">
+    <meta property="og:image:secure_url" content="<?= $og_image_url ?>">
     <meta property="og:image:type" content="image/png">
     <meta property="og:image:width" content="1200">
     <meta property="og:image:height" content="630">
-    <meta property="og:image:alt" content="PC-Wittfoot UG - IT-Fachbetrieb mit Herz">
+    <meta property="og:image:alt" content="<?= e($og_image_alt) ?>">
     <meta property="og:locale" content="de_DE">
     <meta property="og:site_name" content="PC-Wittfoot UG">
     <meta property="article:published_time" content="<?= e($page_published ?? '2026-01-11T00:00:00+01:00') ?>">
@@ -30,8 +36,8 @@
     <meta name="twitter:url" content="<?= e($page_url ?? 'https://pc-wittfoot.de' . $_SERVER['REQUEST_URI']) ?>">
     <meta name="twitter:title" content="<?= e($page_title ?? 'PC-Wittfoot UG - IT-Fachbetrieb mit Herz') ?>">
     <meta name="twitter:description" content="<?= e($page_description ?? 'IT-Fachbetrieb in Oldenburg. Beratung, Verkauf, Reparatur & Softwareentwicklung. Refurbished Hardware & exone Neugeräte. Persönlicher Service mit Kaffee!') ?>">
-    <meta name="twitter:image" content="https://pc-wittfoot.de/assets/images/og-image.png">
-    <meta name="twitter:image:alt" content="PC-Wittfoot UG - IT-Fachbetrieb mit Herz">
+    <meta name="twitter:image" content="<?= $og_image_url ?>">
+    <meta name="twitter:image:alt" content="<?= e($og_image_alt) ?>">
 
     <!-- Canonical URL -->
     <link rel="canonical" href="<?= e($page_url ?? 'https://pc-wittfoot.de' . $_SERVER['REQUEST_URI']) ?>">

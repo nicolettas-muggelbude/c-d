@@ -5,6 +5,8 @@
 
 $page_title = 'Unsere Leistungen | PC-Wittfoot UG';
 $page_description = 'IT-Dienstleistungen in Oldenburg: Diagnose & Reparatur, Refurbished Hardware mit 24 Monaten Garantie, Beratung, Softwareentwicklung, Wartung & Support. Persönlicher Service im Systemhäuschen.';
+$page_og_image = 'og-image-leistungen.png';
+$page_og_image_alt = 'PC-Wittfoot Leistungen - Reparatur, Beratung, Hardware-Verkauf Oldenburg';
 $current_page = 'leistungen';
 
 include __DIR__ . '/../templates/header.php';

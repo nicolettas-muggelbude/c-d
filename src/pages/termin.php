@@ -6,6 +6,8 @@
 
 $page_title = 'Termin buchen | PC-Wittfoot UG';
 $page_description = 'Online-Terminbuchung bei PC-Wittfoot in Oldenburg. Wählen Sie zwischen festen Terminen oder spontanen Besuchen. Beratung, Reparatur, Abholung - persönlicher Service im Systemhäuschen.';
+$page_og_image = 'og-image-termin.png';
+$page_og_image_alt = 'PC-Wittfoot Terminbuchung - Online Termin buchen Oldenburg';
 $current_page = 'termin';
 $extra_css = ['css/booking.css', 'css/flatpickr.min.css'];
 
