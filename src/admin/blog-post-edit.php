@@ -841,8 +841,8 @@ function renderGallery(images) {
             <div class="gallery-item" title="${img.filename}">
                 <img src="${img.url}" alt="${img.filename}" loading="lazy">
                 <div class="copy-overlay">
-                    <button class="copy-url" onclick="copyToClipboard('${img.url}', this)">URL kopieren</button>
-                    <button class="copy-md" onclick="copyToClipboard('![${img.filename}](${img.url})', this)">Markdown</button>
+                    <button type="button" class="copy-url" onclick="copyToClipboard(event, '${img.url}', this)">URL kopieren</button>
+                    <button type="button" class="copy-md" onclick="copyToClipboard(event, '![${img.filename}](${img.url})', this)">Markdown</button>
                 </div>
             </div>
         `;
@@ -851,8 +851,9 @@ function renderGallery(images) {
     imageGallery.innerHTML = html;
 }
 
-function copyToClipboard(text, btn) {
-    event.stopPropagation();
+function copyToClipboard(e, text, btn) {
+    e.preventDefault();
+    e.stopPropagation();
     navigator.clipboard.writeText(text).then(() => {
         const originalText = btn.textContent;
         btn.textContent = '✓ Kopiert!';
