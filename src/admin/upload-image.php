@@ -93,8 +93,8 @@ if (!move_uploaded_file($file['tmp_name'], $filepath)) {
     exit;
 }
 
-// Erfolg
-$url = UPLOADS_URL . '/blog/' . $filename;
+// Erfolg - relative URL für Portabilität
+$url = '/uploads/blog/' . $filename;
 
 echo json_encode([
     'success' => true,

@@ -38,7 +38,7 @@ foreach ($files as $file) {
     $filepath = $uploadDir . $file;
     $images[] = [
         'filename' => $file,
-        'url' => UPLOADS_URL . '/blog/' . $file,
+        'url' => '/uploads/blog/' . $file,
         'size' => filesize($filepath),
         'modified' => filemtime($filepath)
     ];
