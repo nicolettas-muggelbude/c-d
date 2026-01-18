@@ -1,0 +1,34 @@
+# PC-Wittfoot UG - Apache Configuration
+
+RewriteEngine On
+
+# HTTPS Redirect
+RewriteCond %{HTTPS} off
+RewriteRule ^(.*)$ https://%{HTTP_HOST}%{REQUEST_URI} [L,R=301]
+
+# www zu non-www Redirect (NACH HTTPS!)
+RewriteCond %{HTTP_HOST} ^www\.(.+)$ [NC]
+RewriteRule ^(.*)$ https://%1/$1 [R=301,L]
+
+# Statische Assets aus src/ ausliefern
+RewriteRule ^assets/(.*)$ src/assets/$1 [L]
+RewriteRule ^favicon\.(.*)$ src/favicon.$1 [L]
+
+# Alle dynamischen Anfragen an ROUTER mit route-Parameter
+RewriteCond %{REQUEST_FILENAME} !-f
+RewriteCond %{REQUEST_FILENAME} !-d
+RewriteRule ^(.*)$ src/router.php?route=$1 [L,QSA]
+
+# Root zeigt auf Router
+DirectoryIndex src/router.php
+
+# Verzeichnis-Listings deaktivieren
+Options -Indexes
+
+# HSTS (HTTP Strict Transport Security) - Erzwingt HTTPS für 1 Jahr
+<IfModule mod_headers.c>
+    Header always set Strict-Transport-Security "max-age=31536000; includeSubDomains; preload"
+</IfModule>
+
+# Git-Verzeichnis schützen (Sicherheit)
+RedirectMatch 404 /\.git
