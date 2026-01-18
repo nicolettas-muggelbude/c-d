@@ -165,12 +165,7 @@ include __DIR__ . '/../templates/header.php';
     <div class="container">
         <div class="d-flex justify-between align-center mb-lg" style="flex-wrap: wrap; gap: var(--space-md);">
             <h1 class="mb-0"><?= $id ? 'Blog-Post bearbeiten' : 'Neuer Blog-Post' ?></h1>
-            <div style="display: flex; gap: var(--space-sm); flex-wrap: wrap;">
-                <a href="<?= BASE_URL ?>/admin/markdown-hilfe" target="_blank" class="btn btn-outline btn-sm">
-                    📖 Markdown-Hilfe
-                </a>
-                <a href="<?= BASE_URL ?>/admin/blog-posts" class="btn btn-outline">← Zurück</a>
-            </div>
+            <a href="<?= BASE_URL ?>/admin/blog-posts" class="btn btn-outline">← Zurück</a>
         </div>
 
         <?php if (!empty($errors)): ?>
@@ -301,10 +296,10 @@ include __DIR__ . '/../templates/header.php';
                 <!-- Sidebar -->
                 <div class="col-12 col-lg-4">
                     <!-- Veröffentlichung -->
-                    <div class="card mb-md" style="padding: var(--space-md);">
-                        <h3 style="margin: 0 0 var(--space-sm) 0; font-size: 1.1em;">Veröffentlichung</h3>
+                    <div class="card sidebar-card mb-md">
+                        <h3 class="sidebar-title">Veröffentlichung</h3>
 
-                        <div style="margin-bottom: var(--space-xs);">
+                        <div class="form-check-wrapper">
                             <label class="form-check">
                                 <input type="checkbox"
                                        id="published"
@@ -314,37 +309,52 @@ include __DIR__ . '/../templates/header.php';
                             </label>
                         </div>
 
-                        <div style="margin-bottom: var(--space-sm);">
-                            <label for="published_at" style="font-size: 0.85em; display: block; margin-bottom: 4px;">Datum</label>
+                        <div class="form-group mb-sm">
+                            <label for="published_at" class="label-sm">Datum</label>
                             <input type="datetime-local"
                                    id="published_at"
                                    name="published_at"
-                                   style="font-size: 0.9em;"
                                    value="<?= date('Y-m-d\TH:i', strtotime($form_data['published_at']))?>">
                         </div>
 
-                        <button type="submit" class="btn btn-primary btn-block" style="padding: var(--space-sm) var(--space-md);">
+                        <button type="submit" class="btn btn-primary btn-block">
                             <?= $id ? 'Aktualisieren' : 'Erstellen' ?>
                         </button>
 
                         <?php if ($id && $form_data['published']): ?>
                             <a href="<?= BASE_URL ?>/blog/<?= e($form_data['slug']) ?>"
-                               class="btn btn-outline btn-block"
-                               style="margin-top: var(--space-xs); padding: var(--space-sm) var(--space-md);"
+                               class="btn btn-outline btn-block mt-xs"
                                target="_blank">
                                 Ansehen
                             </a>
                         <?php endif; ?>
                     </div>
 
-                    <!-- Kategorie -->
-                    <div class="card mb-md" style="padding: var(--space-md);">
-                        <h3 style="margin: 0 0 var(--space-sm) 0; font-size: 1.1em;">Kategorie</h3>
-                        <div class="form-group" style="margin-bottom: 0;">
-                            <label for="category" style="font-size: 0.85em; display: block; margin-bottom: 4px;">
-                                Kategorie
-                            </label>
-                            <select id="category" name="category" style="font-size: 0.9em;">
+                    <!-- Bild-Upload -->
+                    <div class="card sidebar-card mb-md">
+                        <h3 class="sidebar-title">📷 Bild hochladen</h3>
+                        <div class="upload-area" id="upload-area">
+                            <input type="file" id="image-upload" accept="image/*" style="display: none;">
+                            <button type="button" class="btn btn-outline btn-block" onclick="document.getElementById('image-upload').click();">
+                                Bild auswählen
+                            </button>
+                            <p class="text-muted mt-xs" style="font-size: 0.8rem;">JPG, PNG, GIF, WebP (max. 5 MB)</p>
+                        </div>
+                        <div id="upload-progress" style="display: none;">
+                            <div class="progress-bar">
+                                <div class="progress-fill" id="progress-fill"></div>
+                            </div>
+                            <p class="text-muted mt-xs" id="upload-status">Lade hoch...</p>
+                        </div>
+                        <div id="uploaded-images" class="uploaded-images mt-sm"></div>
+                    </div>
+
+                    <!-- Kategorie & SEO -->
+                    <div class="card sidebar-card mb-md">
+                        <h3 class="sidebar-title">Kategorie & SEO</h3>
+                        <div class="form-group mb-sm">
+                            <label for="category" class="label-sm">Kategorie</label>
+                            <select id="category" name="category">
                                 <option value="Allgemein" <?= ($form_data['category'] ?? 'Allgemein') === 'Allgemein' ? 'selected' : '' ?>>📝 Allgemein</option>
                                 <option value="Hardware" <?= ($form_data['category'] ?? '') === 'Hardware' ? 'selected' : '' ?>>🖥️ Hardware</option>
                                 <option value="Software" <?= ($form_data['category'] ?? '') === 'Software' ? 'selected' : '' ?>>💻 Software</option>
@@ -352,21 +362,35 @@ include __DIR__ . '/../templates/header.php';
                                 <option value="News" <?= ($form_data['category'] ?? '') === 'News' ? 'selected' : '' ?>>📢 News</option>
                             </select>
                         </div>
-                    </div>
-
-                    <!-- SEO Keywords -->
-                    <div class="card" style="padding: var(--space-md);">
-                        <h3 style="margin: 0 0 var(--space-sm) 0; font-size: 1.1em;">SEO Keywords</h3>
-                        <div class="form-group" style="margin-bottom: 0;">
-                            <label for="keywords" style="font-size: 0.85em; display: block; margin-bottom: 4px;">
-                                Keywords <span class="text-muted">(Komma-getrennt)</span>
-                            </label>
+                        <div class="form-group mb-0">
+                            <label for="keywords" class="label-sm">Keywords <span class="text-muted">(Komma-getrennt)</span></label>
                             <input type="text"
                                    id="keywords"
                                    name="keywords"
                                    placeholder="Laptop, Reparatur, Oldenburg"
-                                   value="<?= e($form_data['keywords'] ?? '') ?>"
-                                   style="font-size: 0.9em;">
+                                   value="<?= e($form_data['keywords'] ?? '') ?>">
+                        </div>
+                    </div>
+
+                    <!-- Markdown-Hilfe -->
+                    <div class="card sidebar-card">
+                        <h3 class="sidebar-title">📖 Markdown-Referenz</h3>
+                        <div class="markdown-reference">
+                            <table class="reference-table">
+                                <tr><td><strong>Fett</strong></td><td><code>**text**</code></td></tr>
+                                <tr><td><em>Kursiv</em></td><td><code>*text*</code></td></tr>
+                                <tr><td>Überschrift</td><td><code>## H2</code></td></tr>
+                                <tr><td>Link</td><td><code>[Text](URL)</code></td></tr>
+                                <tr><td>Bild</td><td><code>![Alt](URL)</code></td></tr>
+                                <tr><td>Liste</td><td><code>- Punkt</code></td></tr>
+                                <tr><td>Nummeriert</td><td><code>1. Punkt</code></td></tr>
+                                <tr><td>Code</td><td><code>`code`</code></td></tr>
+                                <tr><td>Zitat</td><td><code>> Zitat</code></td></tr>
+                                <tr><td>Trennlinie</td><td><code>---</code></td></tr>
+                            </table>
+                            <a href="<?= BASE_URL ?>/admin/markdown-hilfe" target="_blank" class="btn btn-outline btn-sm btn-block mt-sm">
+                                Vollständige Hilfe öffnen
+                            </a>
                         </div>
                     </div>
                 </div>
@@ -376,12 +400,134 @@ include __DIR__ . '/../templates/header.php';
 </section>
 
 <style>
-@media (max-width: 991px) {
-    .hide-on-mobile {
-        display: none !important;
-    }
+/* Sidebar Cards */
+.sidebar-card {
+    padding: var(--space-md);
+    background: #ffffff;
 }
 
+.sidebar-title {
+    margin: 0 0 var(--space-sm) 0;
+    font-size: 1rem;
+    font-weight: 600;
+    padding-bottom: var(--space-xs);
+    border-bottom: 1px solid var(--border-color);
+}
+
+.label-sm {
+    font-size: 0.875rem;
+    display: block;
+    margin-bottom: 4px;
+}
+
+.form-check-wrapper {
+    margin-bottom: var(--space-sm);
+}
+
+.mt-xs {
+    margin-top: var(--space-xs);
+}
+
+.mb-sm {
+    margin-bottom: var(--space-sm);
+}
+
+.mb-0 {
+    margin-bottom: 0;
+}
+
+/* Markdown Reference Table */
+.markdown-reference {
+    font-size: 0.875rem;
+}
+
+.reference-table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+.reference-table td {
+    padding: 6px 8px;
+    border-bottom: 1px solid var(--border-color);
+}
+
+.reference-table td:first-child {
+    width: 40%;
+}
+
+.reference-table code {
+    background: var(--bg-tertiary);
+    padding: 2px 6px;
+    border-radius: 4px;
+    font-size: 0.8rem;
+}
+
+/* Upload Area */
+.upload-area {
+    text-align: center;
+    padding: var(--space-sm);
+    border: 2px dashed var(--border-color);
+    border-radius: var(--border-radius-md);
+    background: var(--bg-secondary);
+}
+
+.upload-area.dragover {
+    border-color: var(--color-primary);
+    background: rgba(139, 195, 74, 0.1);
+}
+
+.progress-bar {
+    height: 6px;
+    background: var(--bg-tertiary);
+    border-radius: 3px;
+    overflow: hidden;
+}
+
+.progress-fill {
+    height: 100%;
+    background: var(--color-primary);
+    width: 0%;
+    transition: width 0.3s;
+}
+
+.uploaded-images {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-xs);
+}
+
+.uploaded-image-item {
+    display: flex;
+    align-items: center;
+    gap: var(--space-xs);
+    padding: var(--space-xs);
+    background: var(--bg-secondary);
+    border-radius: var(--border-radius-sm);
+    font-size: 0.8rem;
+}
+
+.uploaded-image-item img {
+    width: 40px;
+    height: 40px;
+    object-fit: cover;
+    border-radius: 4px;
+}
+
+.uploaded-image-item .image-url {
+    flex: 1;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    color: var(--text-muted);
+}
+
+.uploaded-image-item .copy-btn {
+    padding: 4px 8px;
+    font-size: 0.75rem;
+    cursor: pointer;
+}
+
+/* Emoji Picker */
 #emoji-picker {
     display: grid;
     grid-template-columns: repeat(8, 1fr);
@@ -435,6 +581,13 @@ include __DIR__ . '/../templates/header.php';
     padding: 1rem;
     border-radius: var(--border-radius-md);
     overflow-x: auto;
+}
+
+/* Mobile */
+@media (max-width: 991px) {
+    .hide-on-mobile {
+        display: none !important;
+    }
 }
 </style>
 
@@ -565,6 +718,128 @@ function debounce(func, wait) {
         clearTimeout(timeout);
         timeout = setTimeout(later, wait);
     };
+}
+
+// =====================================================
+// Bild-Upload
+// =====================================================
+const imageUpload = document.getElementById('image-upload');
+const uploadArea = document.getElementById('upload-area');
+const uploadProgress = document.getElementById('upload-progress');
+const progressFill = document.getElementById('progress-fill');
+const uploadStatus = document.getElementById('upload-status');
+const uploadedImages = document.getElementById('uploaded-images');
+
+// Drag & Drop
+uploadArea.addEventListener('dragover', (e) => {
+    e.preventDefault();
+    uploadArea.classList.add('dragover');
+});
+
+uploadArea.addEventListener('dragleave', () => {
+    uploadArea.classList.remove('dragover');
+});
+
+uploadArea.addEventListener('drop', (e) => {
+    e.preventDefault();
+    uploadArea.classList.remove('dragover');
+    const files = e.dataTransfer.files;
+    if (files.length > 0) {
+        uploadImage(files[0]);
+    }
+});
+
+// File Input
+imageUpload.addEventListener('change', () => {
+    if (imageUpload.files.length > 0) {
+        uploadImage(imageUpload.files[0]);
+    }
+});
+
+function uploadImage(file) {
+    // Validierung
+    const allowedTypes = ['image/jpeg', 'image/png', 'image/gif', 'image/webp'];
+    if (!allowedTypes.includes(file.type)) {
+        alert('Nur JPG, PNG, GIF und WebP erlaubt.');
+        return;
+    }
+    if (file.size > 5 * 1024 * 1024) {
+        alert('Datei zu groß (max. 5 MB).');
+        return;
+    }
+
+    // Upload starten
+    uploadArea.style.display = 'none';
+    uploadProgress.style.display = 'block';
+    progressFill.style.width = '0%';
+    uploadStatus.textContent = 'Lade hoch...';
+
+    const formData = new FormData();
+    formData.append('image', file);
+    formData.append('csrf_token', '<?= csrf_token() ?>');
+
+    const xhr = new XMLHttpRequest();
+
+    xhr.upload.addEventListener('progress', (e) => {
+        if (e.lengthComputable) {
+            const percent = Math.round((e.loaded / e.total) * 100);
+            progressFill.style.width = percent + '%';
+            uploadStatus.textContent = percent + '% hochgeladen...';
+        }
+    });
+
+    xhr.addEventListener('load', () => {
+        uploadProgress.style.display = 'none';
+        uploadArea.style.display = 'block';
+        imageUpload.value = '';
+
+        try {
+            const response = JSON.parse(xhr.responseText);
+            if (response.success) {
+                addUploadedImage(response.url, response.filename);
+            } else {
+                alert('Upload-Fehler: ' + (response.error || 'Unbekannter Fehler'));
+            }
+        } catch (e) {
+            alert('Upload-Fehler: Ungültige Server-Antwort');
+        }
+    });
+
+    xhr.addEventListener('error', () => {
+        uploadProgress.style.display = 'none';
+        uploadArea.style.display = 'block';
+        alert('Upload fehlgeschlagen. Bitte erneut versuchen.');
+    });
+
+    xhr.open('POST', '<?= BASE_URL ?>/admin/upload-image.php');
+    xhr.send(formData);
+}
+
+function addUploadedImage(url, filename) {
+    const div = document.createElement('div');
+    div.className = 'uploaded-image-item';
+    div.innerHTML = `
+        <img src="${url}" alt="${filename}">
+        <span class="image-url">${filename}</span>
+        <button type="button" class="btn btn-sm btn-outline copy-btn" onclick="copyMarkdown('${url}', '${filename}')">
+            Kopieren
+        </button>
+    `;
+    uploadedImages.insertBefore(div, uploadedImages.firstChild);
+}
+
+function copyMarkdown(url, filename) {
+    const markdown = `![${filename}](${url})`;
+    navigator.clipboard.writeText(markdown).then(() => {
+        // Feedback
+        event.target.textContent = '✓ Kopiert!';
+        setTimeout(() => {
+            event.target.textContent = 'Kopieren';
+        }, 2000);
+    }).catch(() => {
+        // Fallback
+        prompt('Markdown-Code:', markdown);
+    });
 }
 </script>
 

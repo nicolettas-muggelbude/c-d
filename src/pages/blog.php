@@ -93,12 +93,14 @@ $current_page = 'blog';
 include __DIR__ . '/../templates/header.php';
 ?>
 
-<section class="section">
+<section class="section blog-section">
     <div class="container">
-        <h1>Blog & Wissensdatenbank</h1>
-        <p class="lead mb-lg">
-            IT-Tipps, Neuigkeiten und Wissenswertes rund um Computer, Hardware und Software.
-        </p>
+        <div class="blog-header">
+            <h1>Blog & Wissensdatenbank</h1>
+            <p class="lead">
+                IT-Tipps, Neuigkeiten und Wissenswertes rund um Computer, Hardware und Software.
+            </p>
+        </div>
 
         <!-- Suchfeld -->
         <div class="blog-search-box">
@@ -264,49 +266,81 @@ include __DIR__ . '/../templates/header.php';
 </section>
 
 <style>
-/* Blog-Suche Styling */
+/* =====================================================
+   Blog-Seite - Harmonisches Layout passend zum Gesamtdesign
+   ===================================================== */
+
+/* Blog Section - Weißer Hintergrund */
+.blog-section {
+    background: #ffffff;
+}
+
+.blog-header {
+    text-align: center;
+    margin-bottom: var(--space-xl);
+    padding-bottom: var(--space-lg);
+    border-bottom: 1px solid var(--border-color);
+}
+
+.blog-header h1 {
+    font-size: 2.25rem;
+    margin-bottom: var(--space-sm);
+}
+
+.blog-header .lead {
+    font-size: 1.125rem;
+    color: var(--text-muted);
+    max-width: 600px;
+    margin: 0 auto;
+}
+
+/* Suchbox - Dezenter, passend zum Design */
 .blog-search-box {
     background: var(--bg-secondary);
-    padding: var(--space-xl);
-    border-radius: var(--border-radius-lg);
-    margin-bottom: var(--space-xxxl);
-    border: 2px solid var(--border-color);
+    padding: var(--space-lg);
+    border-radius: var(--border-radius-md);
+    margin-bottom: var(--space-xl);
+    border: 1px solid var(--border-color);
+    max-width: 700px;
+    margin-left: auto;
+    margin-right: auto;
 }
 
 .blog-search-form {
-    max-width: 800px;
-    margin: 0 auto;
+    width: 100%;
 }
 
 .search-input-group {
     display: flex;
     gap: var(--space-sm);
-    margin-bottom: var(--space-md);
 }
 
 .search-input-group input[type="search"] {
     flex: 1;
-    padding: var(--space-md);
-    font-size: 1.1rem;
-    border: 2px solid var(--border-color);
+    padding: var(--space-sm) var(--space-md);
+    font-size: 1rem;
+    border: 1px solid var(--border-color);
     border-radius: var(--border-radius-md);
-    background: var(--bg-primary);
-    transition: border-color 0.2s;
+    background: #ffffff;
+    transition: border-color 0.2s, box-shadow 0.2s;
 }
 
 .search-input-group input[type="search"]:focus {
     outline: none;
     border-color: var(--color-primary);
+    box-shadow: 0 0 0 3px rgba(139, 195, 74, 0.15);
 }
 
 .search-input-group button {
     white-space: nowrap;
+    padding: var(--space-sm) var(--space-lg);
 }
 
 .search-info {
     display: flex;
     justify-content: space-between;
     align-items: center;
+    margin-top: var(--space-md);
     padding-top: var(--space-md);
     border-top: 1px solid var(--border-color);
     flex-wrap: wrap;
@@ -315,12 +349,54 @@ include __DIR__ . '/../templates/header.php';
 
 .search-results-count {
     font-weight: 600;
+    font-size: 1rem;
     color: var(--color-primary);
+}
+
+/* Blog Cards - Einheitliches Design */
+.blog-card {
+    background: #ffffff;
+    border: 1px solid var(--border-color);
+    border-radius: var(--border-radius-md);
+    padding: var(--space-lg);
+    transition: transform 0.2s, box-shadow 0.2s;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+}
+
+.blog-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+}
+
+.blog-card-emoji {
+    font-size: 2.5rem;
+    margin-bottom: var(--space-sm);
+}
+
+.blog-card .card-meta {
+    font-size: 0.875rem;
+    color: var(--text-muted);
+    margin-bottom: var(--space-sm);
+}
+
+.blog-card h3 {
+    font-size: 1.25rem;
+    margin-bottom: var(--space-sm);
+    line-height: 1.4;
+}
+
+.blog-card p {
+    font-size: 1rem;
+    line-height: 1.6;
+    color: var(--text-secondary);
+    flex-grow: 1;
 }
 
 .relevance-badge {
     margin-left: var(--space-xs);
-    font-size: 0.8rem;
+    font-size: 0.875rem;
 }
 
 .post-tags {
@@ -331,8 +407,8 @@ include __DIR__ . '/../templates/header.php';
 }
 
 .post-tags .tag {
-    font-size: 0.75rem;
-    padding: 2px 8px;
+    font-size: 0.8125rem;
+    padding: 4px 10px;
     background: var(--color-primary);
     color: white;
     border-radius: 12px;
@@ -343,10 +419,28 @@ include __DIR__ . '/../templates/header.php';
     border-left: 3px solid var(--color-primary);
 }
 
+/* Ergebnis-Info */
+.results-info p {
+    font-size: 1rem;
+}
+
+/* Hinweis-Box */
+.blog-section .card h3 {
+    font-size: 1.25rem;
+}
+
 /* Mobile Optimierung */
 @media (max-width: 768px) {
+    .blog-header h1 {
+        font-size: 1.75rem;
+    }
+
+    .blog-header .lead {
+        font-size: 1rem;
+    }
+
     .blog-search-box {
-        padding: var(--space-lg);
+        padding: var(--space-md);
     }
 
     .search-input-group {
@@ -361,17 +455,45 @@ include __DIR__ . '/../templates/header.php';
         flex-direction: column;
         align-items: flex-start;
     }
+
+    .blog-card h3 {
+        font-size: 1.125rem;
+    }
 }
 
 /* Dark Mode */
 @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) .blog-section {
+        background: var(--bg-primary);
+    }
+
+    :root:not([data-theme="light"]) .blog-card {
+        background: var(--bg-secondary);
+    }
+
     :root:not([data-theme="light"]) .blog-search-box {
         background: var(--bg-tertiary);
     }
+
+    :root:not([data-theme="light"]) .search-input-group input[type="search"] {
+        background: var(--bg-secondary);
+    }
+}
+
+[data-theme="dark"] .blog-section {
+    background: var(--bg-primary);
+}
+
+[data-theme="dark"] .blog-card {
+    background: var(--bg-secondary);
 }
 
 [data-theme="dark"] .blog-search-box {
     background: var(--bg-tertiary);
+}
+
+[data-theme="dark"] .search-input-group input[type="search"] {
+    background: var(--bg-secondary);
 }
 </style>
 
