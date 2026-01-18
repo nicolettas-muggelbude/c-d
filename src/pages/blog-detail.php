@@ -62,6 +62,116 @@ $page_author = $post['author_name'] ?? 'PC-Wittfoot Team';
 include __DIR__ . '/../templates/header.php';
 ?>
 
+<style>
+/* Blog-Detail Styles - Direkt eingebettet für Konsistenz */
+.blog-detail-section {
+    background: #f8f6f3 !important;
+    padding: 120px 0 60px 0 !important;
+}
+
+.blog-post {
+    background: #ffffff;
+    border-radius: 8px;
+    padding: 40px;
+    max-width: 800px;
+    margin: 0 auto;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+}
+
+.blog-post-header {
+    text-align: center;
+    margin-bottom: 32px;
+    padding-bottom: 24px;
+    border-bottom: 1px solid #e0e0e0;
+}
+
+.blog-post-header h1 {
+    font-size: 2rem;
+    margin-bottom: 16px;
+    line-height: 1.3;
+}
+
+.blog-post-emoji {
+    font-size: 3rem;
+    margin-bottom: 16px;
+}
+
+.blog-post-meta {
+    font-size: 1rem;
+    color: #666;
+}
+
+.blog-post-hero {
+    margin: 24px 0 32px 0;
+}
+
+.blog-post-hero img {
+    width: 100%;
+    border-radius: 8px;
+}
+
+.blog-post-content {
+    font-size: 1.125rem !important;
+    line-height: 1.8 !important;
+    color: #333 !important;
+}
+
+.blog-post-content h2 {
+    font-size: 1.5rem !important;
+    margin: 32px 0 16px 0 !important;
+}
+
+.blog-post-content h3 {
+    font-size: 1.25rem !important;
+    margin: 24px 0 12px 0 !important;
+}
+
+.blog-post-content p {
+    margin-bottom: 1.25rem !important;
+}
+
+.blog-post-content ul,
+.blog-post-content ol {
+    margin: 0 0 1.25rem 1.5rem !important;
+    font-size: 1.125rem !important;
+}
+
+.blog-post-content li {
+    margin-bottom: 0.5rem !important;
+}
+
+.blog-post-content code {
+    font-size: 1rem !important;
+    background: #f5f5f5;
+    padding: 2px 6px;
+    border-radius: 4px;
+}
+
+.blog-post-content img {
+    max-width: 100%;
+    border-radius: 8px;
+    margin: 24px 0;
+}
+
+.blog-post-footer {
+    margin-top: 48px;
+    padding-top: 24px;
+    font-size: 1rem;
+}
+
+@media (max-width: 768px) {
+    .blog-post {
+        padding: 24px 16px;
+    }
+    .blog-post-header h1 {
+        font-size: 1.5rem;
+    }
+    .blog-post-content {
+        font-size: 1rem !important;
+    }
+}
+</style>
+
 <section class="blog-detail-section">
     <div class="container">
         <!-- Zurück-Link -->
