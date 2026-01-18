@@ -14,6 +14,11 @@
                         Deutschland
                     </p>
                     <p>
+                        <a href="https://www.google.com/maps/dir/?api=1&destination=PC-Wittfoot+UG,Melkbrink+61,26121+Oldenburg" target="_blank" rel="noopener">
+                            <span aria-hidden="true">🗺️</span> Route planen
+                        </a>
+                    </p>
+                    <p>
                         <a href="tel:+4944140576020">+49 441 40576020</a><br>
                         <a href="mailto:info@pc-wittfoot.de">info@pc-wittfoot.de</a><br>
                         <a href="https://pc-wittfoot.de" target="_blank" rel="noopener">pc-wittfoot.de</a>
