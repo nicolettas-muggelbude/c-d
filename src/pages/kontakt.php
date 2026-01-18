@@ -169,8 +169,9 @@ include __DIR__ . '/../templates/header.php';
                         <div class="contact-item">
                             <h3><span aria-hidden="true">💬</span> Messenger</h3>
                             <p>
-                                <a href="https://wa.me/4944140576020" target="_blank" rel="noopener">WhatsApp Business</a><br>
-                                Telegram • Signal
+                                <a href="https://wa.me/4944140576020" target="_blank" rel="noopener" aria-label="WhatsApp Business (öffnet in neuem Tab)">WhatsApp Business</a><br>
+                                <a href="https://t.me/Systemhaeuschen" target="_blank" rel="noopener" aria-label="Telegram (öffnet in neuem Tab)">Telegram</a> •
+                                <a href="https://signal.me/#eu/egGrcOmzUUUEuNVQVgWaTC0g7P-_M3ZmBva3GJIN1R2jJOW6_mFFXYTXskH63gsy" target="_blank" rel="noopener" aria-label="Signal (öffnet in neuem Tab)">Signal</a>
                             </p>
                         </div>
 
@@ -276,7 +277,7 @@ include __DIR__ . '/../templates/header.php';
                             <div class="form-group">
                                 <label class="form-check">
                                     <input type="checkbox" name="privacy" required>
-                                    <span>Ich habe die <a href="<?= BASE_URL ?>/datenschutz" target="_blank">Datenschutzerklärung</a> gelesen und akzeptiert. *</span>
+                                    <span>Ich habe die <a href="<?= BASE_URL ?>/datenschutz" target="_blank" aria-label="Datenschutzerklärung (öffnet in neuem Tab)">Datenschutzerklärung</a> gelesen und akzeptiert. *</span>
                                 </label>
                             </div>
 
@@ -294,8 +295,8 @@ include __DIR__ . '/../templates/header.php';
         <?php endif; ?>
 
         <!-- Google Maps Integration -->
-        <div class="map-section">
-            <h2 class="text-center mb-lg">So finden Sie uns</h2>
+        <section class="map-section" aria-labelledby="map-heading">
+            <h2 id="map-heading" class="text-center mb-lg">So finden Sie uns</h2>
 
             <!-- Eingebettete Google Map -->
             <div class="map-container">
@@ -316,14 +317,15 @@ include __DIR__ . '/../templates/header.php';
                 <a href="https://www.google.com/maps/dir/?api=1&destination=PC-Wittfoot+UG,Melkbrink+61,26121+Oldenburg"
                    target="_blank"
                    rel="noopener"
-                   class="btn btn-primary btn-lg">
+                   class="btn btn-primary btn-lg"
+                   aria-label="Route planen (öffnet Google Maps oder Apple Maps in neuem Tab)">
                     <span aria-hidden="true">🗺️</span> Route planen
                 </a>
                 <p class="text-muted mt-md" style="font-size: var(--font-size-sm);">
                     Öffnet Google Maps oder Apple Maps auf Ihrem Gerät
                 </p>
             </div>
-        </div>
+        </section>
     </div>
 </section>
 
