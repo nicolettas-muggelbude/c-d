@@ -99,6 +99,8 @@ include __DIR__ . '/../templates/header.php';
 .blog-post-meta {
     font-size: 1rem;
     color: #666;
+    margin-top: 24px;
+    padding-left: 16px;
 }
 
 .blog-post-hero {
