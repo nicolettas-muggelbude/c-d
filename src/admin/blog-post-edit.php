@@ -573,19 +573,37 @@ include __DIR__ . '/../templates/header.php';
 .gallery-item .copy-overlay {
     position: absolute;
     inset: 0;
-    background: rgba(139, 195, 74, 0.9);
-    color: white;
+    background: rgba(0, 0, 0, 0.85);
     display: flex;
+    flex-direction: column;
     align-items: center;
     justify-content: center;
-    font-size: 0.7rem;
-    font-weight: bold;
+    gap: 4px;
     opacity: 0;
     transition: opacity 0.2s;
 }
 
 .gallery-item:hover .copy-overlay {
     opacity: 1;
+}
+
+.gallery-item .copy-overlay button {
+    font-size: 0.65rem;
+    padding: 3px 6px;
+    border: none;
+    border-radius: 3px;
+    cursor: pointer;
+    white-space: nowrap;
+}
+
+.gallery-item .copy-overlay .copy-url {
+    background: var(--color-primary);
+    color: white;
+}
+
+.gallery-item .copy-overlay .copy-md {
+    background: white;
+    color: #333;
 }
 
 .gallery-empty {
@@ -820,9 +838,12 @@ function renderGallery(images) {
     let html = '<div class="gallery-grid">';
     images.forEach(img => {
         html += `
-            <div class="gallery-item" onclick="copyImageMarkdown('${img.url}', '${img.filename}')" title="${img.filename}">
+            <div class="gallery-item" title="${img.filename}">
                 <img src="${img.url}" alt="${img.filename}" loading="lazy">
-                <div class="copy-overlay">Kopieren</div>
+                <div class="copy-overlay">
+                    <button class="copy-url" onclick="copyToClipboard('${img.url}', this)">URL kopieren</button>
+                    <button class="copy-md" onclick="copyToClipboard('![${img.filename}](${img.url})', this)">Markdown</button>
+                </div>
             </div>
         `;
     });
@@ -830,20 +851,16 @@ function renderGallery(images) {
     imageGallery.innerHTML = html;
 }
 
-function copyImageMarkdown(url, filename) {
-    const markdown = '![' + filename + '](' + url + ')';
-    navigator.clipboard.writeText(markdown).then(() => {
-        // Kurzes visuelles Feedback
-        const item = event.currentTarget;
-        const overlay = item.querySelector('.copy-overlay');
-        overlay.textContent = '✓ Kopiert!';
-        overlay.style.opacity = '1';
+function copyToClipboard(text, btn) {
+    event.stopPropagation();
+    navigator.clipboard.writeText(text).then(() => {
+        const originalText = btn.textContent;
+        btn.textContent = '✓ Kopiert!';
         setTimeout(() => {
-            overlay.textContent = 'Kopieren';
-            overlay.style.opacity = '';
+            btn.textContent = originalText;
         }, 1500);
     }).catch(() => {
-        prompt('Markdown-Code:', markdown);
+        prompt('Kopieren:', text);
     });
 }
 
@@ -915,12 +932,11 @@ function uploadImage(file) {
             if (response.success) {
                 // Galerie neu laden
                 loadImageGallery();
-                // Markdown in Zwischenablage kopieren
-                const markdown = '![' + response.filename + '](' + response.url + ')';
-                navigator.clipboard.writeText(markdown).then(() => {
-                    alert('Bild hochgeladen! Markdown-Code wurde in die Zwischenablage kopiert.');
+                // URL in Zwischenablage kopieren
+                navigator.clipboard.writeText(response.url).then(() => {
+                    alert('Bild hochgeladen!\n\nURL wurde kopiert:\n' + response.url);
                 }).catch(() => {
-                    alert('Bild hochgeladen!\n\nMarkdown-Code:\n' + markdown);
+                    alert('Bild hochgeladen!\n\nURL:\n' + response.url);
                 });
             } else {
                 alert('Upload-Fehler: ' + (response.error || 'Unbekannter Fehler'));
