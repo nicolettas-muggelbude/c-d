@@ -301,7 +301,7 @@ include __DIR__ . '/../templates/header.php';
             <!-- Eingebettete Google Map -->
             <div class="map-container">
                 <iframe
-                    src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d2394.5!2d8.218!3d53.138!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x0%3A0x0!2zNTPCsDA4JzE2LjgiTiA4wrAxMycwNC44IkU!5e0!3m2!1sde!2sde!4v1737160000000!5m2!1sde!2sde"
+                    src="https://www.google.com/maps?q=Melkbrink+61,+26121+Oldenburg&output=embed"
                     width="100%"
                     height="450"
                     style="border:0; border-radius: var(--border-radius-md);"
