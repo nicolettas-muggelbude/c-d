@@ -86,10 +86,14 @@
 - **Session-Logs (Archiv)**
   - [2026-01-04](docs/session-logs/2026-01-04.md) - Terminbuchungs-System komplett
   - [2026-01-05](docs/session-logs/2026-01-05.md) - WCAG 2.1 AA Compliance & Phase 1 Abschluss
+  - [2026-01-11](docs/session-logs/2026-01-11.md) - Production Deployment & Performance-Optimierung
+  - [2026-01-12](docs/session-logs/2026-01-12.md) - Kritische Bugfixes & Admin-Login
+  - [2026-01-17](docs/session-logs/2026-01-17.md) - Termintyp-abhängige Kalenderanzeige
+  - [2026-01-18](docs/session-logs/2026-01-18.md) - Bing Sitemap-Fix, Google Maps, Barrierefreiheit
 
 ---
 
-## 🎯 Aktueller Stand (2026-01-11)
+## 🎯 Aktueller Stand (2026-01-18)
 
 ### ✅ Abgeschlossen
 
@@ -151,8 +155,31 @@
   - Email-Template Preview verfügbar
   - Admin-Login funktionsfähig
 
+**Phase 4: SEO & UX-Optimierungen** (2026-01-18)
+- ✅ **Bing Sitemap-Fix**
+  - 404-URLs aus Sitemap entfernt (`/ueber-uns`)
+  - Datumsangaben aktualisiert (2026-01-18)
+  - Timeout-Problem behoben
+- ✅ **Google Maps Integration**
+  - Eingebettete Karte auf Kontaktseite
+  - "Route planen" Button (iOS & Android kompatibel)
+  - Footer-Link auf allen Seiten
+- ✅ **Barrierefreiheit (WCAG 2.1 Level AA)**
+  - aria-labels für alle externen Links
+  - Messenger-Links (Telegram, Signal, WhatsApp)
+  - Semantische Verbesserungen (Footer H2 statt H3)
+  - Map-Section als Landmark
+- ✅ **Content-Security-Policy**
+  - Google Fonts (Noto Color Emoji) erlaubt
+  - Google Maps iframe erlaubt
+  - Minimale Security-Erweiterung
+- ✅ **Git-Workflow Dokumentation**
+  - Deployment-Befehle korrigiert
+  - Best Practices aktualisiert
+
 ### 🚧 In Arbeit
 
+- Bing Sitemap-Indexierung (eingereicht, warte auf Crawl)
 - Vollständiges Production-Testing (nach Pause)
 
 ### 📋 Geplant
