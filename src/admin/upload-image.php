@@ -62,8 +62,8 @@ if ($file['size'] > $maxSize) {
     exit;
 }
 
-// Upload-Verzeichnis
-$uploadDir = __DIR__ . '/../../uploads/blog/';
+// Upload-Verzeichnis (UPLOADS_PATH aus config.php)
+$uploadDir = UPLOADS_PATH . '/blog/';
 if (!is_dir($uploadDir)) {
     mkdir($uploadDir, 0755, true);
 }

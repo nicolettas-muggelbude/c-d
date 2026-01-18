@@ -407,8 +407,8 @@ include __DIR__ . '/../templates/header.php';
 }
 
 .post-tags .tag {
-    font-size: 0.8125rem;
-    padding: 4px 10px;
+    font-size: 0.875rem;
+    padding: 4px 12px;
     background: var(--color-primary);
     color: white;
     border-radius: 12px;

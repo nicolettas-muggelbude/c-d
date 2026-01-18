@@ -330,15 +330,17 @@ include __DIR__ . '/../templates/header.php';
                         <?php endif; ?>
                     </div>
 
-                    <!-- Bild-Upload -->
+                    <!-- Bild-Upload & Galerie -->
                     <div class="card sidebar-card mb-md">
-                        <h3 class="sidebar-title">📷 Bild hochladen</h3>
+                        <h3 class="sidebar-title">📷 Bilder</h3>
+
+                        <!-- Upload -->
                         <div class="upload-area" id="upload-area">
                             <input type="file" id="image-upload" accept="image/*" style="display: none;">
-                            <button type="button" class="btn btn-outline btn-block" onclick="document.getElementById('image-upload').click();">
-                                Bild auswählen
+                            <button type="button" class="btn btn-outline btn-block btn-sm" onclick="document.getElementById('image-upload').click();">
+                                + Neues Bild hochladen
                             </button>
-                            <p class="text-muted mt-xs" style="font-size: 0.8rem;">JPG, PNG, GIF, WebP (max. 5 MB)</p>
+                            <p class="text-muted" style="font-size: 0.75rem; margin-top: 4px;">JPG, PNG, GIF, WebP (max. 5 MB)</p>
                         </div>
                         <div id="upload-progress" style="display: none;">
                             <div class="progress-bar">
@@ -346,7 +348,11 @@ include __DIR__ . '/../templates/header.php';
                             </div>
                             <p class="text-muted mt-xs" id="upload-status">Lade hoch...</p>
                         </div>
-                        <div id="uploaded-images" class="uploaded-images mt-sm"></div>
+
+                        <!-- Bildergalerie -->
+                        <div class="image-gallery mt-sm" id="image-gallery">
+                            <p class="text-muted" style="font-size: 0.875rem;">Lade Bilder...</p>
+                        </div>
                     </div>
 
                     <!-- Kategorie & SEO -->
@@ -525,6 +531,68 @@ include __DIR__ . '/../templates/header.php';
     padding: 4px 8px;
     font-size: 0.75rem;
     cursor: pointer;
+}
+
+/* Bildergalerie */
+.image-gallery {
+    max-height: 300px;
+    overflow-y: auto;
+    border: 1px solid var(--border-color);
+    border-radius: var(--border-radius-sm);
+    padding: var(--space-xs);
+    background: var(--bg-secondary);
+}
+
+.gallery-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 6px;
+}
+
+.gallery-item {
+    position: relative;
+    aspect-ratio: 1;
+    cursor: pointer;
+    border-radius: 4px;
+    overflow: hidden;
+    border: 2px solid transparent;
+    transition: border-color 0.2s, transform 0.2s;
+}
+
+.gallery-item:hover {
+    border-color: var(--color-primary);
+    transform: scale(1.05);
+}
+
+.gallery-item img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.gallery-item .copy-overlay {
+    position: absolute;
+    inset: 0;
+    background: rgba(139, 195, 74, 0.9);
+    color: white;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.7rem;
+    font-weight: bold;
+    opacity: 0;
+    transition: opacity 0.2s;
+}
+
+.gallery-item:hover .copy-overlay {
+    opacity: 1;
+}
+
+.gallery-empty {
+    text-align: center;
+    padding: var(--space-md);
+    color: var(--text-muted);
+    font-size: 0.875rem;
 }
 
 /* Emoji Picker */
@@ -721,14 +789,63 @@ function debounce(func, wait) {
 }
 
 // =====================================================
-// Bild-Upload
+// Bild-Upload & Galerie
 // =====================================================
 const imageUpload = document.getElementById('image-upload');
 const uploadArea = document.getElementById('upload-area');
 const uploadProgress = document.getElementById('upload-progress');
 const progressFill = document.getElementById('progress-fill');
 const uploadStatus = document.getElementById('upload-status');
-const uploadedImages = document.getElementById('uploaded-images');
+const imageGallery = document.getElementById('image-gallery');
+
+// Galerie beim Laden füllen
+loadImageGallery();
+
+function loadImageGallery() {
+    fetch('<?= BASE_URL ?>/admin/list-images.php')
+        .then(response => response.json())
+        .then(data => {
+            if (data.success && data.images.length > 0) {
+                renderGallery(data.images);
+            } else {
+                imageGallery.innerHTML = '<p class="gallery-empty">Noch keine Bilder hochgeladen</p>';
+            }
+        })
+        .catch(() => {
+            imageGallery.innerHTML = '<p class="gallery-empty">Fehler beim Laden</p>';
+        });
+}
+
+function renderGallery(images) {
+    let html = '<div class="gallery-grid">';
+    images.forEach(img => {
+        html += `
+            <div class="gallery-item" onclick="copyImageMarkdown('${img.url}', '${img.filename}')" title="${img.filename}">
+                <img src="${img.url}" alt="${img.filename}" loading="lazy">
+                <div class="copy-overlay">Kopieren</div>
+            </div>
+        `;
+    });
+    html += '</div>';
+    imageGallery.innerHTML = html;
+}
+
+function copyImageMarkdown(url, filename) {
+    const markdown = '![' + filename + '](' + url + ')';
+    navigator.clipboard.writeText(markdown).then(() => {
+        // Kurzes visuelles Feedback
+        const item = event.currentTarget;
+        const overlay = item.querySelector('.copy-overlay');
+        overlay.textContent = '✓ Kopiert!';
+        overlay.style.opacity = '1';
+        setTimeout(() => {
+            overlay.textContent = 'Kopieren';
+            overlay.style.opacity = '';
+        }, 1500);
+    }).catch(() => {
+        prompt('Markdown-Code:', markdown);
+    });
+}
 
 // Drag & Drop
 uploadArea.addEventListener('dragover', (e) => {
@@ -796,7 +913,15 @@ function uploadImage(file) {
         try {
             const response = JSON.parse(xhr.responseText);
             if (response.success) {
-                addUploadedImage(response.url, response.filename);
+                // Galerie neu laden
+                loadImageGallery();
+                // Markdown in Zwischenablage kopieren
+                const markdown = '![' + response.filename + '](' + response.url + ')';
+                navigator.clipboard.writeText(markdown).then(() => {
+                    alert('Bild hochgeladen! Markdown-Code wurde in die Zwischenablage kopiert.');
+                }).catch(() => {
+                    alert('Bild hochgeladen!\n\nMarkdown-Code:\n' + markdown);
+                });
             } else {
                 alert('Upload-Fehler: ' + (response.error || 'Unbekannter Fehler'));
             }
@@ -813,33 +938,6 @@ function uploadImage(file) {
 
     xhr.open('POST', '<?= BASE_URL ?>/admin/upload-image.php');
     xhr.send(formData);
-}
-
-function addUploadedImage(url, filename) {
-    const div = document.createElement('div');
-    div.className = 'uploaded-image-item';
-    div.innerHTML = `
-        <img src="${url}" alt="${filename}">
-        <span class="image-url">${filename}</span>
-        <button type="button" class="btn btn-sm btn-outline copy-btn" onclick="copyMarkdown('${url}', '${filename}')">
-            Kopieren
-        </button>
-    `;
-    uploadedImages.insertBefore(div, uploadedImages.firstChild);
-}
-
-function copyMarkdown(url, filename) {
-    const markdown = `![${filename}](${url})`;
-    navigator.clipboard.writeText(markdown).then(() => {
-        // Feedback
-        event.target.textContent = '✓ Kopiert!';
-        setTimeout(() => {
-            event.target.textContent = 'Kopieren';
-        }, 2000);
-    }).catch(() => {
-        // Fallback
-        prompt('Markdown-Code:', markdown);
-    });
 }
 </script>
 
