@@ -4,6 +4,9 @@
  * PC-Wittfoot UG
  */
 
+// JSON-Response Header immer setzen
+header('Content-Type: application/json; charset=utf-8');
+
 require_once __DIR__ . '/../core/config.php';
 start_session_safe();
 
@@ -93,9 +96,9 @@ if (!move_uploaded_file($file['tmp_name'], $filepath)) {
 // Erfolg
 $url = UPLOADS_URL . '/blog/' . $filename;
 
-header('Content-Type: application/json');
 echo json_encode([
     'success' => true,
     'url' => $url,
     'filename' => $filename
 ]);
+exit;

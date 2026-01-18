@@ -270,9 +270,9 @@ include __DIR__ . '/../templates/header.php';
    Blog-Seite - Harmonisches Layout passend zum Gesamtdesign
    ===================================================== */
 
-/* Blog Section - Weißer Hintergrund */
+/* Blog Section - Einheitlicher Hintergrund */
 .blog-section {
-    background: #ffffff;
+    background: #f8f6f3;
 }
 
 .blog-header {
