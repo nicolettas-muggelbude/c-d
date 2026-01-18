@@ -115,7 +115,8 @@ cd /home/www/doc/28552/dcp285520007/pc-wittfoot.de/www
 git stash push -m "Production-Config vor Pull $(date +%Y%m%d-%H%M%S)"
 
 # Neuen Code holen
-git pull --no-rebase --no-edit origin production
+git fetch origin
+git merge origin/production
 
 # Production-Config wiederherstellen
 git stash pop
@@ -173,8 +174,9 @@ fatal: Need to specify how to reconcile divergent branches.
 # Lokale Änderungen sichern
 git stash push -m "Vor Pull $(date)"
 
-# Mit Merge pullen
-git pull --no-rebase --no-edit origin production
+# Neuen Code holen und mergen
+git fetch origin
+git merge origin/production
 
 # Lokale Änderungen wiederherstellen
 git stash pop
@@ -243,7 +245,8 @@ git commit -m "Add: og-image.png"
 4. **Production-Config auf Server sichern**
    ```bash
    git stash push -m "Vor Pull"
-   git pull origin production
+   git fetch origin
+   git merge origin/production
    git stash pop
    ```
 
@@ -367,7 +370,7 @@ git commit -m "Merge master into production"
 - [ ] SSH-Verbindung hergestellt
 - [ ] Im richtigen Verzeichnis (`/home/www/doc/28552/dcp285520007/pc-wittfoot.de/www`)
 - [ ] `git stash` ausgeführt (Production-Config sichern)
-- [ ] `git pull origin production` ausgeführt
+- [ ] `git fetch origin` und `git merge origin/production` ausgeführt
 - [ ] `git stash pop` ausgeführt (Production-Config wiederherstellen)
 - [ ] Website getestet (curl oder Browser)
 - [ ] Logs geprüft (`tail -20 logs/error.log`)
@@ -425,7 +428,7 @@ curl -s https://pc-wittfoot.de | head -20
 2. `git cherry-pick b4ca840 ea9a72b` auf production
 3. URL-Bug gefixed
 4. Gepusht nach `origin/production`
-5. Produktionsserver: `git pull origin production`
+5. Produktionsserver: `git fetch origin && git merge origin/production`
 6. Tests: ✅ Alle Meta-Tags korrekt, og-image.png vorhanden
 
 **Lessons Learned:**
@@ -456,7 +459,7 @@ curl -s https://pc-wittfoot.de | head -20
 3. Committen auf `master`
 4. Auf `production` wechseln und mergen/cherry-picken
 5. Beide Branches pushen
-6. Auf Produktionsserver: stash → pull → stash pop
+6. Auf Produktionsserver: stash → fetch + merge → stash pop
 7. Testen
 
 **Bei Problemen:** Diese Dokumentation lesen oder im [Session-Log](09-session-log.md) nachschlagen!
