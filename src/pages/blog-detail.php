@@ -80,26 +80,26 @@ include __DIR__ . '/../templates/header.php';
 
 .blog-post-header {
     text-align: center;
-    margin-bottom: 32px;
-    padding-bottom: 24px;
+    margin-bottom: 24px;
+    padding-bottom: 16px;
     border-bottom: 1px solid #e0e0e0;
 }
 
 .blog-post-header h1 {
     font-size: 2rem;
-    margin-bottom: 32px;
+    margin-bottom: 8px;
     line-height: 1.3;
 }
 
 .blog-post-emoji {
-    font-size: 3rem;
-    margin-bottom: 16px;
+    font-size: 2.5rem;
+    margin-bottom: 12px;
 }
 
 .blog-post-meta {
     font-size: 1rem;
     color: #666;
-    margin-top: 24px;
+    margin-top: 8px;
     padding-left: 16px;
 }
 
