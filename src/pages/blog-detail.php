@@ -87,7 +87,7 @@ include __DIR__ . '/../templates/header.php';
 
 .blog-post-header h1 {
     font-size: 2rem;
-    margin-bottom: 16px;
+    margin-bottom: 32px;
     line-height: 1.3;
 }
 
