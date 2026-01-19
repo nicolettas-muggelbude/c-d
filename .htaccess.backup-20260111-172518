@@ -1,0 +1,17 @@
+RewriteEngine On
+
+  # HTTPS Redirect
+  RewriteCond %{HTTPS} off
+  RewriteRule ^(.*)$ https://%{HTTP_HOST}%{REQUEST_URI} [L,R=301]
+
+  # Statische Assets ZUERST (WICHTIG!)
+  RewriteRule ^assets/(.*)$ src/assets/$1 [L]
+  RewriteRule ^favicon\.(.*)$ src/favicon.$1 [L]
+
+  # Router NUR für nicht-existierende Dateien
+  RewriteCond %{REQUEST_FILENAME} !-f
+  RewriteCond %{REQUEST_FILENAME} !-d
+  RewriteRule ^(.*)$ src/router.php?route=$1 [L,QSA]
+
+  DirectoryIndex src/router.php
+  Options -Indexes

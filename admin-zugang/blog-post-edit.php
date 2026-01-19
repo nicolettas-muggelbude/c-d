@@ -1,0 +1,361 @@
+<?php
+/**
+ * Admin - Blog-Post bearbeiten/erstellen
+ */
+
+require_once __DIR__ . '/../core/config.php';
+start_session_safe();
+
+// Admin-Rechte prüfen
+require_admin();
+
+$db = Database::getInstance();
+
+// ID aus URL (null = neuer Post)
+$id = isset($_GET['id']) ? intval($_GET['id']) : null;
+
+// Bestehenden Post laden
+$post = null;
+if ($id) {
+    $post = $db->querySingle("SELECT * FROM blog_posts WHERE id = :id", [':id' => $id]);
+    if (!$post) {
+        set_flash('error', 'Blog-Post nicht gefunden.');
+        redirect(BASE_URL . '/admin/blog-posts');
+    }
+}
+
+$errors = [];
+$form_data = $post ?? [
+    'title' => '',
+    'slug' => '',
+    'excerpt' => '',
+    'content' => '',
+    'published' => 0,
+    'published_at' => date('Y-m-d H:i:s'),
+];
+
+// Formular-Verarbeitung
+if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+    $csrf_token = $_POST['csrf_token'] ?? '';
+
+    if (!csrf_verify($csrf_token)) {
+        $errors[] = 'Ungültiger Sicherheitstoken.';
+    } else {
+        // Daten sammeln
+        $form_data = [
+            'title' => sanitize($_POST['title'] ?? ''),
+            'slug' => sanitize($_POST['slug'] ?? ''),
+            'excerpt' => sanitize($_POST['excerpt'] ?? ''),
+            'content' => trim($_POST['content'] ?? ''),
+            'published' => isset($_POST['published']) ? 1 : 0,
+            'published_at' => sanitize($_POST['published_at'] ?? ''),
+        ];
+
+        // Validierung
+        if (empty($form_data['title'])) {
+            $errors[] = 'Bitte geben Sie einen Titel an.';
+        }
+
+        if (empty($form_data['slug'])) {
+            $errors[] = 'Bitte geben Sie einen Slug an.';
+        }
+
+        if (empty($form_data['content'])) {
+            $errors[] = 'Bitte geben Sie Inhalt an.';
+        }
+
+        // Slug-Eindeutigkeit prüfen
+        if (!empty($form_data['slug'])) {
+            $slug_check = $db->querySingle("
+                SELECT id FROM blog_posts
+                WHERE slug = :slug AND id != :id
+            ", [
+                ':slug' => $form_data['slug'],
+                ':id' => $id ?? 0
+            ]);
+
+            if ($slug_check) {
+                $errors[] = 'Dieser Slug wird bereits verwendet.';
+            }
+        }
+
+        // Speichern wenn keine Fehler
+        if (empty($errors)) {
+            if ($id) {
+                // Update
+                $db->update("
+                    UPDATE blog_posts SET
+                        title = :title,
+                        slug = :slug,
+                        excerpt = :excerpt,
+                        content = :content,
+                        published = :published,
+                        published_at = :published_at,
+                        author_id = :author_id
+                    WHERE id = :id
+                ", [
+                    ':title' => $form_data['title'],
+                    ':slug' => $form_data['slug'],
+                    ':excerpt' => $form_data['excerpt'],
+                    ':content' => $form_data['content'],
+                    ':published' => $form_data['published'],
+                    ':published_at' => $form_data['published'] ? $form_data['published_at'] : null,
+                    ':author_id' => $_SESSION['user_id'],
+                    ':id' => $id
+                ]);
+
+                set_flash('success', 'Blog-Post wurde aktualisiert.');
+            } else {
+                // Insert
+                $db->insert("
+                    INSERT INTO blog_posts (title, slug, excerpt, content, published, published_at, author_id)
+                    VALUES (:title, :slug, :excerpt, :content, :published, :published_at, :author_id)
+                ", [
+                    ':title' => $form_data['title'],
+                    ':slug' => $form_data['slug'],
+                    ':excerpt' => $form_data['excerpt'],
+                    ':content' => $form_data['content'],
+                    ':published' => $form_data['published'],
+                    ':published_at' => $form_data['published'] ? $form_data['published_at'] : null,
+                    ':author_id' => $_SESSION['user_id']
+                ]);
+
+                set_flash('success', 'Blog-Post wurde erstellt.');
+            }
+
+            redirect(BASE_URL . '/admin/blog-posts');
+        }
+    }
+}
+
+$page_title = ($id ? 'Blog-Post bearbeiten' : 'Neuer Blog-Post') . ' | Admin | PC-Wittfoot UG';
+$page_description = 'Admin-Bereich';
+$current_page = '';
+
+include __DIR__ . '/../templates/header.php';
+?>
+
+<section class="section">
+    <div class="container">
+        <div class="d-flex justify-between align-center mb-lg" style="flex-wrap: wrap; gap: var(--space-md);">
+            <h1 class="mb-0"><?= $id ? 'Blog-Post bearbeiten' : 'Neuer Blog-Post' ?></h1>
+            <div style="display: flex; gap: var(--space-sm); flex-wrap: wrap;">
+                <button type="button" class="btn btn-outline btn-sm" onclick="toggleFormatHelp()">
+                    📖 Hilfe
+                </button>
+                <a href="<?= BASE_URL ?>/admin/blog-posts" class="btn btn-outline">← Zurück</a>
+            </div>
+        </div>
+
+        <?php if (!empty($errors)): ?>
+            <div class="alert alert-error mb-lg">
+                <strong>Fehler:</strong>
+                <ul style="margin: var(--space-sm) 0 0 0; padding-left: var(--space-lg);">
+                    <?php foreach ($errors as $error): ?>
+                        <li><?= e($error) ?></li>
+                    <?php endforeach; ?>
+                </ul>
+            </div>
+        <?php endif; ?>
+
+        <form method="post" action="">
+            <input type="hidden" name="csrf_token" value="<?= csrf_token() ?>">
+
+            <div class="row" style="align-items: flex-start;">
+                <!-- Hauptbereich -->
+                <div class="col-12 col-lg-8">
+                    <div class="card mb-lg">
+                        <div class="form-group">
+                            <label for="title">Titel *</label>
+                            <input type="text"
+                                   id="title"
+                                   name="title"
+                                   value="<?= e($form_data['title']) ?>"
+                                   required
+                                   autofocus>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="slug">
+                                Slug *
+                                <small class="text-muted">(URL-freundlicher Name, z.B. "mein-erster-beitrag")</small>
+                            </label>
+                            <input type="text"
+                                   id="slug"
+                                   name="slug"
+                                   value="<?= e($form_data['slug']) ?>"
+                                   pattern="[a-z0-9-]+"
+                                   required>
+                            <small class="text-muted">
+                                URL: <?= BASE_URL ?>/blog/<span id="slug-preview"><?= e($form_data['slug'] ?: 'slug') ?></span>
+                            </small>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="excerpt">
+                                Kurzbeschreibung
+                                <small class="text-muted">(Optional, wird in Übersichten angezeigt)</small>
+                            </label>
+                            <textarea id="excerpt"
+                                      name="excerpt"
+                                      rows="3"><?= e($form_data['excerpt']) ?></textarea>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="content">Inhalt *</label>
+                            <textarea id="content"
+                                      name="content"
+                                      rows="20"
+                                      required><?= e($form_data['content']) ?></textarea>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Sidebar -->
+                <div class="col-12 col-lg-4">
+                    <div class="card mb-md" style="padding: var(--space-md);">
+                        <h3 style="margin: 0 0 var(--space-sm) 0; font-size: 1.1em;">Veröffentlichung</h3>
+
+                        <div style="margin-bottom: var(--space-xs);">
+                            <label class="form-check">
+                                <input type="checkbox"
+                                       id="published"
+                                       name="published"
+                                       <?= $form_data['published'] ? 'checked' : '' ?>>
+                                <span>Veröffentlicht</span>
+                            </label>
+                        </div>
+
+                        <div style="margin-bottom: var(--space-sm);">
+                            <label for="published_at" style="font-size: 0.85em; display: block; margin-bottom: 4px;">Datum</label>
+                            <input type="datetime-local"
+                                   id="published_at"
+                                   name="published_at"
+                                   style="font-size: 0.9em;"
+                                   value="<?= date('Y-m-d\TH:i', strtotime($form_data['published_at']))?>">
+                        </div>
+
+                        <button type="submit" class="btn btn-primary btn-block" style="padding: var(--space-sm) var(--space-md);">
+                            <?= $id ? 'Aktualisieren' : 'Erstellen' ?>
+                        </button>
+
+                        <?php if ($id && $form_data['published']): ?>
+                            <a href="<?= BASE_URL ?>/blog/<?= e($form_data['slug']) ?>"
+                               class="btn btn-outline btn-block"
+                               style="margin-top: var(--space-xs); padding: var(--space-sm) var(--space-md);"
+                               target="_blank">
+                                Ansehen
+                            </a>
+                        <?php endif; ?>
+                    </div>
+
+                    <!-- Formatierungs-Hilfe -->
+                    <div class="card" style="display: none; padding: var(--space-md);" id="format-help-sidebar">
+                        <h3 style="margin: 0 0 var(--space-sm) 0; font-size: 1.1em;">📖 Formatierungs-Hilfe</h3>
+                        <div style="max-height: 70vh; overflow-y: auto;">
+
+                            <h5 style="margin: 0 0 var(--space-xs) 0; font-size: 0.95em;">Überschriften</h5>
+                            <code style="font-size: 0.8em;">&lt;h2&gt;Große Überschrift&lt;/h2&gt;</code><br>
+                            <code style="font-size: 0.8em;">&lt;h3&gt;Mittlere Überschrift&lt;/h3&gt;</code><br>
+                            <code style="font-size: 0.8em;">&lt;h4&gt;Kleine Überschrift&lt;/h4&gt;</code>
+
+                            <h5 style="margin: var(--space-sm) 0 var(--space-xs) 0; font-size: 0.95em;">Text-Formatierung</h5>
+                            <code style="font-size: 0.8em;">&lt;strong&gt;Fett&lt;/strong&gt;</code><br>
+                            <code style="font-size: 0.8em;">&lt;em&gt;Kursiv&lt;/em&gt;</code><br>
+                            <code style="font-size: 0.8em;">&lt;code&gt;Code&lt;/code&gt;</code>
+
+                            <h5 style="margin: var(--space-sm) 0 var(--space-xs) 0; font-size: 0.95em;">Textausrichtung</h5>
+                            <code style="font-size: 0.8em; display: block; margin-bottom: 4px;">&lt;p class="text-center"&gt;Zentriert&lt;/p&gt;</code>
+                            <code style="font-size: 0.8em; display: block; margin-bottom: 4px;">&lt;p class="text-justify"&gt;Blocksatz&lt;/p&gt;</code>
+                            <code style="font-size: 0.8em; display: block; margin-bottom: 4px;">&lt;p class="text-left"&gt;Linksbündig&lt;/p&gt;</code>
+                            <code style="font-size: 0.8em; display: block;">&lt;p class="text-right"&gt;Rechtsbündig&lt;/p&gt;</code>
+
+                            <h5 style="margin: var(--space-sm) 0 var(--space-xs) 0; font-size: 0.95em;">Listen</h5>
+                            <pre style="background: var(--bg-secondary); padding: var(--space-xs); border-radius: 4px; overflow-x: auto; font-size: 0.8em; margin: 0; border: 1px solid var(--border-color);"><code>&lt;ul&gt;
+  &lt;li&gt;Punkt 1&lt;/li&gt;
+  &lt;li&gt;Punkt 2&lt;/li&gt;
+&lt;/ul&gt;</code></pre>
+
+                            <h5 style="margin: var(--space-sm) 0 var(--space-xs) 0; font-size: 0.95em;">Links</h5>
+                            <code style="font-size: 0.8em;">&lt;a href="url"&gt;Text&lt;/a&gt;</code>
+
+                            <h5 style="margin: var(--space-sm) 0 var(--space-xs) 0; font-size: 0.95em;">Trennlinie</h5>
+                            <code style="font-size: 0.8em;">&lt;hr&gt;</code>
+
+                            <h5 style="margin: var(--space-sm) 0 var(--space-xs) 0; font-size: 0.95em;">Bilder</h5>
+                            <code style="font-size: 0.8em; display: block; word-break: break-all; margin-bottom: 4px;">&lt;!-- Volle Breite (100%) --&gt;</code>
+                            <code style="font-size: 0.8em; display: block; word-break: break-all; margin-bottom: 4px;">&lt;img src="<?= UPLOADS_URL ?>/blog/bild.jpg" alt="..."&gt;</code>
+                            <code style="font-size: 0.8em; display: block; word-break: break-all; margin-bottom: 4px;">&lt;!-- Halbe Breite (50%) --&gt;</code>
+                            <code style="font-size: 0.8em; display: block; word-break: break-all; margin-bottom: 4px;">&lt;img src="<?= UPLOADS_URL ?>/blog/bild.jpg" alt="..." style="width: 50%;"&gt;</code>
+                            <code style="font-size: 0.8em; display: block; word-break: break-all; margin-bottom: 4px;">&lt;!-- 75% Breite --&gt;</code>
+                            <code style="font-size: 0.8em; display: block; word-break: break-all;">&lt;img src="<?= UPLOADS_URL ?>/blog/bild.jpg" alt="..." style="width: 75%;"&gt;</code>
+
+                            <h5 style="margin: var(--space-sm) 0 var(--space-xs) 0; font-size: 0.95em;">Code-Blöcke</h5>
+                            <pre style="background: var(--bg-secondary); padding: var(--space-xs); border-radius: 4px; overflow-x: auto; font-size: 0.8em; margin: 0; border: 1px solid var(--border-color);"><code>&lt;pre&gt;&lt;code&gt;
+// Code hier
+&lt;/code&gt;&lt;/pre&gt;</code></pre>
+
+                            <p style="margin: var(--space-sm) 0 0 0; padding: var(--space-xs); background: var(--bg-secondary); border-radius: 4px; font-size: 0.85em; border: 1px solid var(--border-color);">
+                                <strong>💡 Tipp:</strong> Bilder in <code style="background: var(--bg-tertiary); padding: 2px 4px; border-radius: 2px;">/uploads/blog/</code> hochladen
+                            </p>
+                        </div>
+                        <button type="button" class="btn btn-outline btn-block mt-sm" onclick="toggleFormatHelp()">
+                            Schließen
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </form>
+    </div>
+</section>
+
+<style>
+@media (max-width: 991px) {
+    .hide-on-mobile {
+        display: none !important;
+    }
+}
+</style>
+
+<script>
+// Slug-Vorschau aktualisieren
+const slugInput = document.getElementById('slug');
+const slugPreview = document.getElementById('slug-preview');
+
+slugInput?.addEventListener('input', function() {
+    slugPreview.textContent = this.value || 'slug';
+});
+
+// Auto-Slug aus Titel generieren
+const titleInput = document.getElementById('title');
+
+titleInput?.addEventListener('blur', function() {
+    if (!slugInput.value) {
+        const slug = createSlug(this.value);
+        slugInput.value = slug;
+        slugPreview.textContent = slug || 'slug';
+    }
+});
+
+function createSlug(text) {
+    return text.toLowerCase()
+        .replace(/ä/g, 'ae')
+        .replace(/ö/g, 'oe')
+        .replace(/ü/g, 'ue')
+        .replace(/ß/g, 'ss')
+        .replace(/[^a-z0-9]+/g, '-')
+        .replace(/^-+|-+$/g, '');
+}
+
+// Formatierungs-Hilfe ein-/ausblenden
+function toggleFormatHelp() {
+    const helpDiv = document.getElementById('format-help-sidebar');
+    if (helpDiv.style.display === 'none' || helpDiv.style.display === '') {
+        helpDiv.style.display = 'block';
+    } else {
+        helpDiv.style.display = 'none';
+    }
+}
+</script>
+
+<?php include __DIR__ . '/../templates/footer.php'; ?>

@@ -1,0 +1,10 @@
+  <?php
+  // Production Database
+  define('DB_HOST', 'sql116.c.artfiles.de');
+  define('DB_NAME', 'db285520001');
+  define('DB_USER', 'dcp285520007');
+  define('DB_PASS', 'DEIN_PRODUCTION_DB_PASSWORT');  # <-- HIER PRODUCTION-PASSWORT EINTRAGEN!
+
+  // Production URLs
+  define('BASE_URL', 'https://pc-wittfoot.de');
+  EOF

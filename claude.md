@@ -89,7 +89,7 @@
   - [2026-01-11](docs/session-logs/2026-01-11.md) - Production Deployment & Performance-Optimierung
   - [2026-01-12](docs/session-logs/2026-01-12.md) - Kritische Bugfixes & Admin-Login
   - [2026-01-17](docs/session-logs/2026-01-17.md) - Termintyp-abhängige Kalenderanzeige
-  - [2026-01-18](docs/session-logs/2026-01-18.md) - Bing Sitemap-Fix, Google Maps, Barrierefreiheit
+  - [2026-01-18](docs/session-logs/2026-01-18.md) - SEO, Google Maps, Blog Markdown & Suche
 
 ---
 
@@ -176,11 +176,18 @@
 - ✅ **Git-Workflow Dokumentation**
   - Deployment-Befehle korrigiert
   - Best Practices aktualisiert
+- ✅ **Blog-System: Markdown & Suche**
+  - Markdown-Editor mit Live-Vorschau im Admin
+  - FULLTEXT-Suche mit Relevanz-Scoring
+  - RSS-Feed (`/blog/feed.xml`) und XML-Sitemap
+  - Parsedown-Bibliothek für Markdown-Rendering
+  - Schema.org BlogPosting Markup für SEO
+  - Responsive Suchfeld mit Keine-Ergebnisse Hinweisen
 
 ### 🚧 In Arbeit
 
 - Bing Sitemap-Indexierung (eingereicht, warte auf Crawl)
-- Vollständiges Production-Testing (nach Pause)
+- Blog Migration 021 auf Production ausführen (FULLTEXT-Index)
 
 ### 📋 Geplant
 
@@ -371,9 +378,9 @@ Für wasserdichte Formulierungen rechtliche Beratung empfohlen!
 
 ## 🚀 Nächste Session: Prioritäten
 
-1. **Production-System vollständig testen** (Buchung, Email, HelloCash, Mobile)
-2. **Datenschutzerklärung erstellen** (rechtlich erforderlich!)
-3. **Blog-System überarbeiten** (Übersicht, Post-Detail, Admin-Verwaltung)
+1. **Blog-Migration auf Production** (FULLTEXT-Index für Suche)
+2. **Blog lokal testen** (Suche, Markdown, RSS-Feed)
+3. **Datenschutzerklärung erstellen** (rechtlich erforderlich!)
 4. **PayPal-Integration fertigstellen** (Zahlungsabwicklung)
 5. **Cronjob für CSV-Import** (Automatisierung)
 6. **Shop für Production vorbereiten** (Phase 4)
@@ -383,8 +390,8 @@ Für wasserdichte Formulierungen rechtliche Beratung empfohlen!
 ## 📞 Kontakt & Support
 
 - **Projekt:** PC-Wittfoot UG Online-Shop & Terminbuchung
-- **Dokumentation:** Stand 2026-01-10
-- **Session-Logs:** Archiviert in `docs/session-logs/` (2026-01-04, 2026-01-05)
+- **Dokumentation:** Stand 2026-01-18
+- **Session-Logs:** Archiviert in `docs/session-logs/`
 
 ---
 
