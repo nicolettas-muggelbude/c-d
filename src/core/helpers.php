@@ -328,5 +328,41 @@ function markdown_to_html($markdown, $safeMode = true) {
     $parsedown->setSafeMode($safeMode);
 
     // Markdown zu HTML
-    return $parsedown->text($markdown);
+    $html = $parsedown->text($markdown);
+
+    // Post-Processing: Erweiterte Bild-Syntax für Größenangaben
+    // Syntax: ![alt](url){width=50% height=auto}
+    $html = preg_replace_callback(
+        '/<img src="([^"]*)" alt="([^"]*)"(?: \/)?>\{([^}]+)\}/i',
+        function($matches) {
+            $src = $matches[1];
+            $alt = $matches[2];
+            $attributes = $matches[3];
+
+            // Parse Attribute wie width=50% height=auto
+            $styles = [];
+            if (preg_match_all('/(\w+)=([^\s}]+)/', $attributes, $attrMatches, PREG_SET_ORDER)) {
+                foreach ($attrMatches as $attr) {
+                    $key = $attr[1];
+                    $value = $attr[2];
+
+                    // Nur erlaubte CSS-Properties (Sicherheit)
+                    if (in_array($key, ['width', 'height', 'max-width', 'max-height'])) {
+                        $styles[] = htmlspecialchars($key, ENT_QUOTES, 'UTF-8') . ': ' . htmlspecialchars($value, ENT_QUOTES, 'UTF-8');
+                    }
+                }
+            }
+
+            // Bild-Tag mit Style-Attribut zurückgeben
+            if (!empty($styles)) {
+                return '<img src="' . $src . '" alt="' . $alt . '" style="' . implode('; ', $styles) . '">';
+            }
+
+            // Fallback ohne Style
+            return '<img src="' . $src . '" alt="' . $alt . '">';
+        },
+        $html
+    );
+
+    return $html;
 }

@@ -212,7 +212,7 @@ include __DIR__ . '/../templates/header.php';
             <?php if (!empty($post['hero_image'])): ?>
                 <div class="blog-post-hero">
                     <img src="<?= e($post['hero_image']) ?>"
-                         alt="<?= e($post['title']) ?>"
+                         alt="<?= e($post['hero_image_alt'] ?: $post['title']) ?>"
                          loading="lazy">
                 </div>
             <?php endif; ?>

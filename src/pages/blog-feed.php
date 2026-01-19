@@ -74,7 +74,7 @@ echo '<?xml version="1.0" encoding="UTF-8" ?>' . "\n";
                 <?php endif; ?>
 
                 <?php if (!empty($post['hero_image'])): ?>
-                <p><img src="<?= htmlspecialchars($post['hero_image']) ?>" alt="<?= htmlspecialchars($post['title']) ?>" style="max-width: 100%; height: auto; border-radius: 8px;" /></p>
+                <p><img src="<?= htmlspecialchars($post['hero_image']) ?>" alt="<?= htmlspecialchars($post['hero_image_alt'] ?: $post['title']) ?>" style="max-width: 100%; height: auto; border-radius: 8px;" /></p>
                 <?php endif; ?>
 
                 <?= markdown_to_html($post['content'], true) ?>

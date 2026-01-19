@@ -32,6 +32,7 @@ $form_data = $post ?? [
     'excerpt' => '',
     'content' => '',
     'hero_image' => '',
+    'hero_image_alt' => '',
     'author_name' => 'PC-Wittfoot Team',
     'keywords' => '',
     'category' => 'Allgemein',
@@ -54,6 +55,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             'excerpt' => sanitize($_POST['excerpt'] ?? ''),
             'content' => trim($_POST['content'] ?? ''),
             'hero_image' => sanitize($_POST['hero_image'] ?? ''),
+            'hero_image_alt' => sanitize($_POST['hero_image_alt'] ?? ''),
             'author_name' => sanitize($_POST['author_name'] ?? 'PC-Wittfoot Team'),
             'keywords' => sanitize($_POST['keywords'] ?? ''),
             'category' => sanitize($_POST['category'] ?? 'Allgemein'),
@@ -105,6 +107,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                         excerpt = :excerpt,
                         content = :content,
                         hero_image = :hero_image,
+                        hero_image_alt = :hero_image_alt,
                         author_name = :author_name,
                         keywords = :keywords,
                         category = :category,
@@ -118,6 +121,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     ':excerpt' => $form_data['excerpt'],
                     ':content' => $form_data['content'],
                     ':hero_image' => !empty($form_data['hero_image']) ? $form_data['hero_image'] : null,
+                    ':hero_image_alt' => !empty($form_data['hero_image_alt']) ? $form_data['hero_image_alt'] : null,
                     ':author_name' => $form_data['author_name'],
                     ':keywords' => !empty($form_data['keywords']) ? $form_data['keywords'] : null,
                     ':category' => $form_data['category'],
@@ -130,8 +134,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             } else {
                 // Insert
                 $db->insert("
-                    INSERT INTO blog_posts (emoji, title, slug, excerpt, content, hero_image, author_name, keywords, category, published, published_at)
-                    VALUES (:emoji, :title, :slug, :excerpt, :content, :hero_image, :author_name, :keywords, :category, :published, :published_at)
+                    INSERT INTO blog_posts (emoji, title, slug, excerpt, content, hero_image, hero_image_alt, author_name, keywords, category, published, published_at)
+                    VALUES (:emoji, :title, :slug, :excerpt, :content, :hero_image, :hero_image_alt, :author_name, :keywords, :category, :published, :published_at)
                 ", [
                     ':emoji' => $form_data['emoji'],
                     ':title' => $form_data['title'],
@@ -139,6 +143,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     ':excerpt' => $form_data['excerpt'],
                     ':content' => $form_data['content'],
                     ':hero_image' => !empty($form_data['hero_image']) ? $form_data['hero_image'] : null,
+                    ':hero_image_alt' => !empty($form_data['hero_image_alt']) ? $form_data['hero_image_alt'] : null,
                     ':author_name' => $form_data['author_name'],
                     ':keywords' => !empty($form_data['keywords']) ? $form_data['keywords'] : null,
                     ':category' => $form_data['category'],
@@ -239,6 +244,19 @@ include __DIR__ . '/../templates/header.php';
                                    placeholder="<?= UPLOADS_URL ?>/blog/hero-image.jpg"
                                    value="<?= e($form_data['hero_image'] ?? '') ?>">
                             <small class="text-muted">Tipp: Bilder in /uploads/blog/ hochladen</small>
+                        </div>
+
+                        <!-- Hero Image Alt-Text -->
+                        <div class="form-group">
+                            <label for="hero_image_alt">
+                                Hero-Bild Alt-Text <span class="text-muted">(Barrierefreiheit)</span>
+                            </label>
+                            <input type="text"
+                                   id="hero_image_alt"
+                                   name="hero_image_alt"
+                                   placeholder="Beschreibung des Hero-Bildes für Screenreader"
+                                   value="<?= e($form_data['hero_image_alt'] ?? '') ?>">
+                            <small class="text-muted">Beschreibt das Bild für sehbehinderte Nutzer</small>
                         </div>
 
                         <!-- Autor -->
@@ -388,6 +406,7 @@ include __DIR__ . '/../templates/header.php';
                                 <tr><td>Überschrift</td><td><code>## H2</code></td></tr>
                                 <tr><td>Link</td><td><code>[Text](URL)</code></td></tr>
                                 <tr><td>Bild</td><td><code>![Alt](URL)</code></td></tr>
+                                <tr><td>Bild (Größe)</td><td><code>![Alt](URL){width=50%}</code></td></tr>
                                 <tr><td>Liste</td><td><code>- Punkt</code></td></tr>
                                 <tr><td>Nummeriert</td><td><code>1. Punkt</code></td></tr>
                                 <tr><td>Code</td><td><code>`code`</code></td></tr>

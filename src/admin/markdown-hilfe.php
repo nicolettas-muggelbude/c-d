@@ -131,6 +131,8 @@ include __DIR__ . '/../templates/header.php';
 
             <!-- Bilder -->
             <h2>Bilder</h2>
+
+            <h3>Einfaches Bild</h3>
             <div class="markdown-example">
                 <div class="example-code">
                     <pre><code>![Alt-Text](<?= UPLOADS_URL ?>/blog/bild.jpg)</code></pre>
@@ -141,9 +143,28 @@ include __DIR__ . '/../templates/header.php';
                 </div>
             </div>
 
+            <h3>Bild mit Größenangabe</h3>
+            <div class="markdown-example">
+                <div class="example-code">
+                    <pre><code>![Alt-Text](<?= UPLOADS_URL ?>/blog/bild.jpg){width=50%}
+
+![Alt-Text](<?= UPLOADS_URL ?>/blog/bild.jpg){width=300px}
+
+![Alt-Text](<?= UPLOADS_URL ?>/blog/bild.jpg){width=80% max-width=600px}</code></pre>
+                </div>
+                <div class="example-result">
+                    <p class="text-muted"><strong>Erweiterte Syntax für Bildgrößen:</strong></p>
+                    <p class="text-muted">• <code>{width=50%}</code> - Breite in Prozent</p>
+                    <p class="text-muted">• <code>{width=300px}</code> - Breite in Pixeln</p>
+                    <p class="text-muted">• <code>{width=80% max-width=600px}</code> - Mehrere Angaben</p>
+                    <p class="text-muted"><small>Unterstützt: width, height, max-width, max-height</small></p>
+                </div>
+            </div>
+
             <div class="alert" style="background: var(--bg-secondary); padding: var(--space-md); border-radius: var(--border-radius-md); margin-top: var(--space-md);">
                 <strong>💡 Tipp:</strong> Lade Bilder in <code>/uploads/blog/</code> hoch und verwende dann:<br>
-                <code>![Beschreibung](<?= UPLOADS_URL ?>/blog/dateiname.jpg)</code>
+                <code>![Beschreibung](<?= UPLOADS_URL ?>/blog/dateiname.jpg)</code><br><br>
+                <strong>⚠️ Wichtig:</strong> Der Alt-Text ist wichtig für Barrierefreiheit (Screenreader)!
             </div>
 
             <hr>
@@ -290,6 +311,10 @@ Text danach</code></pre>
                         <tr>
                             <td style="padding: 8px;">Bild</td>
                             <td style="padding: 8px;"><code>![Alt](URL)</code></td>
+                        </tr>
+                        <tr>
+                            <td style="padding: 8px;">Bild (Größe)</td>
+                            <td style="padding: 8px;"><code>![Alt](URL){width=50%}</code></td>
                         </tr>
                         <tr>
                             <td style="padding: 8px;">Liste</td>
