@@ -3208,3 +3208,91 @@ WHERE template_type = 'reschedule'
 [19-Jan-2026 21:14:40 Europe/Berlin] PHP Parse error:  syntax error, unexpected token "<<" in /home/www/doc/28552/dcp285520007/pc-wittfoot.de/www/src/core/Security.php on line 217
 [19-Jan-2026 21:14:42 Europe/Berlin] PHP Parse error:  syntax error, unexpected token "<<" in /home/www/doc/28552/dcp285520007/pc-wittfoot.de/www/src/core/Security.php on line 217
 [19-Jan-2026 21:15:02 Europe/Berlin] PHP Parse error:  syntax error, unexpected token "<<" in /home/www/doc/28552/dcp285520007/pc-wittfoot.de/www/src/core/Security.php on line 217
+[19-Jan-2026 21:15:59 Europe/Berlin] Contact form: Bot detected (too fast submission)
+[19-Jan-2026 21:16:25 Europe/Berlin] Contact form: Bot detected (too fast submission)
+[19-Jan-2026 21:24:02 Europe/Berlin] DB Error: SQLSTATE[42S22]: Column not found: 1054 Unknown column 'hero_image' in 'blog_posts' | SQL: -- Migration 023: Hero Image Alt-Text für Barrierefreiheit
+-- Fügt separates Alt-Feld für Hero-Bilder hinzu
+
+ALTER TABLE blog_posts
+ADD COLUMN hero_image_alt VARCHAR(255) DEFAULT NULL COMMENT 'Alt-Text für Hero-Bild (Barrierefreiheit)' AFTER hero_image;
+
+[19-Jan-2026 21:26:03 Europe/Berlin] DB Error: SQLSTATE[42000]: Syntax error or access violation: 1064 You have an error in your SQL syntax; check the manual that corresponds to your MariaDB server version for the right syntax to use near 'UPDATE blog_posts bp
+LEFT JOIN users u ON bp.author_id = u.id
+SET bp.author_n...' at line 13 | SQL: -- Migration: Blog Markdown Features
+-- Datum: 2026-01-18
+-- Beschreibung: Fügt Emoji, Hero-Image, Author-Name und SEO Keywords zum Blog hinzu
+
+-- Neue Spalten hinzufügen
+ALTER TABLE blog_posts
+ADD COLUMN emoji VARCHAR(10) DEFAULT '📝' COMMENT 'GitHub-Style Emoji für Blog-Post' AFTER id,
+ADD COLUMN hero_image VARCHAR(255) DEFAULT NULL COMMENT 'Hero-Image URL oder Upload-Pfad' AFTER emoji,
+ADD COLUMN author_name VARCHAR(100) DEFAULT 'PC-Wittfoot Team' COMMENT 'Autor als Freitext (flexibel)' AFTER author_id,
+ADD COLUMN keywords VARCHAR(255) DEFAULT NULL COMMENT 'SEO Keywords (comma-separated)' AFTER content;
+
+-- Bestehende Posts: Author-Namen aus users-Tabelle migrieren
+UPDATE blog_posts bp
+LEFT JOIN users u ON bp.author_id = u.id
+SET bp.author_name = COALESCE(u.full_name, 'PC-Wittfoot Team')
+WHERE bp.author_id IS NOT NULL;
+
+-- Index für Keywords-Suche (optional, für Performance)
+ALTER TABLE blog_posts
+ADD INDEX idx_keywords (keywords);
+
+[19-Jan-2026 21:26:03 Europe/Berlin] DB Error: SQLSTATE[42000]: Syntax error or access violation: 1064 You have an error in your SQL syntax; check the manual that corresponds to your MariaDB server version for the right syntax to use near 'ALTER TABLE blog_posts
+ADD INDEX idx_author_name (author_name)' at line 10 | SQL: -- Migration: Blog Fulltext-Suche
+-- Datum: 2026-01-18
+-- Beschreibung: FULLTEXT-Index für schnelle Blog-Suche
+
+-- FULLTEXT-Index für bessere Suchperformance
+ALTER TABLE blog_posts
+ADD FULLTEXT INDEX idx_blog_search (title, excerpt, content, keywords);
+
+-- Index für author_name (normale Suche)
+ALTER TABLE blog_posts
+ADD INDEX idx_author_name (author_name);
+
+[19-Jan-2026 21:26:03 Europe/Berlin] DB Error: SQLSTATE[42000]: Syntax error or access violation: 1064 You have an error in your SQL syntax; check the manual that corresponds to your MariaDB server version for the right syntax to use near 'ALTER TABLE blog_posts
+ADD INDEX idx_category (category, published);
+
+-- Such...' at line 10 | SQL: -- Migration: Blog Kategorien & Such-Tracking
+-- Datum: 2026-01-18
+-- Beschreibung: Kategorien für Blog-Posts + Such-Tracking für "Häufig gesucht"
+
+-- Kategorien-Spalte für Blog-Posts
+ALTER TABLE blog_posts
+ADD COLUMN category VARCHAR(50) DEFAULT 'Allgemein' COMMENT 'Kategorie: Allgemein, Hardware, Software, Tipps, News' AFTER keywords;
+
+-- Index für Kategorie-Filter
+ALTER TABLE blog_posts
+ADD INDEX idx_category (category, published);
+
+-- Such-Tracking Tabelle
+CREATE TABLE IF NOT EXISTS blog_search_queries (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    query VARCHAR(255) NOT NULL,
+    results_count INT DEFAULT 0,
+    searched_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    INDEX idx_query (query),
+    INDEX idx_searched_at (searched_at)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- Kategorien für bestehende Posts setzen (basierend auf Keywords)
+UPDATE blog_posts
+SET category = CASE
+    WHEN keywords LIKE '%Hardware%' OR keywords LIKE '%Laptop%' OR keywords LIKE '%PC%' THEN 'Hardware'
+    WHEN keywords LIKE '%Software%' OR keywords LIKE '%Windows%' OR keywords LIKE '%Programm%' THEN 'Software'
+    WHEN keywords LIKE '%Tipp%' OR keywords LIKE '%Anleitung%' OR keywords LIKE '%Tutorial%' THEN 'Tipps'
+    WHEN keywords LIKE '%News%' OR keywords LIKE '%Neuigkeiten%' THEN 'News'
+    ELSE 'Allgemein'
+END
+WHERE published = 1;
+
+[19-Jan-2026 21:26:03 Europe/Berlin] DB Error: SQLSTATE[42S22]: Column not found: 1054 Unknown column 'hero_image' in 'blog_posts' | SQL: -- Migration 023: Hero Image Alt-Text für Barrierefreiheit
+-- Fügt separates Alt-Feld für Hero-Bilder hinzu
+
+ALTER TABLE blog_posts
+ADD COLUMN hero_image_alt VARCHAR(255) DEFAULT NULL COMMENT 'Alt-Text für Hero-Bild (Barrierefreiheit)' AFTER hero_image;
+
+[19-Jan-2026 21:28:21 Europe/Berlin] Contact form: Bot detected (too fast submission)
+[19-Jan-2026 21:28:24 Europe/Berlin] Contact form: Bot detected (too fast submission)
