@@ -23,13 +23,12 @@ $featured_products = $db->query("
 ");
 */
 
-// Neueste Blog-Posts laden
+// Neueste Blog-Posts laden (alle Felder für Thumbnails/Emojis)
 $blog_posts = $db->query("
-    SELECT bp.*, u.full_name
-    FROM blog_posts bp
-    LEFT JOIN users u ON bp.author_id = u.id
-    WHERE bp.published = 1
-    ORDER BY bp.published_at DESC
+    SELECT *
+    FROM blog_posts
+    WHERE published = 1
+    ORDER BY published_at DESC
     LIMIT 3
 ");
 
@@ -188,19 +187,30 @@ include __DIR__ . '/templates/header.php';
 
         <div class="grid grid-cols-1 grid-cols-md-3 gap-lg">
             <?php foreach ($blog_posts as $post): ?>
-                <article class="card">
+                <article class="card blog-card" data-href="<?= BASE_URL ?>/blog/<?= e($post['slug']) ?>">
+                    <!-- Thumbnail -->
+                    <?php if (!empty($post['hero_image'])): ?>
+                        <div class="blog-card-thumbnail">
+                            <img src="<?= e($post['hero_image']) ?>" alt="<?= e($post['hero_image_alt'] ?: $post['title']) ?>" loading="lazy">
+                        </div>
+                    <?php elseif (!empty($post['emoji'])): ?>
+                        <!-- Emoji als Fallback -->
+                        <div class="blog-card-emoji">
+                            <?= e($post['emoji']) ?>
+                        </div>
+                    <?php endif; ?>
+
                     <div class="card-meta">
                         <time datetime="<?= e($post['published_at']) ?>">
                             <?= format_date($post['published_at']) ?>
                         </time>
+                        <?php if (!empty($post['author_name'])): ?>
+                            <span class="text-muted">• von <?= e($post['author_name']) ?></span>
+                        <?php endif; ?>
                     </div>
 
                     <h3><?= e($post['title']) ?></h3>
                     <p><?= e($post['excerpt']) ?></p>
-
-                    <a href="<?= BASE_URL ?>/blog/<?= e($post['slug']) ?>" class="btn btn-outline btn-sm">
-                        Weiterlesen
-                    </a>
                 </article>
             <?php endforeach; ?>
         </div>
@@ -266,6 +276,32 @@ include __DIR__ . '/templates/header.php';
         </div>
     </div>
 </section>
+
+<script>
+// Blog-Cards klickbar machen (mit Keyboard-Support)
+document.querySelectorAll('.blog-card[data-href]').forEach(card => {
+    // Tastatur-Navigation ermöglichen
+    card.setAttribute('tabindex', '0');
+    card.setAttribute('role', 'link');
+    card.setAttribute('aria-label', card.querySelector('h3').textContent);
+
+    // Click-Handler
+    card.addEventListener('click', function() {
+        window.location.href = this.dataset.href;
+    });
+
+    // Keyboard-Handler (Enter und Space)
+    card.addEventListener('keydown', function(e) {
+        if (e.key === 'Enter' || e.key === ' ') {
+            e.preventDefault();
+            window.location.href = this.dataset.href;
+        }
+    });
+
+    // Visuelles Feedback (Cursor)
+    card.style.cursor = 'pointer';
+});
+</script>
 
 <!-- PRODUCTION: Produkt-Card JavaScript ausgeblendet -->
 <?php /*
