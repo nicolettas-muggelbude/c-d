@@ -291,7 +291,7 @@ include __DIR__ . '/../templates/header.php';
 
 /* Blog Section - Einheitlicher Hintergrund */
 .blog-section {
-    background: #f8f6f3;
+    background: var(--bg-primary);
 }
 
 /* Suchergebnis-Bar */
@@ -316,7 +316,7 @@ include __DIR__ . '/../templates/header.php';
 
 /* Blog Cards - Einheitliches Design */
 .blog-card {
-    background: #ffffff;
+    background: var(--color-white);
     border: 1px solid var(--border-color);
     border-radius: var(--border-radius-md);
     padding: var(--space-lg);

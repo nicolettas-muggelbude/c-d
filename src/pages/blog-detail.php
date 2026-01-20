@@ -65,12 +65,12 @@ include __DIR__ . '/../templates/header.php';
 <style>
 /* Blog-Detail Styles - Direkt eingebettet für Konsistenz */
 .blog-detail-section {
-    background: var(--bg-secondary) !important;
+    background: var(--bg-primary) !important;
     padding: 120px 0 60px 0 !important;
 }
 
 .blog-post {
-    background: var(--bg-primary);
+    background: var(--color-white);
     border-radius: 8px;
     padding: 40px;
     max-width: 800px;
@@ -185,6 +185,17 @@ include __DIR__ . '/../templates/header.php';
     .blog-post-content ol {
         padding-left: 1.5rem !important;
     }
+}
+
+/* Dark Mode */
+@media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) .blog-post {
+        background: var(--bg-secondary);
+    }
+}
+
+[data-theme="dark"] .blog-post {
+    background: var(--bg-secondary);
 }
 </style>
 
