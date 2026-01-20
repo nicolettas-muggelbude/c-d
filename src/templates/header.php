@@ -65,7 +65,7 @@
     <!-- Favicon -->
     <link rel="icon" type="image/x-icon" href="<?= asset('images/favicon.ico') ?>">
     <link rel="icon" type="image/svg+xml" href="<?= asset('images/logo-square.svg') ?>">
-    <link rel="alternate icon" type="image/png" href="<?= asset('images/favicon.png') ?>")
+    <link rel="alternate icon" type="image/png" href="<?= asset('images/favicon.png') ?>">
 
     <!-- Emoji Font (einheitliche Emojis auf allen Geräten) -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
