@@ -211,6 +211,12 @@ switch ($page) {
         } elseif ($param === 'category-edit') {
             require_admin();
             require __DIR__ . '/admin/category-edit.php';
+        } elseif ($param === 'upload-image.php' || $param === 'upload-image') {
+            require_admin();
+            require __DIR__ . '/admin/upload-image.php';
+        } elseif ($param === 'list-images.php' || $param === 'list-images') {
+            require_admin();
+            require __DIR__ . '/admin/list-images.php';
         } else {
             require_admin();
             require __DIR__ . '/admin/index.php';
