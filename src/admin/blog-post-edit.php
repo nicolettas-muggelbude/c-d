@@ -575,6 +575,7 @@ include __DIR__ . '/../templates/header.php';
     overflow: hidden;
     border: 2px solid transparent;
     transition: border-color 0.2s, transform 0.2s;
+    background: var(--bg-tertiary);
 }
 
 .gallery-item:hover {
@@ -583,9 +584,13 @@ include __DIR__ . '/../templates/header.php';
 }
 
 .gallery-item img {
+    position: absolute;
+    top: 0;
+    left: 0;
     width: 100%;
     height: 100%;
     object-fit: cover;
+    display: block;
 }
 
 .gallery-item .copy-overlay {
