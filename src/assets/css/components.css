@@ -773,7 +773,7 @@ nav a.active {
 /* Blog Detail Section */
 .blog-detail-section {
     padding: 150px 0 var(--space-xxl) 0 !important;
-    background: #f8f6f3;
+    background: var(--bg-secondary);
 }
 
 /* Blog Post */
@@ -2143,7 +2143,7 @@ nav a.active {
 /* Blog Cards (Optimiert für Emoji-Display + Thumbnails) */
 .blog-card {
     position: relative;
-    background: #ffffff;
+    background: var(--bg-primary);
     border: 1px solid var(--border-color);
     border-radius: var(--border-radius-md);
     padding: var(--space-lg);
