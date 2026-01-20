@@ -114,7 +114,7 @@
                 </button>
 
                 <!-- Navigation -->
-                <nav id="nav" role="navigation" aria-label="Hauptnavigation">
+                <nav id="nav" aria-label="Hauptnavigation">
                     <ul>
                         <li><a href="<?= BASE_URL ?>" class="<?= ($current_page ?? '') === 'home' ? 'active' : '' ?>">Start</a></li>
                         <li><a href="<?= BASE_URL ?>/leistungen" class="<?= ($current_page ?? '') === 'leistungen' ? 'active' : '' ?>">Leistungen</a></li>
@@ -151,4 +151,4 @@
     </header>
 
     <!-- Main Content -->
-    <main id="main" role="main" aria-label="Hauptinhalt der Seite">
+    <main id="main" aria-label="Hauptinhalt der Seite">
