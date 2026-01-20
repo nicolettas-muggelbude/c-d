@@ -206,6 +206,9 @@
   - favicon.png (180x180) - moderne Browser
   - logo-square.svg - beste Qualität
   - HTML-Syntaxfehler behoben (Danke Samuel Rüegger!)
+- ✅ **HTML-Validierung**
+  - Redundante ARIA-Rollen entfernt
+  - Validierungs-Warnungen behoben
 
 ### 🚧 In Arbeit
 
