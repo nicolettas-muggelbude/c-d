@@ -90,10 +90,11 @@
   - [2026-01-12](docs/session-logs/2026-01-12.md) - Kritische Bugfixes & Admin-Login
   - [2026-01-17](docs/session-logs/2026-01-17.md) - Termintyp-abhängige Kalenderanzeige
   - [2026-01-18](docs/session-logs/2026-01-18.md) - SEO, Google Maps, Blog Markdown & Suche
+  - [2026-01-20](docs/session-logs/2026-01-20.md) - Blog-Editor: Upload & Markdown Fixes
 
 ---
 
-## 🎯 Aktueller Stand (2026-01-18)
+## 🎯 Aktueller Stand (2026-01-20)
 
 ### ✅ Abgeschlossen
 
@@ -184,10 +185,31 @@
   - Schema.org BlogPosting Markup für SEO
   - Responsive Suchfeld mit Keine-Ergebnisse Hinweisen
 
+**Phase 5: Blog-Editor Fixes** (2026-01-20)
+- ✅ **Bild-Upload vollständig funktionsfähig**
+  - Router-Routen für upload-image und list-images
+  - UPLOADS_PATH korrigiert (dirname(BASE_PATH))
+  - .htaccess Regel für /uploads/ hinzugefügt
+  - Bildergalerie zeigt Thumbnails korrekt
+  - Upload speichert in /uploads/blog/
+- ✅ **Markdown-Editor Verbesserungen**
+  - Live-Vorschau funktioniert (preview-markdown Route)
+  - Zeilenumbrüche: Enter = `<br>`, doppelt = Absatz
+  - setBreaksEnabled(true) für Parsedown
+  - Listen mit Bullets (•) und Nummern (1, 2, 3)
+  - CSS list-style-type explizit gesetzt
+- ✅ **HTML5 Pattern-Validierung**
+  - Pattern-Attribut entfernt (zu strikt mit /v Flag)
+  - Server-seitige Validierung ausreichend
+- ✅ **Favicons für alle Browser**
+  - favicon.ico (16x16, 32x32, 48x48) - Chrome/Edge/IE
+  - favicon.png (180x180) - moderne Browser
+  - logo-square.svg - beste Qualität
+  - HTML-Syntaxfehler behoben (Danke Samuel Rüegger!)
+
 ### 🚧 In Arbeit
 
 - Bing Sitemap-Indexierung (eingereicht, warte auf Crawl)
-- Blog Migration 021 auf Production ausführen (FULLTEXT-Index)
 
 ### 📋 Geplant
 
@@ -378,12 +400,12 @@ Für wasserdichte Formulierungen rechtliche Beratung empfohlen!
 
 ## 🚀 Nächste Session: Prioritäten
 
-1. **Blog-Migration auf Production** (FULLTEXT-Index für Suche)
-2. **Blog lokal testen** (Suche, Markdown, RSS-Feed)
-3. **Datenschutzerklärung erstellen** (rechtlich erforderlich!)
-4. **PayPal-Integration fertigstellen** (Zahlungsabwicklung)
-5. **Cronjob für CSV-Import** (Automatisierung)
-6. **Shop für Production vorbereiten** (Phase 4)
+1. **Blog-Content erstellen** (Erste Blog-Posts mit Bildern)
+2. **Datenschutzerklärung erstellen** (rechtlich erforderlich!)
+3. **PayPal-Integration fertigstellen** (Zahlungsabwicklung)
+4. **Cronjob für CSV-Import** (Automatisierung)
+5. **Shop für Production vorbereiten** (Phase 4)
+6. **Performance-Optimierung** (Bild-Optimierung, WebP, Lazy-Loading)
 
 ---
 
