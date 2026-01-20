@@ -540,10 +540,10 @@ document.querySelectorAll('.blog-card[data-href]').forEach(card => {
     card.style.cursor = 'pointer';
 });
 
-// Search Input Focus beim Laden
+// Search Input Focus nur auf Desktop
 const searchInput = document.querySelector('input[type="search"]');
-if (searchInput && !searchInput.value) {
-    // Nur fokussieren wenn leer (nicht bei Suchergebnissen)
+if (searchInput && !searchInput.value && window.innerWidth >= 768) {
+    // Nur fokussieren wenn leer und Desktop (kein Mobile)
     const urlParams = new URLSearchParams(window.location.search);
     if (!urlParams.has('s')) {
         searchInput.focus();

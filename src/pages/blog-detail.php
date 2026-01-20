@@ -134,12 +134,22 @@ include __DIR__ . '/../templates/header.php';
 
 .blog-post-content ul,
 .blog-post-content ol {
-    margin: 0 0 1.25rem 1.5rem !important;
+    margin: 0 0 1.25rem 0 !important;
+    padding-left: 2rem !important;
     font-size: 1.125rem !important;
+}
+
+.blog-post-content ul {
+    list-style-type: disc !important;
+}
+
+.blog-post-content ol {
+    list-style-type: decimal !important;
 }
 
 .blog-post-content li {
     margin-bottom: 0.5rem !important;
+    display: list-item !important;
 }
 
 .blog-post-content code {
@@ -170,6 +180,10 @@ include __DIR__ . '/../templates/header.php';
     }
     .blog-post-content {
         font-size: 1rem !important;
+    }
+    .blog-post-content ul,
+    .blog-post-content ol {
+        padding-left: 1.5rem !important;
     }
 }
 </style>
