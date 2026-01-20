@@ -11,7 +11,7 @@
 
 .hero {
     background:
-        linear-gradient(rgba(0, 0, 0, 0.5), rgba(0, 0, 0, 0.5)),
+        linear-gradient(rgba(0, 0, 0, 0.7), rgba(0, 0, 0, 0.7)),
         url('/assets/images/shop_banner.png') center/cover no-repeat;
     padding: var(--space-3xl) 0;
     min-height: 500px;
@@ -23,14 +23,14 @@
 @media (prefers-color-scheme: dark) {
     :root:not([data-theme="light"]) .hero {
         background:
-            linear-gradient(rgba(0, 0, 0, 0.6), rgba(0, 0, 0, 0.6)),
+            linear-gradient(rgba(0, 0, 0, 0.75), rgba(0, 0, 0, 0.75)),
             url('/assets/images/shop_banner.png') center/cover no-repeat;
     }
 }
 
 [data-theme="dark"] .hero {
     background:
-        linear-gradient(rgba(0, 0, 0, 0.6), rgba(0, 0, 0, 0.6)),
+        linear-gradient(rgba(0, 0, 0, 0.75), rgba(0, 0, 0, 0.75)),
         url('/assets/images/shop_banner.png') center/cover no-repeat;
 }
 
@@ -52,6 +52,130 @@
     line-height: 1.6;
     color: white;
     text-shadow: 1px 1px 6px rgba(0, 0, 0, 0.3);
+}
+
+/* Hero Page - Kompaktere Variante für primäre Seiten (350px) */
+.hero-page {
+    min-height: 350px;
+    padding: var(--space-xxl) 0;  /* 48px statt 64px */
+}
+
+/* Mobile: Hero generell kleiner */
+@media (max-width: 768px) {
+    .hero {
+        min-height: 400px;
+        padding: var(--space-xl) 0;
+    }
+
+    .hero-page {
+        min-height: 300px;
+        padding: var(--space-lg) 0;
+    }
+
+    .hero-blog-search {
+        min-height: 360px;
+        padding: var(--space-lg) 0;
+    }
+
+    .hero-blog-search h1 {
+        font-size: 1.75rem;
+    }
+
+    .hero-blog-search .lead {
+        font-size: 1rem;
+    }
+}
+
+/* Blog Hero - Mit integrierter Suche (400px) */
+.hero-blog-search {
+    min-height: 400px;
+    padding: 2.5rem 0;
+}
+
+.hero-blog-search h1 {
+    font-size: 2.25rem;
+    margin-bottom: 1rem;
+}
+
+.hero-blog-search .lead {
+    font-size: 1.125rem;
+    margin-bottom: 1.75rem;
+}
+
+.hero-search {
+    max-width: 700px;
+    margin: 0 auto 1.25rem;
+}
+
+.hero-search-input-group {
+    display: flex;
+    gap: 0;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+}
+
+.hero-search-input-group input {
+    flex: 1;
+    padding: 1rem 1.5rem;
+    font-size: 1.125rem;
+    border: none;
+    border-radius: 50px 0 0 50px;
+    outline: none;
+    background: white;
+    color: var(--text-primary);
+}
+
+.hero-search-input-group input:focus {
+    outline: none;
+    box-shadow:
+        0 0 0 3px rgba(139, 195, 74, 0.6),
+        0 4px 12px rgba(0, 0, 0, 0.15);
+}
+
+.hero-search-input-group input::placeholder {
+    color: #757575;  /* WCAG AA konform: 4.54:1 Kontrast */
+}
+
+.hero-search-input-group button {
+    padding: 1rem 2rem;
+    border-radius: 0 50px 50px 0;
+    white-space: nowrap;
+    background: var(--color-dark);
+    color: white;
+    border: none;
+    font-size: 1.125rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.hero-search-input-group button:hover {
+    background: #34495E;
+}
+
+.hero-stats {
+    display: flex;
+    gap: 1.5rem;
+    justify-content: center;
+    font-size: 0.9rem;
+    opacity: 0.95;
+    flex-wrap: wrap;
+    color: white;
+}
+
+@media (max-width: 768px) {
+    .hero-search-input-group {
+        flex-direction: column;
+    }
+
+    .hero-search-input-group input,
+    .hero-search-input-group button {
+        border-radius: 50px;
+    }
+
+    .hero-stats {
+        font-size: 0.8rem;
+        gap: 1rem;
+    }
 }
 
 /* ============================================= */
@@ -192,6 +316,25 @@
     gap: var(--space-md);
     justify-content: center;
     flex-wrap: wrap;
+}
+
+/* Hero Button Styles */
+.btn-outline-white {
+    background: rgba(0, 0, 0, 0.3);
+    color: white;
+    border: 2px solid white;
+    backdrop-filter: blur(4px);
+}
+
+.btn-outline-white:hover {
+    background: rgba(0, 0, 0, 0.6);
+    color: white;
+}
+
+/* Hero-Buttons mit Schatten */
+.hero .btn-primary,
+.hero .btn-warning {
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
 }
 
 /* ============================================= */

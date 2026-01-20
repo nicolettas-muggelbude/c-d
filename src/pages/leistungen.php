@@ -12,20 +12,21 @@ $current_page = 'leistungen';
 include __DIR__ . '/../templates/header.php';
 ?>
 
+<!-- Hero Section -->
+<section class="hero hero-page" aria-label="Leistungen Übersicht">
+    <div class="container">
+        <div class="hero-content">
+            <h1>Unsere Leistungen</h1>
+            <p class="lead">
+                Als IT-Fachbetrieb bieten wir umfassende Dienstleistungen rund um Computer, Notebooks, Tablets und Smartphones.
+                Von der Beratung über den Verkauf bis zur Reparatur - alles aus einer Hand.
+            </p>
+        </div>
+    </div>
+</section>
+
 <section class="section">
     <div class="container">
-        <!-- Header-Bild für SEO (Platzhalter - später durch Werkstatt/Service-Foto ersetzen) -->
-        <div style="text-align: center; margin-bottom: var(--space-xl);">
-            <img src="<?= asset('images/logo-square.svg') ?>"
-                 alt="PC-Wittfoot IT-Dienstleistungen - Reparatur, Beratung, Hardware-Verkauf in Oldenburg"
-                 style="width: 150px; height: auto;">
-        </div>
-
-        <h1>Unsere Leistungen</h1>
-        <p class="lead">
-            Als IT-Fachbetrieb bieten wir umfassende Dienstleistungen rund um Computer, Notebooks, Tablets und Smartphones.
-            Von der Beratung über den Verkauf bis zur Reparatur - alles aus einer Hand.
-        </p>
 
         <!-- Hauptleistungen -->
         <div class="services-grid">

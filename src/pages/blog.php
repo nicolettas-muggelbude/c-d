@@ -93,41 +93,55 @@ $current_page = 'blog';
 include __DIR__ . '/../templates/header.php';
 ?>
 
-<section class="section blog-section">
+<!-- Hero Section mit Suche -->
+<section class="hero hero-blog-search" aria-label="Blog durchsuchen">
     <div class="container">
-        <div class="blog-header">
-            <h1>Blog & Wissensdatenbank</h1>
+        <div class="hero-content">
+            <h1>💡 Blog & Wissensdatenbank</h1>
             <p class="lead">
                 IT-Tipps, Neuigkeiten und Wissenswertes rund um Computer, Hardware und Software.
             </p>
-        </div>
 
-        <!-- Suchfeld -->
-        <div class="blog-search-box">
-            <form method="get" action="<?= BASE_URL ?>/blog" class="blog-search-form">
-                <div class="search-input-group">
-                    <input type="search"
-                           name="s"
-                           placeholder="Durchsuchen Sie unsere Wissensdatenbank..."
-                           value="<?= e($search_query) ?>"
-                           aria-label="Blog durchsuchen"
-                           autocomplete="off">
-                    <button type="submit" class="btn btn-primary">
-                        🔍 Suchen
-                    </button>
-                </div>
-                <?php if ($is_search): ?>
-                    <div class="search-info">
-                        <span class="search-results-count">
-                            <?= $total_count ?> Ergebnis<?= $total_count !== 1 ? 'se' : '' ?> für "<?= e($search_query) ?>"
-                        </span>
-                        <a href="<?= BASE_URL ?>/blog" class="btn btn-sm btn-outline">
-                            ✕ Suche zurücksetzen
-                        </a>
+            <!-- Suchfeld direkt im Hero -->
+            <div class="hero-search">
+                <form method="get" action="<?= BASE_URL ?>/blog">
+                    <div class="hero-search-input-group">
+                        <input type="search"
+                               name="s"
+                               placeholder="Durchsuchen Sie unsere Wissensdatenbank..."
+                               value="<?= e($search_query) ?>"
+                               aria-label="Blog durchsuchen"
+                               autocomplete="off">
+                        <button type="submit">
+                            🔍 Suchen
+                        </button>
                     </div>
-                <?php endif; ?>
-            </form>
+                </form>
+            </div>
+
+            <!-- Stats -->
+            <div class="hero-stats">
+                <span><span aria-hidden="true">📝</span> <?= $total_count ?> Beiträge</span>
+                <span><span aria-hidden="true">🏷️</span> <?= count($category_counts) ?> Kategorien</span>
+                <span><span aria-hidden="true">💡</span> Regelmäßig aktualisiert</span>
+            </div>
         </div>
+    </div>
+</section>
+
+<section class="section blog-section">
+    <div class="container">
+        <!-- Suchergebnis-Info -->
+        <?php if ($is_search): ?>
+            <div class="search-results-bar">
+                <span class="search-results-count">
+                    <?= $total_count ?> Ergebnis<?= $total_count !== 1 ? 'se' : '' ?> für "<?= e($search_query) ?>"
+                </span>
+                <a href="<?= BASE_URL ?>/blog" class="btn btn-sm btn-outline">
+                    ✕ Suche zurücksetzen
+                </a>
+            </div>
+        <?php endif; ?>
 
         <?php if (empty($posts)): ?>
             <?php if ($is_search): ?>
@@ -280,74 +294,16 @@ include __DIR__ . '/../templates/header.php';
     background: #f8f6f3;
 }
 
-.blog-header {
-    text-align: center;
-    margin-bottom: var(--space-xl);
-    padding-bottom: var(--space-lg);
-    border-bottom: 1px solid var(--border-color);
-}
-
-.blog-header h1 {
-    font-size: 2.25rem;
-    margin-bottom: var(--space-sm);
-}
-
-.blog-header .lead {
-    font-size: 1.125rem;
-    color: var(--text-muted);
-    max-width: 600px;
-    margin: 0 auto;
-}
-
-/* Suchbox - Dezenter, passend zum Design */
-.blog-search-box {
-    background: var(--bg-secondary);
-    padding: var(--space-lg);
-    border-radius: var(--border-radius-md);
-    margin-bottom: var(--space-xl);
-    border: 1px solid var(--border-color);
-    max-width: 700px;
-    margin-left: auto;
-    margin-right: auto;
-}
-
-.blog-search-form {
-    width: 100%;
-}
-
-.search-input-group {
-    display: flex;
-    gap: var(--space-sm);
-}
-
-.search-input-group input[type="search"] {
-    flex: 1;
-    padding: var(--space-sm) var(--space-md);
-    font-size: 1rem;
-    border: 1px solid var(--border-color);
-    border-radius: var(--border-radius-md);
-    background: #ffffff;
-    transition: border-color 0.2s, box-shadow 0.2s;
-}
-
-.search-input-group input[type="search"]:focus {
-    outline: none;
-    border-color: var(--color-primary);
-    box-shadow: 0 0 0 3px rgba(139, 195, 74, 0.15);
-}
-
-.search-input-group button {
-    white-space: nowrap;
-    padding: var(--space-sm) var(--space-lg);
-}
-
-.search-info {
+/* Suchergebnis-Bar */
+.search-results-bar {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    margin-top: var(--space-md);
-    padding-top: var(--space-md);
-    border-top: 1px solid var(--border-color);
+    margin-bottom: var(--space-xl);
+    padding: var(--space-md) var(--space-lg);
+    background: var(--bg-secondary);
+    border: 1px solid var(--border-color);
+    border-radius: var(--border-radius-md);
     flex-wrap: wrap;
     gap: var(--space-sm);
 }
@@ -449,29 +405,10 @@ include __DIR__ . '/../templates/header.php';
 
 /* Mobile Optimierung */
 @media (max-width: 768px) {
-    .blog-header h1 {
-        font-size: 1.75rem;
-    }
-
-    .blog-header .lead {
-        font-size: 1rem;
-    }
-
-    .blog-search-box {
-        padding: var(--space-md);
-    }
-
-    .search-input-group {
-        flex-direction: column;
-    }
-
-    .search-input-group button {
-        width: 100%;
-    }
-
-    .search-info {
+    .search-results-bar {
         flex-direction: column;
         align-items: flex-start;
+        padding: var(--space-md);
     }
 
     .blog-card h3 {
@@ -489,12 +426,8 @@ include __DIR__ . '/../templates/header.php';
         background: var(--bg-secondary);
     }
 
-    :root:not([data-theme="light"]) .blog-search-box {
+    :root:not([data-theme="light"]) .search-results-bar {
         background: var(--bg-tertiary);
-    }
-
-    :root:not([data-theme="light"]) .search-input-group input[type="search"] {
-        background: var(--bg-secondary);
     }
 }
 
@@ -506,12 +439,8 @@ include __DIR__ . '/../templates/header.php';
     background: var(--bg-secondary);
 }
 
-[data-theme="dark"] .blog-search-box {
+[data-theme="dark"] .search-results-bar {
     background: var(--bg-tertiary);
-}
-
-[data-theme="dark"] .search-input-group input[type="search"] {
-    background: var(--bg-secondary);
 }
 </style>
 
@@ -541,7 +470,7 @@ document.querySelectorAll('.blog-card[data-href]').forEach(card => {
 });
 
 // Search Input Focus nur auf Desktop
-const searchInput = document.querySelector('input[type="search"]');
+const searchInput = document.querySelector('.hero-search input[type="search"]');
 if (searchInput && !searchInput.value && window.innerWidth >= 768) {
     // Nur fokussieren wenn leer und Desktop (kein Mobile)
     const urlParams = new URLSearchParams(window.location.search);
