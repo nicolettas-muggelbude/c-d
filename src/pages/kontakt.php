@@ -110,19 +110,29 @@ $current_page = 'kontakt';
 include __DIR__ . '/../templates/header.php';
 ?>
 
+<!-- Hero Section -->
+<section class="hero hero-page" aria-label="Kontakt">
+    <div class="container">
+        <div class="hero-content">
+            <h1>Kontakt</h1>
+            <p class="lead">
+                Besuchen Sie uns im Systemhäuschen oder vereinbaren Sie einen Termin.
+                Wir freuen uns auf Sie!
+            </p>
+            <div class="btn-group">
+                <a href="#kontaktformular" class="btn btn-warning btn-lg">
+                    Nachricht senden
+                </a>
+                <a href="<?= BASE_URL ?>/termin" class="btn btn-outline-white btn-lg">
+                    Termin buchen
+                </a>
+            </div>
+        </div>
+    </div>
+</section>
+
 <section class="section">
     <div class="container">
-        <!-- Header-Bild für SEO - Außenansicht Melkbrink 61 -->
-        <div style="text-align: center; margin-bottom: var(--space-xl);">
-            <img src="<?= asset('images/pc-wittfoot-kontakt.png') ?>"
-                 alt="PC-Wittfoot Ladengeschäft Außenansicht - Melkbrink 61, 26121 Oldenburg"
-                 style="width: 100%; max-width: 500px; height: auto; border-radius: var(--border-radius-md);">
-        </div>
-
-        <h1>Kontakt</h1>
-        <p class="lead">
-            Sie haben Fragen oder möchten einen Termin vereinbaren? Wir sind für Sie da!
-        </p>
 
         <?php if ($success): ?>
             <!-- Erfolgsmeldung -->
@@ -190,7 +200,7 @@ include __DIR__ . '/../templates/header.php';
                 </div>
 
                 <!-- Kontaktformular -->
-                <div class="contact-form">
+                <div class="contact-form" id="kontaktformular">
                     <div class="card">
                         <h2>Nachricht senden</h2>
 

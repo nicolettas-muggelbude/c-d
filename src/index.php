@@ -54,7 +54,7 @@ include __DIR__ . '/templates/header.php';
 ?>
 
 <!-- Hero-Section -->
-<section class="hero">
+<section class="hero" aria-label="Willkommensbereich">
     <div class="container">
         <div class="hero-content">
             <h1>IT-Lösungen mit Herz</h1>
