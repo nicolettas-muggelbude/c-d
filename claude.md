@@ -403,12 +403,13 @@ Für wasserdichte Formulierungen rechtliche Beratung empfohlen!
 
 ## 🚀 Nächste Session: Prioritäten
 
-1. **Blog-Content erstellen** (Erste Blog-Posts mit Bildern)
-2. **Datenschutzerklärung erstellen** (rechtlich erforderlich!)
-3. **PayPal-Integration fertigstellen** (Zahlungsabwicklung)
-4. **Cronjob für CSV-Import** (Automatisierung)
-5. **Shop für Production vorbereiten** (Phase 4)
-6. **Performance-Optimierung** (Bild-Optimierung, WebP, Lazy-Loading)
+1. **Blog-Header Dark-Mode Fix** (Blog-Header soll im Dark-Mode die gleiche Background-Color wie Blog-Content haben)
+2. **Blog-Content erstellen** (Erste Blog-Posts mit Bildern)
+3. **Datenschutzerklärung erstellen** (rechtlich erforderlich!)
+4. **PayPal-Integration fertigstellen** (Zahlungsabwicklung)
+5. **Cronjob für CSV-Import** (Automatisierung)
+6. **Shop für Production vorbereiten** (Phase 4)
+7. **Performance-Optimierung** (Bild-Optimierung, WebP, Lazy-Loading)
 
 ---
 
