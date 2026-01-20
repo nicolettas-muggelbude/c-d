@@ -116,7 +116,13 @@ switch ($page) {
     // ========================================
 
     case 'blog':
-        if ($param) {
+        if ($param === 'feed.xml') {
+            // RSS Feed: /blog/feed.xml
+            require __DIR__ . '/pages/blog-feed.php';
+        } elseif ($param === 'sitemap.xml') {
+            // XML Sitemap: /blog/sitemap.xml
+            require __DIR__ . '/pages/blog-sitemap.php';
+        } elseif ($param) {
             // Blog-Post: /blog/windows-11-upgrade-tipps
             $_GET['slug'] = $param;
             require __DIR__ . '/pages/blog-detail.php';
@@ -150,6 +156,12 @@ switch ($page) {
         } elseif ($param === 'blog-post-edit') {
             require_admin();
             require __DIR__ . '/admin/blog-post-edit.php';
+        } elseif ($param === 'markdown-hilfe') {
+            require_admin();
+            require __DIR__ . '/admin/markdown-hilfe.php';
+        } elseif ($param === 'preview-markdown') {
+            require_admin();
+            require __DIR__ . '/admin/preview-markdown.php';
         } elseif ($param === 'booking-settings') {
             require_admin();
             require __DIR__ . '/admin/booking-settings.php';

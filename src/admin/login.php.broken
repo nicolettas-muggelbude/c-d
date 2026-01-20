@@ -1,0 +1,182 @@
+<?php
+/**
+ * Admin-Login
+ */
+
+require_once __DIR__ . '/../core/config.php';
+start_session_safe();
+
+// Bereits eingeloggt? -> zum Dashboard
+if (is_admin()) {
+error_log("[FORM-LOAD] Session-ID: " . session_id() . ", CSRF Token: " . ($_SESSION["csrf_token"] ?? "NOT SET"));
+    redirect(BASE_URL . '/admin');
+}
+
+$error = '';
+$security = new Security();
+
+// Login-Verarbeitung
+if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+    $email = sanitize($_POST['email'] ?? '');
+    $password = $_POST['password'] ?? '';
+    $csrf_token = $_POST['csrf_token'] ?? '';
+
+    // CSRF-Check
+    if (!csrf_verify($csrf_token)) {
+        error_log("[CSRF-FAIL] Submitted: " . $csrf_token . ", Session: " . ($_SESSION["csrf_token"] ?? "NOT SET") . ", Session-ID: " . session_id());
+        $error = 'Ungültiger Sicherheitstoken.';
+    } elseif (empty($email) || empty($password)) {
+        $error = 'Bitte E-Mail und Passwort eingeben.';
+    } else {
+        // Rate-Limiting prüfen (IP-basiert)
+        // TEMP DISABLED: $rateLimitIP = $security->checkRateLimit($security->getClientIP(), 'ip');
+
+// TEMP DISABLED:         if (!$rateLimitIP['allowed']) {
+// TEMP DISABLED:             $error = $rateLimitIP['message'];
+// TEMP DISABLED:         } else {
+            // User aus DB laden
+            $db = Database::getInstance();
+            $user = $db->querySingle("
+                SELECT * FROM users
+                WHERE email = :email AND role = 'admin'
+            ", [':email' => $email]);
+
+            if ($user && verify_password($password, $user['password_hash'])) {
+                // Login-Versuch protokollieren (ERFOLG)
+            error_log("[LOGIN-DEBUG] User found: " . ($user ? "YES (ID: " . $user["id"] . ")" : "NO") . ", Email: " . $email);
+            if ($user) error_log("[LOGIN-DEBUG] Password check: verify_password result for user " . $user["id"]);
+                // TEMP DISABLED: $security->logLoginAttempt($email, true);
+
+                // Session regenerieren (gegen Session Fixation)
+                $security->regenerateSession();
+
+                // Prüfe, ob 2FA aktiviert ist
+                $twofa = $db->querySingle("
+                    SELECT * FROM user_2fa
+                    WHERE user_id = :user_id AND enabled = TRUE
+                ", [':user_id' => $user['id']]);
+
+                if ($twofa) {
+                    // Prüfe, ob Gerät vertrauenswürdig ist
+                    $trustedDevice = DeviceFingerprint::isTrusted($user['id']);
+
+                    if ($trustedDevice) {
+                        // Vertrauenswürdiges Gerät - 2FA überspringen
+                        $_SESSION['user_id'] = $user['id'];
+                        $_SESSION['user_role'] = $user['role'];
+                        $_SESSION['user_name'] = $user['full_name'] ?? $user['username'];
+                        $_SESSION['is_admin'] = ($user['role'] === 'admin');
+
+                        // Last-used aktualisieren
+                        DeviceFingerprint::updateLastUsed($user['id']);
+
+                        // Audit-Log
+                        $security->logAudit('admin_login_trusted_device', 'user', $user['id']);
+
+                        redirect(BASE_URL . '/admin');
+                    } else {
+                        // 2FA ist aktiviert - weiter zur 2FA-Verifizierung
+                        $_SESSION['2fa_pending'] = true;
+                        $_SESSION['2fa_user_id'] = $user['id'];
+
+                        // Audit-Log (Passwort erfolgreich, 2FA ausstehend)
+                        $security->logAudit('admin_login_password', 'user', $user['id']);
+
+                        redirect(BASE_URL . '/admin/2fa-verify');
+                    }
+                } else {
+                    // Kein 2FA - Login direkt abschließen
+                    $_SESSION['user_id'] = $user['id'];
+                    $_SESSION['user_role'] = $user['role'];
+                    $_SESSION['user_name'] = $user['full_name'] ?? $user['username'];
+                    $_SESSION['is_admin'] = ($user['role'] === 'admin');
+
+                    // Audit-Log
+                    $security->logAudit('admin_login', 'user', $user['id']);
+
+                    redirect(BASE_URL . '/admin');
+                }
+            } else {
+                // Login-Versuch protokollieren (FEHLER)
+                // TEMP DISABLED: $security->logLoginAttempt($email, false);
+
+                $remainingAttempts = $rateLimitIP['remaining'] - 1;
+                if ($remainingAttempts > 0) {
+                    $error = sprintf(
+                        'Ungültige Anmeldedaten. Noch %d Versuch(e) übrig.',
+                        $remainingAttempts
+                    );
+                } else {
+                    $error = 'Ungültige Anmeldedaten. Zu viele Fehlversuche - Account vorübergehend gesperrt.';
+                }
+            }
+        }
+    }
+}
+
+$page_title = 'Admin-Login | PC-Wittfoot UG';
+$page_description = 'Admin-Bereich Login';
+$current_page = '';
+
+include __DIR__ . '/../templates/header.php';
+?>
+
+<section class="section">
+    <div class="container">
+        <div class="row justify-center">
+            <div class="col-12 col-md-6 col-lg-4">
+                <div class="card">
+                    <h1 class="text-center mb-lg">Admin-Login</h1>
+
+                    <?php if ($error): ?>
+                        <div class="alert alert-error mb-lg">
+                            <?= e($error) ?>
+                        </div>
+                    <?php endif; ?>
+
+                    <?php if ($flash_error = get_flash('error')): ?>
+                        <div class="alert alert-error mb-lg">
+                            <?= e($flash_error) ?>
+                        </div>
+                    <?php endif; ?>
+
+                    <form method="post" action="">
+                        <input type="hidden" name="csrf_token" value="<?= csrf_token() ?>">
+
+                        <div class="form-group">
+                            <label for="email">E-Mail</label>
+                            <input type="email"
+                                   id="email"
+                                   name="email"
+                                   value="<?= e($_POST['email'] ?? '') ?>"
+                                   required
+                                   autofocus>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="password">Passwort</label>
+                            <input type="password"
+                                   id="password"
+                                   name="password"
+                                   required>
+                        </div>
+
+                        <button type="submit" class="btn btn-primary btn-block btn-lg">
+                            Anmelden
+                        </button>
+                    </form>
+
+                    <hr style="margin: var(--space-lg) 0;">
+
+                    <div class="text-center">
+                        <a href="<?= BASE_URL ?>/admin/forgot-password" class="text-muted" style="font-size: 0.9em;">
+                            Passwort vergessen?
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<?php include __DIR__ . '/../templates/footer.php'; ?>

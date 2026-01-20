@@ -11,27 +11,42 @@
     <!-- Open Graph / Facebook / LinkedIn -->
     <?php
     // Dynamisches OG-Image je Seite
-    $og_image = $page_og_image ?? 'og-image.png';
-    $og_image_url = 'https://pc-wittfoot.de/assets/images/' . $og_image;
+    if (isset($page_og_image_url)) {
+        // Direkte URL (z.B. für Hero-Images)
+        $og_image_url = $page_og_image_url;
+    } else {
+        // Relativer Pfad zu assets/images/
+        $og_image = $page_og_image ?? 'og-image.png';
+        $og_image_url = 'https://pc-wittfoot.de/assets/images/' . $og_image;
+    }
     $og_image_alt = $page_og_image_alt ?? 'PC-Wittfoot UG - IT-Fachbetrieb mit Herz';
+    $og_type = $page_og_type ?? 'website';
     ?>
-    <meta property="og:type" content="website">
+    <meta property="og:type" content="<?= $og_type ?>">
     <meta property="og:url" content="<?= e($page_url ?? 'https://pc-wittfoot.de' . $_SERVER['REQUEST_URI']) ?>">
     <meta property="og:title" content="<?= e($page_title ?? 'PC-Wittfoot UG - IT-Fachbetrieb mit Herz') ?>">
     <meta property="og:description" content="<?= e($page_description ?? 'IT-Fachbetrieb in Oldenburg. Beratung, Verkauf, Reparatur & Softwareentwicklung. Refurbished Hardware & exone Neugeräte. Persönlicher Service mit Kaffee!') ?>">
     <meta property="og:image" content="<?= $og_image_url ?>">
     <meta property="og:image:secure_url" content="<?= $og_image_url ?>">
-    <meta property="og:image:type" content="image/png">
+    <meta property="og:image:type" content="<?= strpos($og_image_url, '.jpg') !== false ? 'image/jpeg' : 'image/png' ?>">
     <meta property="og:image:width" content="1200">
     <meta property="og:image:height" content="630">
     <meta property="og:image:alt" content="<?= e($og_image_alt) ?>">
     <meta property="og:locale" content="de_DE">
     <meta property="og:site_name" content="PC-Wittfoot UG">
-    <!-- fb:app_id optional - nicht erforderlich für OG-Funktionalität -->
-    <!-- Für Facebook Analytics: https://developers.facebook.com/apps/ -->
-    <meta property="article:published_time" content="<?= e($page_published ?? '2026-01-11T00:00:00+01:00') ?>">
+
+    <?php if ($og_type === 'article'): ?>
+    <!-- Article-spezifische Meta-Tags -->
+    <meta property="article:published_time" content="<?= e($page_published ?? date('c')) ?>">
     <meta property="article:modified_time" content="<?= e($page_modified ?? date('c')) ?>">
-    <meta property="article:author" content="PC-Wittfoot UG">
+    <meta property="article:author" content="<?= e($page_author ?? 'PC-Wittfoot UG') ?>">
+    <meta property="article:section" content="IT-Tipps & News">
+    <?php if (!empty($page_keywords)): ?>
+    <?php foreach (explode(',', $page_keywords) as $tag): ?>
+    <meta property="article:tag" content="<?= e(trim($tag)) ?>">
+    <?php endforeach; ?>
+    <?php endif; ?>
+    <?php endif; ?>
 
     <!-- Twitter / X -->
     <meta name="twitter:card" content="summary_large_image">
@@ -43,6 +58,9 @@
 
     <!-- Canonical URL -->
     <link rel="canonical" href="<?= e($page_url ?? 'https://pc-wittfoot.de' . $_SERVER['REQUEST_URI']) ?>">
+
+    <!-- RSS Feed Discovery -->
+    <link rel="alternate" type="application/rss+xml" title="PC-Wittfoot Blog RSS Feed" href="https://pc-wittfoot.de/blog/feed.xml">
 
     <!-- Favicon -->
     <link rel="icon" type="image/svg+xml" href="<?= asset('images/logo-square.svg') ?>">

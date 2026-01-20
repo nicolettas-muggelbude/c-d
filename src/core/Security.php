@@ -214,8 +214,15 @@ class Security {
         // Referrer-Policy
         header('Referrer-Policy: strict-origin-when-cross-origin');
 
-        // Content Security Policy (Basis)
-        header("Content-Security-Policy: default-src 'self'; script-src 'self' 'unsafe-inline' https://cdnjs.cloudflare.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; img-src 'self' data: https://chart.googleapis.com; font-src 'self' https://fonts.gstatic.com; frame-src https://www.google.com;");
+        // Content Security Policy
+        // In Entwicklung: localhost HTTP erlauben für Uploads
+        // In Produktion: Nur HTTPS
+        $imgSrc = "'self' data: https://chart.googleapis.com";
+        if (!PRODUCTION_MODE) {
+            $imgSrc .= " http://localhost:8000";
+        }
+
+        header("Content-Security-Policy: default-src 'self'; script-src 'self' 'unsafe-inline' https://cdnjs.cloudflare.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; img-src {$imgSrc}; font-src 'self' https://fonts.gstatic.com; frame-src https://www.google.com;");
 
         // HTTPS in Produktion erzwingen
         if (!empty($_SERVER['HTTPS']) || ($_SERVER['SERVER_PORT'] ?? 80) == 443) {

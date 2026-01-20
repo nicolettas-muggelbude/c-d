@@ -109,7 +109,7 @@ function truncate($text, $length = 100, $suffix = '...') {
 function asset($path) {
     $url = ASSETS_URL . '/' . ltrim($path, '/');
     // Cache-Busting: Version-Parameter hinzufügen
-    $version = '43'; // Bei CSS-Änderungen erhöhen
+    $version = '45'; // Bei CSS-Änderungen erhöhen (Blog Card Thumbnails)
     return $url . '?v=' . $version;
 }
 
@@ -306,4 +306,63 @@ function paginate($totalItems, $perPage, $currentPage = 1) {
         'has_prev' => $currentPage > 1,
         'has_next' => $currentPage < $totalPages
     ];
+}
+
+/**
+ * Markdown zu HTML konvertieren (mit Parsedown)
+ *
+ * @param string $markdown Markdown-Text
+ * @param bool $safeMode XSS-Schutz aktivieren (empfohlen für User-Input)
+ * @return string HTML-Output
+ */
+function markdown_to_html($markdown, $safeMode = true) {
+    static $parsedown = null;
+
+    // Parsedown lazy laden (nur einmal pro Request)
+    if ($parsedown === null) {
+        require_once __DIR__ . '/../lib/Parsedown.php';
+        $parsedown = new Parsedown();
+    }
+
+    // Safe Mode für XSS-Schutz
+    $parsedown->setSafeMode($safeMode);
+
+    // Markdown zu HTML
+    $html = $parsedown->text($markdown);
+
+    // Post-Processing: Erweiterte Bild-Syntax für Größenangaben
+    // Syntax: ![alt](url){width=50% height=auto}
+    $html = preg_replace_callback(
+        '/<img src="([^"]*)" alt="([^"]*)"(?: \/)?>\{([^}]+)\}/i',
+        function($matches) {
+            $src = $matches[1];
+            $alt = $matches[2];
+            $attributes = $matches[3];
+
+            // Parse Attribute wie width=50% height=auto
+            $styles = [];
+            if (preg_match_all('/(\w+)=([^\s}]+)/', $attributes, $attrMatches, PREG_SET_ORDER)) {
+                foreach ($attrMatches as $attr) {
+                    $key = $attr[1];
+                    $value = $attr[2];
+
+                    // Nur erlaubte CSS-Properties (Sicherheit)
+                    if (in_array($key, ['width', 'height', 'max-width', 'max-height'])) {
+                        $styles[] = htmlspecialchars($key, ENT_QUOTES, 'UTF-8') . ': ' . htmlspecialchars($value, ENT_QUOTES, 'UTF-8');
+                    }
+                }
+            }
+
+            // Bild-Tag mit Style-Attribut zurückgeben
+            if (!empty($styles)) {
+                return '<img src="' . $src . '" alt="' . $alt . '" style="' . implode('; ', $styles) . '">';
+            }
+
+            // Fallback ohne Style
+            return '<img src="' . $src . '" alt="' . $alt . '">';
+        },
+        $html
+    );
+
+    return $html;
 }
