@@ -65,24 +65,24 @@ include __DIR__ . '/../templates/header.php';
 <style>
 /* Blog-Detail Styles - Direkt eingebettet für Konsistenz */
 .blog-detail-section {
-    background: #f8f6f3 !important;
+    background: var(--bg-secondary) !important;
     padding: 120px 0 60px 0 !important;
 }
 
 .blog-post {
-    background: #ffffff;
+    background: var(--bg-primary);
     border-radius: 8px;
     padding: 40px;
     max-width: 800px;
     margin: 0 auto;
-    box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+    box-shadow: var(--shadow-sm);
 }
 
 .blog-post-header {
     text-align: center;
     margin-bottom: 24px;
     padding-bottom: 16px;
-    border-bottom: 1px solid #e0e0e0;
+    border-bottom: 1px solid var(--border-color);
 }
 
 .blog-post-header h1 {
@@ -98,7 +98,7 @@ include __DIR__ . '/../templates/header.php';
 
 .blog-post-meta {
     font-size: 1rem;
-    color: #666;
+    color: var(--text-secondary);
     margin-top: 8px;
     padding-left: 16px;
 }
@@ -115,7 +115,7 @@ include __DIR__ . '/../templates/header.php';
 .blog-post-content {
     font-size: 1.125rem !important;
     line-height: 1.8 !important;
-    color: #333 !important;
+    color: var(--text-primary) !important;
 }
 
 .blog-post-content h2 {
@@ -144,7 +144,7 @@ include __DIR__ . '/../templates/header.php';
 
 .blog-post-content code {
     font-size: 1rem !important;
-    background: #f5f5f5;
+    background: var(--bg-tertiary);
     padding: 2px 6px;
     border-radius: 4px;
 }
