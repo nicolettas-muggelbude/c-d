@@ -159,7 +159,7 @@ switch ($page) {
         } elseif ($param === 'markdown-hilfe') {
             require_admin();
             require __DIR__ . '/admin/markdown-hilfe.php';
-        } elseif ($param === 'preview-markdown') {
+        } elseif ($param === 'preview-markdown.php' || $param === 'preview-markdown') {
             require_admin();
             require __DIR__ . '/admin/preview-markdown.php';
         } elseif ($param === 'booking-settings') {

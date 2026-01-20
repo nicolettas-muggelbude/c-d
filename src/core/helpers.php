@@ -322,6 +322,8 @@ function markdown_to_html($markdown, $safeMode = true) {
     if ($parsedown === null) {
         require_once __DIR__ . '/../lib/Parsedown.php';
         $parsedown = new Parsedown();
+        // Zeilenumbrüche aktivieren (Enter = <br>)
+        $parsedown->setBreaksEnabled(true);
     }
 
     // Safe Mode für XSS-Schutz
