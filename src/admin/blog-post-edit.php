@@ -226,7 +226,7 @@ include __DIR__ . '/../templates/header.php';
                                    id="slug"
                                    name="slug"
                                    value="<?= e($form_data['slug']) ?>"
-                                   pattern="[-a-z0-9]+"
+                                   pattern="[a-z0-9-]+"
                                    required>
                             <small class="text-muted">
                                 URL: <?= BASE_URL ?>/blog/<span id="slug-preview"><?= e($form_data['slug'] ?: 'slug') ?></span>
