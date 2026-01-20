@@ -110,36 +110,58 @@
 .hero-search-input-group {
     display: flex;
     gap: 0;
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+    border-radius: 50px;
+    overflow: hidden;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
 }
 
 .hero-search-input-group input {
     flex: 1;
-    padding: 1rem 1.5rem;
+    padding: 1.125rem 1.75rem;
     font-size: 1.125rem;
     border: none;
-    border-radius: 50px 0 0 50px;
+    border-radius: 0;
     outline: none;
     background: white;
-    color: var(--text-primary);
+    color: #2C3E50;  /* Fest definiert statt var */
 }
 
-.hero-search-input-group input:focus {
-    outline: none;
+.hero-search-input-group:focus-within {
     box-shadow:
-        0 0 0 3px rgba(139, 195, 74, 0.6),
-        0 4px 12px rgba(0, 0, 0, 0.15);
+        0 0 0 3px rgba(255, 255, 255, 0.5),
+        0 4px 16px rgba(0, 0, 0, 0.3);
 }
 
 .hero-search-input-group input::placeholder {
     color: #757575;  /* WCAG AA konform: 4.54:1 Kontrast */
 }
 
+/* Dark Mode: Input bleibt hell mit dunklem Text */
+@media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) .hero-search-input-group input {
+        background: #f5f5f5;  /* Leicht grau statt weiß */
+        color: #2C3E50;       /* Dunkler Text */
+    }
+
+    :root:not([data-theme="light"]) .hero-search-input-group input::placeholder {
+        color: #666;  /* Dunkler Placeholder */
+    }
+}
+
+[data-theme="dark"] .hero-search-input-group input {
+    background: #f5f5f5;
+    color: #2C3E50;
+}
+
+[data-theme="dark"] .hero-search-input-group input::placeholder {
+    color: #666;
+}
+
 .hero-search-input-group button {
-    padding: 1rem 2rem;
-    border-radius: 0 50px 50px 0;
+    padding: 1.125rem 2rem;
+    border-radius: 0;
     white-space: nowrap;
-    background: var(--color-dark);
+    background: #2C3E50;  /* Fest definiert statt var(--color-dark) */
     color: white;
     border: none;
     font-size: 1.125rem;
@@ -150,6 +172,27 @@
 
 .hero-search-input-group button:hover {
     background: #34495E;
+}
+
+/* Dark Mode: Button bleibt dunkel für Kontrast */
+@media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) .hero-search-input-group button {
+        background: #1a252f;  /* Noch dunkler im Dark Mode */
+        color: white;
+    }
+
+    :root:not([data-theme="light"]) .hero-search-input-group button:hover {
+        background: #2C3E50;
+    }
+}
+
+[data-theme="dark"] .hero-search-input-group button {
+    background: #1a252f;
+    color: white;
+}
+
+[data-theme="dark"] .hero-search-input-group button:hover {
+    background: #2C3E50;
 }
 
 .hero-stats {
@@ -165,11 +208,25 @@
 @media (max-width: 768px) {
     .hero-search-input-group {
         flex-direction: column;
+        gap: 0.75rem;
+        border-radius: 0;
+        box-shadow: none;
     }
 
     .hero-search-input-group input,
     .hero-search-input-group button {
         border-radius: 50px;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+    }
+
+    .hero-search-input-group:focus-within {
+        box-shadow: none;
+    }
+
+    .hero-search-input-group input:focus {
+        box-shadow:
+            0 0 0 3px rgba(255, 255, 255, 0.5),
+            0 2px 8px rgba(0, 0, 0, 0.2);
     }
 
     .hero-stats {
