@@ -18,6 +18,7 @@ $stats = [
     'products' => $db->querySingle("SELECT COUNT(*) as count FROM products WHERE is_active = 1")['count'] ?? 0,
     'categories' => $db->querySingle("SELECT COUNT(*) as count FROM categories WHERE is_active = 1")['count'] ?? 0,
     'blog_posts' => $db->querySingle("SELECT COUNT(*) as count FROM blog_posts WHERE published = 1")['count'] ?? 0,
+    'downloads' => $db->querySingle("SELECT COUNT(*) as count FROM downloads WHERE is_active = 1")['count'] ?? 0,
     'bookings_total' => $db->querySingle("SELECT COUNT(*) as count FROM bookings")['count'] ?? 0,
     'bookings_pending' => $db->querySingle("SELECT COUNT(*) as count FROM bookings WHERE status = 'pending'")['count'] ?? 0,
 ];
@@ -67,6 +68,12 @@ include __DIR__ . '/../templates/header.php';
             </div>
 
             <div class="card text-center">
+                <div class="card-icon">📥</div>
+                <h3><?= $stats['downloads'] ?></h3>
+                <p class="text-muted">Downloads</p>
+            </div>
+
+            <div class="card text-center">
                 <div class="card-icon">📅</div>
                 <h3><?= $stats['bookings_total'] ?></h3>
                 <p class="text-muted">Termine gesamt</p>
@@ -86,6 +93,10 @@ include __DIR__ . '/../templates/header.php';
             <div class="grid grid-cols-1 grid-cols-md-2 gap-md">
                 <a href="<?= BASE_URL ?>/admin/blog-posts" class="btn btn-outline btn-block">
                     📝 Blog-Posts verwalten
+                </a>
+
+                <a href="<?= BASE_URL ?>/admin/downloads" class="btn btn-outline btn-block">
+                    📥 Downloads verwalten
                 </a>
 
                 <a href="<?= BASE_URL ?>/admin/products" class="btn btn-outline btn-block">

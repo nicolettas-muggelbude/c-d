@@ -121,6 +121,7 @@
                         <!-- PRODUCTION: Shop ausgeblendet, wird später aktiviert -->
                         <!-- <li><a href="<?= BASE_URL ?>/shop" class="<?= ($current_page ?? '') === 'shop' ? 'active' : '' ?>">Shop</a></li> -->
                         <li><a href="<?= BASE_URL ?>/blog" class="<?= ($current_page ?? '') === 'blog' ? 'active' : '' ?>">Blog</a></li>
+                        <li><a href="<?= BASE_URL ?>/downloads" class="<?= ($current_page ?? '') === 'downloads' ? 'active' : '' ?>">Downloads</a></li>
                         <li><a href="<?= BASE_URL ?>/termin" class="<?= ($current_page ?? '') === 'termin' ? 'active' : '' ?>">Termin buchen</a></li>
                         <li><a href="<?= BASE_URL ?>/kontakt" class="<?= ($current_page ?? '') === 'kontakt' ? 'active' : '' ?>">Kontakt</a></li>
                     </ul>

@@ -73,6 +73,19 @@ function format_datetime($datetime, $format = 'd.m.Y H:i') {
 }
 
 /**
+ * Dateigröße formatieren (Bytes zu KB/MB/GB)
+ */
+function format_file_size($bytes) {
+    if ($bytes <= 0) return '0 B';
+
+    $units = ['B', 'KB', 'MB', 'GB', 'TB'];
+    $base = log($bytes, 1024);
+    $index = floor($base);
+
+    return round(pow(1024, $base - floor($base)), 1) . ' ' . $units[$index];
+}
+
+/**
  * Slug aus String erstellen
  */
 function create_slug($string) {

@@ -43,6 +43,14 @@
   - Produktdetailseite mit Galerie
   - Warenkorb & Bestellabwicklung
 
+- **Downloads-System** (2026-01-28)
+  - Öffentliche Download-Seite mit Kategorie-Filter
+  - Admin-Verwaltung (CRUD)
+  - Download-API mit Counter
+  - SSH-basierter Upload-Workflow
+  - Automatische Dateigröße & MIME-Type Erkennung
+  - Sicherheit: Directory Traversal Prevention
+
 ### Integrationen
 - **[06 - HelloCash Integration](docs/06-hellocash-integration.md)**
   - API-Integration
@@ -91,10 +99,11 @@
   - [2026-01-17](docs/session-logs/2026-01-17.md) - Termintyp-abhängige Kalenderanzeige
   - [2026-01-18](docs/session-logs/2026-01-18.md) - SEO, Google Maps, Blog Markdown & Suche
   - [2026-01-20](docs/session-logs/2026-01-20.md) - Blog-Editor: Upload & Markdown Fixes
+  - [2026-01-28](docs/session-logs/2026-01-28.md) - Downloads-System vollständig implementiert
 
 ---
 
-## 🎯 Aktueller Stand (2026-01-20)
+## 🎯 Aktueller Stand (2026-01-28)
 
 ### ✅ Abgeschlossen
 
@@ -209,6 +218,46 @@
 - ✅ **HTML-Validierung**
   - Redundante ARIA-Rollen entfernt
   - Validierungs-Warnungen behoben
+
+**Phase 6: Downloads-System** (2026-01-28)
+- ✅ **Download-Verwaltung vollständig implementiert**
+  - Öffentliche Download-Seite (`/downloads`)
+  - Kategorie-Filter (Tools, Treiber, Dokumentation, Updates, Sonstiges)
+  - Admin-Verwaltung (`/admin/downloads`, `/admin/download-edit`)
+  - Download-API mit Counter (`/api/download/{slug}`)
+  - Router-Integration (öffentlich + admin + API)
+  - Navigation erweitert (neuer Menüpunkt)
+- ✅ **Datenbank-Struktur**
+  - Tabelle `downloads` mit allen Metadaten
+  - Felder: title, slug, description, version, category, filename, file_size, file_type
+  - Download-Counter, Sort-Order, Active-Status
+- ✅ **Admin-Features**
+  - CRUD-Operationen (Erstellen, Bearbeiten, Löschen, Aktivieren/Deaktivieren)
+  - Automatische Slug-Generierung aus Titel
+  - Datei-Existenz-Prüfung in Echtzeit
+  - Automatische Erkennung von Dateigröße & MIME-Type
+  - Statistiken im Dashboard (Gesamt, Aktiv, Total Downloads)
+  - Mobile + Desktop Ansichten (Cards + Tabelle)
+- ✅ **Download-API**
+  - Sicherer Datei-Download mit Counter
+  - Directory Traversal Prevention (Sicherheit)
+  - Korrekte Content-Disposition Headers
+  - MIME-Type Detection
+  - Dateiname aus Titel generiert (SEO-freundlich)
+  - Cache-Control Headers
+- ✅ **Helper-Funktionen**
+  - `format_file_size()` - formatiert Bytes zu KB/MB/GB
+- ✅ **Upload-Workflow**
+  - Dateien werden per SSH hochgeladen nach `/uploads/downloads/`
+  - Admin erstellt DB-Eintrag mit Dateiname
+  - System prüft Existenz & liest Metadaten aus
+  - Download ist sofort verfügbar
+- ✅ **Design & UX**
+  - Hero-Section mit Statistiken
+  - Download-Liste im Card-Design
+  - Responsive (Desktop + Mobile)
+  - Dark-Mode kompatibel
+  - Einheitliches Design wie Blog & Shop
 
 ### 🚧 In Arbeit
 
@@ -405,10 +454,11 @@ Für wasserdichte Formulierungen rechtliche Beratung empfohlen!
 
 1. **Blog-Content erstellen** (Erste Blog-Posts mit Bildern)
 2. **Datenschutzerklärung erstellen** (rechtlich erforderlich!)
-3. **PayPal-Integration fertigstellen** (Zahlungsabwicklung)
-4. **Cronjob für CSV-Import** (Automatisierung)
-5. **Shop für Production vorbereiten** (Phase 4)
-6. **Performance-Optimierung** (Bild-Optimierung, WebP, Lazy-Loading)
+3. **Downloads befüllen** (Erste Tools & Dokumentation hochladen)
+4. **PayPal-Integration fertigstellen** (Zahlungsabwicklung)
+5. **Cronjob für CSV-Import** (Automatisierung)
+6. **Shop für Production vorbereiten** (Phase 4)
+7. **Performance-Optimierung** (Bild-Optimierung, WebP, Lazy-Loading)
 
 ---
 
@@ -427,6 +477,7 @@ Detaillierte Entwicklungs-Logs wurden in separate Dateien ausgelagert:
 - **[2026-01-04](docs/session-logs/2026-01-04.md)** - Terminbuchungs-System vollständig implementiert
 - **[2026-01-05](docs/session-logs/2026-01-05.md)** - WCAG 2.1 Level AA Compliance & Phase 1 Abschluss
 - **[2026-01-11](docs/session-logs/2026-01-11.md)** - Production Deployment & Performance-Optimierung
+- **[2026-01-28](docs/session-logs/2026-01-28.md)** - Downloads-System vollständig implementiert
 
 ---
 
@@ -1121,5 +1172,186 @@ c73fb6a Fix: Doppelte Domain in OG-Image URL entfernt
 3. **Whitelist für Wartungsmodus beachten** - Monitoring-Endpoints müssen auch im Wartungsmodus funktionieren
 4. **URL-Helpers verstehen** - `asset()` gibt bereits vollständige URLs zurück
 5. **Git-Workflow dokumentieren** - Vermeidet zukünftige Verwirrung
+
+---
+
+## 🔧 Session 2026-01-28: Downloads-System implementiert
+
+### Implementierte Features
+
+**1. Download-Seite & Navigation**
+- Öffentliche Download-Seite unter `/downloads`
+- Hero-Section mit Statistiken (Gesamt, Kategorien, Kostenlos)
+- Kategorie-Filter (Tools, Treiber, Dokumentation, Updates, Sonstiges)
+- Download-Liste im Card-Design (Icon, Titel, Version, Beschreibung, Größe, Counter)
+- Responsive Layout (Desktop + Mobile)
+- Dark-Mode kompatibel
+- Navigation erweitert (neuer Menüpunkt zwischen Blog und Termin buchen)
+
+**2. Admin-Verwaltung**
+- **Übersichtsseite** (`/admin/downloads`):
+  - Tabelle mit allen Downloads (Desktop) + Cards (Mobile)
+  - Statistiken (Gesamt, Aktiv, Total Downloads)
+  - Aktivieren/Deaktivieren per Klick
+  - Löschen-Funktion (nur DB, Datei muss per SSH gelöscht werden)
+  - Datei-Existenz-Prüfung (⚠️ Warnung wenn fehlt)
+  - Sortierung nach `sort_order` und Erstellungsdatum
+- **Bearbeiten/Erstellen** (`/admin/download-edit`):
+  - Titel, Slug (automatisch generiert), Beschreibung, Version
+  - Kategorie-Auswahl (5 Kategorien mit Icons)
+  - Dateiname-Eingabe mit Echtzeit-Prüfung
+  - Automatische Erkennung von Dateigröße & MIME-Type
+  - Sortierreihenfolge (niedrigere Werte zuerst)
+  - Active-Status Toggle
+  - Statistiken (Downloads, Erstellt, Aktualisiert)
+  - CSRF-Schutz & Validierung
+- **Dashboard-Integration**:
+  - Statistik-Karte für aktive Downloads
+  - Button "📥 Downloads verwalten"
+
+**3. Download-API mit Counter**
+- **Endpoint:** `/api/download/{slug}`
+- **Features:**
+  - Slug-basierter Zugriff
+  - Automatischer Download-Counter (DB-Update)
+  - Sicherheit: Directory Traversal Prevention
+  - Datei-Existenz-Prüfung
+  - Korrekte HTTP-Headers:
+    - Content-Type (MIME-Type Detection)
+    - Content-Disposition (attachment mit SEO-freundlichem Dateinamen)
+    - Content-Length
+    - Cache-Control & Expires
+  - Output-Buffering aus für große Dateien
+  - Error-Logging bei Anomalien
+
+**4. Datenbank-Schema**
+```sql
+CREATE TABLE downloads (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    title VARCHAR(255) NOT NULL,
+    slug VARCHAR(255) UNIQUE NOT NULL,
+    description TEXT,
+    version VARCHAR(50) NULL,
+    category ENUM('tools', 'drivers', 'documentation', 'updates', 'other'),
+    filename VARCHAR(255) NOT NULL,
+    file_size BIGINT NULL,
+    file_type VARCHAR(50) NULL,
+    download_count INT DEFAULT 0,
+    is_active BOOLEAN DEFAULT 1,
+    sort_order INT DEFAULT 0,
+    created_at TIMESTAMP,
+    updated_at TIMESTAMP,
+    INDEX idx_slug, idx_active, idx_category, idx_sort
+);
+```
+
+**5. Helper-Funktionen**
+- `format_file_size($bytes)` - formatiert Bytes zu KB/MB/GB
+  - Beispiel: `15932416` → `15.2 MB`
+
+### Workflow
+
+**Datei-Upload per SSH:**
+```bash
+# 1. Datei hochladen
+scp datei.exe user@server:/pfad/zu/c-d/uploads/downloads/
+
+# 2. Im Admin Download-Eintrag erstellen
+# 3. Dateiname eingeben (z.B. datei.exe)
+# 4. System prüft Existenz automatisch
+# 5. Speichern → Download ist verfügbar
+```
+
+**Download-Prozess:**
+```
+1. User klickt auf /downloads
+2. Sieht alle verfügbaren Downloads (gefiltert nach Kategorie)
+3. Klickt "Download" Button
+4. API-Call: /api/download/{slug}
+5. Counter wird erhöht (+1)
+6. Datei wird mit korrekten Headers ausgeliefert
+7. Browser startet Download mit SEO-freundlichem Dateinamen
+```
+
+### Technische Details
+
+**Router-Integration:**
+- Öffentliche Route: `/downloads` → `src/pages/downloads.php`
+- Admin-Routen:
+  - `/admin/downloads` → `src/admin/downloads.php`
+  - `/admin/download-edit` → `src/admin/download-edit.php`
+- API-Route: `/api/download/{slug}` → `src/api/download.php`
+
+**Sicherheit:**
+- Directory Traversal Prevention (`basename()` Check)
+- Nur aktive Downloads öffentlich zugänglich
+- CSRF-Token für Admin-Aktionen
+- Slug-Eindeutigkeit geprüft
+- SQL Prepared Statements
+
+**Design-Konsistenz:**
+- Gleiche Farbpalette wie Blog & Shop
+- Hero-Section wie auf anderen Seiten
+- Card-Design konsistent
+- Mobile-First Ansatz
+- Dark-Mode voll unterstützt
+
+### Dateien
+
+**Erstellt:**
+- `/database/create-downloads.sql` - Datenbank-Migration
+- `/src/pages/downloads.php` - Öffentliche Download-Seite
+- `/src/admin/downloads.php` - Admin-Übersicht
+- `/src/admin/download-edit.php` - Admin-Editor
+- `/src/api/download.php` - Download-API mit Counter
+- `/uploads/downloads/` - Upload-Verzeichnis
+- `/uploads/downloads/test-datei.txt` - Test-Datei
+
+**Geändert:**
+- `/src/router.php` - Routen für Downloads, Admin & API
+- `/src/templates/header.php` - Navigation erweitert
+- `/src/core/helpers.php` - `format_file_size()` hinzugefügt
+- `/src/admin/index.php` - Dashboard-Integration
+
+### Testing
+
+✅ **Öffentliche Seite:**
+- Download-Liste lädt korrekt
+- Kategorie-Filter funktioniert
+- Responsive Design (Mobile + Desktop)
+- Dark-Mode aktiviert
+
+✅ **Admin-Bereich:**
+- CRUD-Operationen funktionieren
+- Datei-Existenz-Prüfung zeigt Warnungen
+- Slug-Generierung automatisch
+- Validierung greift
+
+✅ **Download-API:**
+- Counter erhöht sich bei jedem Download
+- Datei wird korrekt ausgeliefert
+- Sicherheits-Checks greifen
+- SEO-freundliche Dateinamen
+
+### Commits
+```
+<werden noch erstellt>
+```
+
+### Nächste Schritte
+
+**Empfohlene Erweiterungen:**
+1. Admin: Bulk-Upload per FTP + automatische DB-Eintrag-Erstellung
+2. Admin: Download-Statistiken (pro Tag/Monat)
+3. Public: Download-Historie für eingeloggte User
+4. Public: Bewertungs-System für Downloads
+5. API: Rate-Limiting für Downloads
+
+**Production-Deployment:**
+1. Datenbank-Migration einspielen
+2. Upload-Verzeichnis erstellen
+3. Code deployen (Git Pull)
+4. Menü-Cache leeren (falls vorhanden)
+5. Testen: Download-Funktionalität & Counter
 
 ---

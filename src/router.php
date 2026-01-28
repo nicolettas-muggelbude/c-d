@@ -133,6 +133,14 @@ switch ($page) {
         break;
 
     // ========================================
+    // DOWNLOADS
+    // ========================================
+
+    case 'downloads':
+        require __DIR__ . '/pages/downloads.php';
+        break;
+
+    // ========================================
     // ADMIN
     // ========================================
 
@@ -229,6 +237,12 @@ switch ($page) {
         } elseif ($param === 'list-images.php' || $param === 'list-images') {
             require_admin();
             require __DIR__ . '/admin/list-images.php';
+        } elseif ($param === 'downloads') {
+            require_admin();
+            require __DIR__ . '/admin/downloads.php';
+        } elseif ($param === 'download-edit') {
+            require_admin();
+            require __DIR__ . '/admin/download-edit.php';
         } else {
             require_admin();
             require __DIR__ . '/admin/index.php';
@@ -240,6 +254,22 @@ switch ($page) {
     // ========================================
 
     case 'api':
+        // Download-API: Kein JSON-Header, da Datei ausgeliefert wird
+        if ($param === 'download') {
+            // Slug aus drittem Teil: /api/download/backup-tool-pro
+            $slug = $parts[2] ?? null;
+            if ($slug) {
+                $_GET['slug'] = $slug;
+                require __DIR__ . '/api/download.php';
+            } else {
+                http_response_code(404);
+                header('Content-Type: application/json; charset=UTF-8');
+                echo json_encode(['error' => 'Kein Download-Slug angegeben']);
+            }
+            break;
+        }
+
+        // Alle anderen APIs: JSON-Header
         header('Content-Type: application/json; charset=UTF-8');
 
         switch ($param) {
