@@ -83,6 +83,14 @@
         <priority>0.7</priority>
     </url>
 
+    <!-- Downloads -->
+    <url>
+        <loc>https://pc-wittfoot.de/downloads</loc>
+        <lastmod>2026-01-28</lastmod>
+        <changefreq>weekly</changefreq>
+        <priority>0.7</priority>
+    </url>
+
     <!-- Kontakt -->
     <url>
         <loc>https://pc-wittfoot.de/kontakt</loc>

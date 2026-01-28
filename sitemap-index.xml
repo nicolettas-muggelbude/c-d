@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<sitemapindex xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+
+    <!-- Haupt-Sitemap (statische Seiten) -->
+    <sitemap>
+        <loc>https://pc-wittfoot.de/sitemap.xml</loc>
+        <lastmod>2026-01-28</lastmod>
+    </sitemap>
+
+    <!-- Blog-Sitemap (dynamisch generiert) -->
+    <sitemap>
+        <loc>https://pc-wittfoot.de/blog/sitemap.xml</loc>
+        <lastmod>2026-01-18</lastmod>
+    </sitemap>
+
+</sitemapindex>
